@@ -1,0 +1,4 @@
+export enum ENV_OPERATION {
+    ADD_REPLACE = 'ADD_REPLACE',
+    REMOVE = 'REMOVE'
+}
