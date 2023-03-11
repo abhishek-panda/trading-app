@@ -10,7 +10,9 @@ import * as GlobalTypings from '../../typings';
 /**
  * Settings
  */
-const envFilePath = path.join(__dirname, '..', '..', '..' ,'.env');
+const rootPath = path.join(__dirname, '..', '..', '..');
+const envFilePath = path.join(rootPath ,'.env');
+const publicDirPath = path.join(rootPath, 'public');
 
 const whiteListedIps = [
     '52.89.214.238',
@@ -59,8 +61,7 @@ function routeGuard(req: Request, res: Response, next: NextFunction) {
     if (whiteListedEndpoints.includes(apiPath)) {
        return next();
     }
-
-    res.sendStatus(400);    
+    res.status(404).sendFile(path.join(publicDirPath, 'error.html'));
 }
 // End Middleware
 
@@ -90,7 +91,7 @@ AlgoTradingRouter.get('/validate', async (req: Request, res: Response, next: Nex
         }
         return res.sendStatus(200);
     }
-    res.sendStatus(400);
+    res.status(404).sendFile(path.join(publicDirPath, 'error.html'));
 });
 
 AlgoTradingRouter.post('/signal', (req: Request, res: Response) => {

@@ -15,7 +15,9 @@ const app = express();
 /**
  * Settings
  */
-const envFilePath = path.join(__dirname,'..','.env');
+const rootPath = path.join(__dirname,'..');
+const envFilePath = path.join(rootPath,'.env');
+const publicDirPath = path.join(rootPath, 'public');
 dotenv.config({ path: envFilePath });
 const PORT = process.env.PORT || 2179;
 app.disable('x-powered-by');
@@ -49,7 +51,7 @@ app.use('/api', AlgoTradingRouter);
 // Block all other unwanted routes
 app.use(function (req: Request, res: Response) {
     logger.info(`Invalid request. Path: ${req.path} Headers: ${JSON.stringify(req.headers)}`);
-    res.sendStatus(400);
+    res.status(404).sendFile(path.join(publicDirPath, 'error.html'));
 });
 
 // End Middleware
