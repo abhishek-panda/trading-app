@@ -40,7 +40,7 @@ AlgoTradingRouter.use(routeGuard);
 function routeGuard(req: Request, res: Response, next: NextFunction) {
     // use req.headers['x-forwarded-for'] or req.headers['cf-connecting-ip']
     const apiPath = req.path;
-    const remoteAddress = req.headers['x-forwarded-for'];
+    const remoteAddress = req.headers['cf-connecting-ip'];
     const referer = req.headers.referer ?? '';
 
     /*
