@@ -2,6 +2,7 @@ import * as Utils from './../utils';
 import * as Typings from './../typings';
 import * as Kite from './../kite';
 import * as GlobalUtils from '../../../utils';
+import logger from '../logger';
 
 
 /**
@@ -67,16 +68,31 @@ export default async function followTrendStrategy(signal: Typings.Signal, ticker
                 trigger_price: 0,
             }
 
-            const marginDetails = await Kite.getMargin();
-            console.log("margin", marginDetails);
+            let userAvailableMargin = 0;
+            let basketMarginRequired = 0;
+            const [userMargin, basketMargin] = await Promise.all([
+                Kite.getMargin(),
+                Kite.getBasketMargin([hedgeBasketOrder, positionalBasketOrder]) // Basket order item are important to reduce margin price
+            ]);
+            
+            if (!(userMargin instanceof Error) && userMargin?.available) {
+                userAvailableMargin = userMargin?.available?.live_balance ?? 0;
+            }
+            if (!(basketMargin instanceof Error) && basketMargin?.initial) {
+                basketMarginRequired = basketMargin?.initial?.total ?? 0;
+            }
 
-            strategyOrder = {
-                ticker: signal.ticker,
-                title: signal.title,
-                transaction: transactionType,
-                orders: [hedgeBasketOrder, positionalBasketOrder],
-                timeFrame: signal.timeFrame
-            };
+            if (userAvailableMargin > basketMarginRequired) {
+                strategyOrder = {
+                    ticker: signal.ticker,
+                    title: signal.title,
+                    transaction: transactionType,
+                    orders: [hedgeBasketOrder, positionalBasketOrder], // Basket order item are important to reduce margin price
+                    timeFrame: signal.timeFrame
+                };
+            } else {
+                logger.info("Insufficient margin available");
+            }
         }
        
     }
