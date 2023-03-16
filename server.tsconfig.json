@@ -9,6 +9,6 @@
         "frontend",
         "webpack.*",
         "public",
-        "dist"
+        "build"
     ]
 }

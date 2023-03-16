@@ -10,6 +10,6 @@
         "server",
         "webpack.*",
         "public",
-        "dist"
+        "build"
     ]
 }
