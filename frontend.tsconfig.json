@@ -8,6 +8,8 @@
     },
     "exclude" : [
         "server",
-        "webpack.*"
+        "webpack.*",
+        "public",
+        "dist"
     ]
 }

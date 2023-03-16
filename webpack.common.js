@@ -22,7 +22,9 @@ const config = {
 				},
 				exclude: [
 					/node_modules/,
-					/server/
+					/server/,
+					/build/,
+					/public/
 				],
 			},
 			{
@@ -30,7 +32,9 @@ const config = {
 				use: [MiniCssExtractPlugin.loader, "css-loader"],
 				exclude: [
 					/node_modules/,
-					/server/
+					/server/,
+					/build/,
+					/public/
 				],
 			},
 			{
@@ -38,7 +42,9 @@ const config = {
 				loader: 'handlebars-loader',
 				exclude: [
 					/node_modules/,
-					/server/
+					/server/,
+					/build/,
+					/public/
 				],
 			},
 			{
