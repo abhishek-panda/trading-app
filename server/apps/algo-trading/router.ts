@@ -61,7 +61,7 @@ function routeGuard(req: Request, res: Response, next: NextFunction) {
     if (whiteListedEndpoints.includes(apiPath)) {
        return next();
     }
-    res.status(404).sendFile(path.join(publicDirPath, 'error.html'));
+    res.status(404).sendFile(path.join(publicDirPath, 'index.html'));
 }
 // End Middleware
 
@@ -91,7 +91,7 @@ AlgoTradingRouter.get('/validate', async (req: Request, res: Response, next: Nex
         }
         return res.sendStatus(200);
     }
-    res.status(404).sendFile(path.join(publicDirPath, 'error.html'));
+    res.status(404).sendFile(path.join(publicDirPath, 'index.html'));
 });
 
 AlgoTradingRouter.post('/signal', (req: Request, res: Response) => {
