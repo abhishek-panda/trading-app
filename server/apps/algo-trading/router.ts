@@ -1,10 +1,10 @@
 import express, { Request, Response, NextFunction } from 'express';
 import * as path from 'path';
 import logger from './logger';
-import * as Kite from './kite';
 import { TradeEvent } from './tradings'
 import * as GlobalUtils from '../../utils';
 import * as GlobalTypings from '../../typings';
+const Kite =  require('./kite');
 
 
 /**

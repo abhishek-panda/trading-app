@@ -1,6 +1,5 @@
-import Kite from 'kiteconnect';
-import logger from './logger';
-
+const Kite = require('kiteconnect');
+const logger = require('./logger');
 
 function connectKite() {
     const options = {
@@ -11,7 +10,7 @@ function connectKite() {
 }
 
 
-export function getAccessToken (request_token) {
+function getAccessToken (request_token) {
     const kiteConnection = connectKite();
     const secret = process.env.API_SECRET;
     return kiteConnection.generateSession(request_token, secret)
@@ -26,7 +25,7 @@ export function getAccessToken (request_token) {
 }
 
 
-export function getProfile () {
+function getProfile () {
     const kiteConnection = connectKite();
     kiteConnection.setAccessToken(process.env.ACCESS_TOKEN);
     return kiteConnection.getProfile()
@@ -39,7 +38,7 @@ export function getProfile () {
 }
 
 
-export function getMargin (segment = "equity") {
+function getMargin (segment = "equity") {
     const kiteConnection = connectKite();
     kiteConnection.setAccessToken(process.env.ACCESS_TOKEN);
     return kiteConnection.getMargins(segment)
@@ -51,7 +50,7 @@ export function getMargin (segment = "equity") {
 		});
 }
 
-export function getInstruments(exchange =  'NSE') {
+function getInstruments(exchange =  'NSE') {
     const kiteConnection = connectKite();
     kiteConnection.setAccessToken(process.env.ACCESS_TOKEN);
 	return kiteConnection.getInstruments(exchange).then(function(response) {
@@ -62,7 +61,7 @@ export function getInstruments(exchange =  'NSE') {
         })
 }
 
-export function getQuote(instruments = []) {
+function getQuote(instruments = []) {
     const kiteConnection = connectKite();
     kiteConnection.setAccessToken(process.env.ACCESS_TOKEN);
 	return kiteConnection.getQuote(instruments).then(function(response) {
@@ -73,7 +72,7 @@ export function getQuote(instruments = []) {
         })
 }
 
-export function getBasketMargin(basketOrders = []) {
+function getBasketMargin(basketOrders = []) {
     const kiteConnection = connectKite();
     kiteConnection.setAccessToken(process.env.ACCESS_TOKEN);
     return kiteConnection.orderBasketMargins(basketOrders, true, "compact").then(function (response) {
@@ -84,7 +83,7 @@ export function getBasketMargin(basketOrders = []) {
         });
 }
 
-export function placeOrder(variety, order) {
+function placeOrder(variety, order) {
     const kiteConnection = connectKite();
     kiteConnection.setAccessToken(process.env.ACCESS_TOKEN);
     logger.info(`Placing order. ${JSON.stringify(order)}`);
@@ -97,4 +96,14 @@ export function placeOrder(variety, order) {
 }
 
 
+
+module.exports = {
+    getAccessToken,
+    getProfile,
+    getMargin,
+    getInstruments,
+    getQuote,
+    getBasketMargin,
+    placeOrder
+};
 // ticker.on('order_update', onTrade);

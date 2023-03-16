@@ -1,9 +1,9 @@
 import * as Utils from './../utils';
 import * as Typings from './../typings';
-import * as Kite from './../kite';
+//import * as Kite from './../kite';
 import * as GlobalUtils from '../../../utils';
 import logger from '../logger';
-
+const Kite =  require('./../kite');
 
 /**
  * This strategy is variation of forwarded bull-put spread or forwarded bear-call spread depending on the current trend.
