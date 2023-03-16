@@ -7,8 +7,8 @@
     "start:dev": "npx nodemon",
     "tsc": "tsc",
     "build": "rimraf ./build && tsc",
-    "start": "npm run build && pm2 start build/server.js --cron-restart='0 30 8 * * *'",
-    "stop": "pm2 stop server && pm2 delete server"
+    "start": "npm run build && pm2 start build/server/main.js --cron-restart='0 30 8 * * *'",
+    "stop": "pm2 stop main && pm2 delete main"
   },
   "author": "",
   "license": "ISC",
