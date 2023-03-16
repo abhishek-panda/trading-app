@@ -4,10 +4,11 @@
   "description": "",
   "main": "server.ts",
   "scripts": {
-    "start:dev": "npx nodemon",
-    "tsc": "tsc",
-    "build": "rimraf ./build && tsc",
-    "start": "npm run build && pm2 start build/server/main.js --cron-restart='0 30 8 * * *'",
+    "dev:server": "npx nodemon",
+    "dev:frontend": "webpack serve --config webpack.dev.js",
+    "build:server": "rimraf ./build && tsc --p server.tsconfig.json",
+    "build:frontend" : "webpack --config webpack.prod.js",
+    "start": "npm run build:frontend && npm run build:server && pm2 start build/main.js --cron-restart='0 30 8 * * *'",
     "stop": "pm2 stop main && pm2 delete main"
   },
   "author": "",
@@ -23,17 +24,34 @@
     "node-schedule": "^2.1.1",
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.3.12",
-    "winston": "^3.8.2"
+    "winston": "^3.8.2",
+    "handlebars": "^4.7.7",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router": "^6.9.0",
+    "react-router-dom": "^6.9.0"
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.2",
     "@types/express": "^4.17.17",
     "@types/jsonfile": "^6.1.1",
-    "@types/node": "^18.14.1",
+    "@types/node": "^18.15.3",
     "@types/node-schedule": "^2.1.0",
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "css-loader": "^6.7.3",
+    "handlebars-loader": "^1.7.3",
+    "html-webpack-plugin": "^5.5.0",
+    "mini-css-extract-plugin": "^2.7.3",
+    "style-loader": "^3.3.2",
     "nodemon": "^2.0.20",
     "rimraf": "^4.1.2",
     "ts-node": "^10.9.1",
-    "typescript": "^4.9.5"
+    "typescript": "^4.9.5",
+    "webpack": "^5.76.1",
+    "webpack-bundle-analyzer": "^4.8.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.12.0",
+    "webpack-merge": "^5.8.0"
   }
 }

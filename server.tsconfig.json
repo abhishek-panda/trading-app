@@ -1,0 +1,12 @@
+{
+    "extends": "./base.tsconfig",
+    "compilerOptions" : {
+        "rootDir": "server",
+        "outDir": "build",
+        "module": "CommonJS"
+    },
+    "exclude" : [
+        "frontend",
+        "webpack.*"
+    ]
+}

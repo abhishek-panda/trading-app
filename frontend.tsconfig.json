@@ -1,0 +1,13 @@
+{
+    "extends": "./base.tsconfig",
+    "compilerOptions" : {
+        "rootDir": "frontend",
+        "outDir": "public",
+        "module": "ES6",
+        "jsx": "react"
+    },
+    "exclude" : [
+        "server",
+        "webpack.*"
+    ]
+}
