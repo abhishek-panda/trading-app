@@ -1,7 +1,10 @@
 import * as fs from 'fs'; 
+import path from 'path';
 import { format } from "winston";
 import * as Typings from './typings';
+import { Response } from 'express';
 
+const publicDirPath = path.join(__dirname, '..', 'public');
 
 const { printf } = format;
 
@@ -64,4 +67,8 @@ export function addRemoveEnv (filePath: string, operation: Typings.ENV_OPERATION
         }
         fs.writeFileSync(filePath, newConfigurations);
     });
+}
+
+export function throw404Error(res: Response) : void {
+    res.status(404).sendFile(path.resolve(publicDirPath, 'index.html'));
 }

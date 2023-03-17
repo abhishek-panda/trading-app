@@ -17,7 +17,6 @@ const app = express();
  */
 const rootPath = path.join(__dirname,'..');
 const envFilePath = path.join(rootPath,'.env');
-const publicDirPath = path.join(rootPath, 'public');
 dotenv.config({ path: envFilePath });
 const PORT = process.env.PORT || 2179;
 app.disable('x-powered-by');
@@ -43,7 +42,6 @@ const logger = winston.createLogger({
 /**
  * Middleware
  */
-app.use(express.static(publicDirPath));
 app.use(bodyParser.json());
 app.use('/', TradeJournalRouter);
 app.use('/api', AlgoTradingRouter);
@@ -51,7 +49,7 @@ app.use('/api', AlgoTradingRouter);
 // Block all other unwanted routes
 app.use(function (req: Request, res: Response) {
     logger.info(`Invalid request. Path: ${req.path} Headers: ${JSON.stringify(req.headers)}`);
-    res.status(404).sendFile(path.resolve(publicDirPath, 'index.html'));
+    GlobalUtils.throw404Error(res);
 });
 
 // End Middleware
