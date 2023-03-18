@@ -1,7 +1,6 @@
 import path from 'path';
 import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
-import winston from 'winston';
 import * as Schedule from 'node-schedule';
 import express, { Request, Response } from 'express';
 import TradeJournalRouter from './apps/trade-journal/router';
@@ -16,28 +15,13 @@ const app = express();
 /**
  * Settings
  */
+const { logger } = GlobalUtils;
 const rootPath = path.join(__dirname,'..');
 const envFilePath = path.join(rootPath,'.env');
 dotenv.config({ path: envFilePath });
 const PORT = parseInt(process.env.PORT ?? '2179');
 app.disable('x-powered-by');
 // End Settings
-
-
-// Logger Settings
-const logger = winston.createLogger({
-    levels: winston.config.npm.levels,
-    transports:[
-        new winston.transports.File({
-            dirname: 'logs',
-            filename: 'app.log',
-            level: 'info',
-            format: winston.format.combine(winston.format.label({ label: 'APP' }), winston.format.timestamp({ format : function() {
-                return GlobalUtils.getLocalDateTime().toISOString();
-             }}), GlobalUtils.logFormat)
-        })
-    ]
-});
 
 
 /**

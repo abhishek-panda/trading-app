@@ -1,6 +1,6 @@
 import * as fs from 'fs'; 
 import path from 'path';
-import { format } from "winston";
+import winston, { format } from "winston";
 import * as Typings from './typings';
 import { Response } from 'express';
 
@@ -72,3 +72,17 @@ export function addRemoveEnv (filePath: string, operation: Typings.ENV_OPERATION
 export function throw404Error(res: Response) : void {
     res.status(404).sendFile(path.resolve(publicDirPath, 'index.html'));
 }
+
+export const logger = winston.createLogger({
+    levels: winston.config.npm.levels,
+    transports:[
+        new winston.transports.File({
+            dirname: 'logs',
+            filename: 'app.log',
+            level: 'info',
+            format: winston.format.combine(winston.format.label({ label: 'APP' }), winston.format.timestamp({ format : function() {
+                return getLocalDateTime().toISOString();
+             }}), logFormat)
+        })
+    ]
+});
