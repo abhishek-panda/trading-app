@@ -9,7 +9,9 @@
     "build:server": "rimraf ./build && tsc --p server.tsconfig.json",
     "build:frontend": "webpack --config webpack.prod.js",
     "start": "npm run build:frontend && npm run build:server && pm2 start build/main.js --cron-restart='0 30 8 * * *'",
-    "stop": "pm2 stop main && pm2 delete main"
+    "stop": "pm2 stop main && pm2 delete main",
+    "start:algo": "npm run build:server && pm2 start build/main.js --cron-restart='0 30 8 * * *'",
+    "stop:algo": "pm2 stop main && pm2 delete main"
   },
   "author": "",
   "license": "ISC",
@@ -21,7 +23,7 @@
     "jsonfile": "^6.1.0",
     "kiteconnect": "^4.1.0",
     "lodash": "^4.17.21",
-    "mysql": "^2.18.1",
+    "mysql2": "^3.2.0",
     "node-schedule": "^2.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

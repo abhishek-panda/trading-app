@@ -8,6 +8,7 @@ import TradeJournalRouter from './apps/trade-journal/router';
 import { AlgoTradingRouter, KiteWSTicker } from './apps/algo-trading';
 import * as GlobalTypings from './typings';
 import * as GlobalUtils from './utils';
+import DBConn from './dbConn';
 
 const app = express();
 
@@ -18,7 +19,7 @@ const app = express();
 const rootPath = path.join(__dirname,'..');
 const envFilePath = path.join(rootPath,'.env');
 dotenv.config({ path: envFilePath });
-const PORT = process.env.PORT || 2179;
+const PORT = parseInt(process.env.PORT ?? '2179');
 app.disable('x-powered-by');
 // End Settings
 
@@ -55,11 +56,6 @@ app.use(function (req: Request, res: Response) {
 // End Middleware
 
 
-app.listen(PORT, () => {
-    logger.info(`Server started. Listening on port : ${PORT}`);
-});
-
-
 /**
  * Schedulers
  */
@@ -83,3 +79,17 @@ let wsTicker  = new KiteWSTicker({
     access_token: process.env.ACCESS_TOKEN ?? ''
 });
 wsTicker.connect();
+
+
+/**
+ * Starting server after DB connection is successdul
+ */
+
+DBConn.getInstance().initialize()
+    .then(() => {
+        app.listen(PORT, () => {
+            logger.info(`Server started. Listening on port : ${PORT}`);
+        });
+    }).catch(error => {
+        logger.info(`Failed to connect to datasource. ${JSON.stringify(error)}`);
+    });

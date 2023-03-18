@@ -2,5 +2,5 @@
     "watch": ["src"],
     "ext": ".ts,.js",
     "ignore": [],
-    "exec": "npx ts-node ./server/main.ts"
+    "exec": "npx ts-node ./server/main.ts -p server.tsconfig.json"
   }

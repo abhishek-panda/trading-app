@@ -73,3 +73,15 @@ TODOS:
 1. Sanitize all incoming inputs
 2. Record those inputs 
 3. Create a seperate log file for invalid requests.
+
+
+
+
+Removing MySQL
+
+1. service mysql stop
+2. apt-get purge mysql-server mysql-client mysql-common mysql-server-core-* mysql-client-core-*
+3. rm -rf /etc/mysql /var/lib/mysql
+4. apt autoremove
+5. apt autoclean
+

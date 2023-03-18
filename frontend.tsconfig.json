@@ -1,5 +1,5 @@
 {
-    "extends": "./base.tsconfig",
+    "extends": "./tsconfig",
     "compilerOptions" : {
         "rootDir": "frontend",
         "outDir": "public",
