@@ -1,61 +1,5 @@
 @import url(https://fonts.googleapis.com/css?family=Montserrat:400,600,700);
-@import url(https://fonts.googleapis.com/css?family=Catamaran:400,800);
-.home__wrapper {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	height: 100%;
-}
-
-.home__content {
-	padding: 0 10px;
-	margin: 0 auto;
-	max-width: 960px;
-	text-align: center;
-	animation: blur 2s;
-}
-
-.title {
-	font-size: 40px;
-	margin-bottom: 0;
-	animation: popup 2s;
-}
-
-@media (min-width: 768px) {
-	.title {
-		font-size: 50px;
-	}
-}
-
-@media (min-width: 1200px) {
-	.title {
-		font-size: 70px;
-	}
-}
-
-@keyframes blur {
-	0% {
-		filter: blur(12px);
-	}
-
-	100% {
-		filter: blur(0px);
-	}
-}
-
-@keyframes popup {
-	0% {
-		transform: scale(1.2);
-		opacity: 0;
-	}
-
-	100% {
-		transform: scale(1);
-		opacity: 1;
-	}
-}
-
+@import url(https://fonts.googleapis.com/css?family=Roboto:400,800);
 .error404 {
 	display: flex;
     flex-direction: column;
@@ -65,19 +9,20 @@
 }
 
 .error404 h1 {
+	font-family: var(--font-family);
 	text-align: center;
 }
 
 .error404__message {
 	text-align: center;
-	font-family: 'Nunito Sans', sans-serif;
-	margin-top: 50px;
+	font-family: var(--font-family);
+	margin-top: 70px;
 	font-size: 1.2rem;
 	width: 450px;
 }
 
 .error404__message a {
-	color: #fff;
+	color: rgb(103,58,182);
 	line-height: 1.5;
 	text-decoration: none;
 	margin-top: 50px;
@@ -87,7 +32,7 @@
 .error404__section {
 	text-align: center;
 	font-size: 180px;
-	font-family: 'Catamaran', sans-serif;
+	font-family: var(--font-family);
 	font-weight: 800;
 	margin: 20px 15px;
 }
@@ -96,7 +41,7 @@
 	display: inline-block;
 	line-height: 0.7;
 	position: relative;
-	color: #FFB485;
+	color: rgb(32,150,243);
 }
 
 .error404__section>span>span {
@@ -107,7 +52,7 @@
 .error404__section>span:nth-of-type(1) {
 	perspective: 1000px;
 	perspective-origin: 500% 50%;
-	color: #F0E395;
+	color: rgb(103,58,182);
 }
 
 .error404__section>span:nth-of-type(1)>span {
@@ -119,7 +64,7 @@
 .error404__section>span:nth-of-type(3) {
 	perspective: none;
 	perspective-origin: 50% 50%;
-	color: #D15C95;
+	color: rgb(103,58,182);
 }
 
 .error404__section>span:nth-of-type(3)>span {
@@ -202,12 +147,24 @@
 }
 
 
+:root {
+	--font-family: "Roboto" ,sans-serif;
+	--yellow: hsl(45, 100%, 50%);
+	--charcoal: hsl(0, 0%, 25%);
+	--grey:hsl(210, 31%, 95%);
+	--white: hsl(0, 0%, 100%);
+	--theme-highlight-color: var(--yellow);
+	--theme-text-color: var(--charcoal);
+	--theme-background-color: var(--grey);
+	--pure-material-primary-rgb: 255, 191, 0;
+    --pure-material-onsurface-rgb: 0, 0, 0;
+}
+
 #app-shell {
 	height: 100vh;
-	background-color: red;
-	font-family: "Montserrat", sans-serif;
+	font-family: var(--font-family);
 	overflow: hidden;
-	color: #bbb;
-	background-color: #1E1F25;
+	color: var(--theme-text-color);
+	background-color: var(--theme-background-color);
 }
 

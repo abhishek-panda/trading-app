@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css?family=Montserrat:400,600,700');
-@import url('https://fonts.googleapis.com/css?family=Catamaran:400,800');
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,800');
 
 * {
 	margin: 0;
@@ -10,11 +10,23 @@
 }
 
 
+:root {
+	--font-family: "Roboto" ,sans-serif;
+	--yellow: hsl(45, 100%, 50%);
+	--charcoal: hsl(0, 0%, 25%);
+	--grey:hsl(210, 31%, 95%);
+	--white: hsl(0, 0%, 100%);
+	--theme-highlight-color: var(--yellow);
+	--theme-text-color: var(--charcoal);
+	--theme-background-color: var(--grey);
+	--pure-material-primary-rgb: 255, 191, 0;
+    --pure-material-onsurface-rgb: 0, 0, 0;
+}
+
 #app-shell {
 	height: 100vh;
-	background-color: red;
-	font-family: "Montserrat", sans-serif;
+	font-family: var(--font-family);
 	overflow: hidden;
-	color: #bbb;
-	background-color: #1E1F25;
+	color: var(--theme-text-color);
+	background-color: var(--theme-background-color);
 }
