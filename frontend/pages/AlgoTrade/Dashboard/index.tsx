@@ -13,7 +13,7 @@ import {
 	MenuSectionTitle,
 	Option
 } from './style';
-import { HeaderMenu, MenuOption, Seperator } from '../../components'
+import { HeaderMenu, MenuOption, Seperator } from '../../../components'
 
 const UserSettingOptions = [
 	<Option>Account Settings</Option>,

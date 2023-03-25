@@ -31,7 +31,6 @@ const config = {
 				test: /\.css$/i,
 				use: [MiniCssExtractPlugin.loader, "css-loader"],
 				exclude: [
-					/node_modules/,
 					/server/,
 					/build/,
 					/public/

@@ -2,14 +2,20 @@ import React from 'react';
 import styled from "styled-components";
 
 
-interface InputProps extends  React.InputHTMLAttributes<HTMLInputElement> {}
+interface InputProps extends  React.InputHTMLAttributes<HTMLInputElement> {
+	label: string;
+	error?: string;
+}
 
+interface InputWrapperProps {
+	hasError?: boolean
+}
 
-const InputWrapper = styled.div`
+const InputWrapper = styled.div<InputWrapperProps>`
 	display: flex;
 	flex-direction: column;
 	background: rgb(248, 250, 252);
-	border: 1px solid rgba(0, 0, 0, 0.23);
+	border: 1px solid ${props => props.hasError ? 'rgb(255,98,71)' : 'rgba(0, 0, 0, 0.23)'};
 	height: 58px;
 	border-radius: 12px;
 	position: relative;
@@ -30,17 +36,22 @@ const InputWrapper = styled.div`
 	}
 `;
 
+const ErrorMessage = styled.span`
+	color: rgb(255,98,71);
+	font-size:11px;
+`;
+
+
 const Input: React.FC<InputProps> = (props) => {
 	return (
-		<InputWrapper>
+		<>
+		<InputWrapper hasError={Boolean(props.error)}>
 			<input {...props} />
-			<label >{props.name}</label>
+			<label >{props.label}</label>
 		</InputWrapper>
+		{props.error && <ErrorMessage>{props.error}</ErrorMessage>}
+		</>
 	);
 }
-
-
-
-
 
 export default Input;
