@@ -6,6 +6,9 @@
         "module": "ES6",
         "jsx": "react"
     },
+    "include": [
+        "frontend/typings/custom.d.ts"
+    ],
     "exclude" : [
         "server",
         "webpack.*",

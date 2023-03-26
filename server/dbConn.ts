@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import { User } from './apps/trade-journal/entities/User'; 
+import { User } from './apps/shared/entities/User'; 
 
 export default class DBConn {
     private static instance: DataSource;
@@ -15,7 +15,7 @@ export default class DBConn {
                 port: parseInt(process.env.DB_PORT ?? '3306'),
                 username: process.env.DB_USER ?? '',
                 password: process.env.DB_USER_PWD ?? '',
-                database: process.env.DB_NAME ?? 'algodb',
+                database: process.env.DB_NAME ?? 'algo_trading',
                 synchronize: true,
                 entities: [User],
                 logging: false,

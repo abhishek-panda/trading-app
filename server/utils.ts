@@ -73,6 +73,10 @@ export function throw404Error(res: Response) : void {
     res.status(404).sendFile(path.resolve(publicDirPath, 'index.html'));
 }
 
+export function serveIndex(res: Response): void {
+    res.status(200).sendFile(path.resolve(publicDirPath, 'index.html'));
+}
+
 export const logger = winston.createLogger({
     levels: winston.config.npm.levels,
     transports:[

@@ -20,6 +20,7 @@ import {
 import { Card, Button, Seperator, Input, Link } from "../../../components";
 import showToast, { ToastType } from "../../../utils/toast";
 import { useAppSelector } from "../../../store/hooks";
+import { googleIcon, logo }  from '../../../images';
 
 interface LoginInput {
 	uname: string;
@@ -56,7 +57,7 @@ const Login = () => {
 		<LoginPageWrapper>
 			<Card>
 				<CardLogo>
-					<img src="https://themewagon.com/wp-content/uploads/2021/03/Frame-172-1.png" />
+					<img src={logo} />
 				</CardLogo>
 
 				<GreetingMessage>
@@ -66,7 +67,7 @@ const Login = () => {
 
 				<SignInBtnWrapper>
 					<Button onClick={_ => showToast(ToastType.ERROR, "Try again later!")}>
-						<SignInWithGoogleImg src="https://img.freepik.com/free-icon/google_318-278809.jpg?w=2000" />
+						<SignInWithGoogleImg src={googleIcon} />
 						<SignInWithGoogleText>Sign In with Google</SignInWithGoogleText>
 					</Button>
 				</SignInBtnWrapper>

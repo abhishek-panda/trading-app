@@ -13,7 +13,8 @@ import {
 	MenuSectionTitle,
 	Option
 } from './style';
-import { HeaderMenu, MenuOption, Seperator } from '../../../components'
+import { HeaderMenu, MenuOption, Seperator } from '../../../components';
+import { logo }  from '../../../images';
 
 const UserSettingOptions = [
 	<Option>Account Settings</Option>,
@@ -33,7 +34,7 @@ const Dashboard = () => {
         	</Header>
 			<Nav>
 				<Logo>
-					<img src="https://themewagon.com/wp-content/uploads/2021/03/Frame-172-1.png" />
+					<img src={logo} />
 				</Logo>
 				<MenuSection>
 					<MenuSectionTitle>Dashboard</MenuSectionTitle>

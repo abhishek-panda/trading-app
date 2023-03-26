@@ -67,8 +67,7 @@ export const UserSettingMenu = () => {
 }
 
 export const Logo = styled.div`
-	width: 40%;
-	margin: 10px 0 10px;
+	width: 35px;
 	& > img {
 		width: 100%;
 	}

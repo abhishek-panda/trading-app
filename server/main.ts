@@ -1,12 +1,14 @@
 import path from 'path';
 import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
+import helmetCsp from 'helmet-csp';
 import * as Schedule from 'node-schedule';
 import express, { Request, Response } from 'express';
-import TradeJournalRouter from './apps/trade-journal/router';
+import TradinAppRouter from './apps/trading-app/router';
 import { AlgoTradingRouter, KiteWSTicker } from './apps/algo-trading';
 import * as GlobalTypings from './typings';
 import * as GlobalUtils from './utils';
+import { csp } from './csp';
 import DBConn from './dbConn';
 
 const app = express();
@@ -28,7 +30,8 @@ app.disable('x-powered-by');
  * Middleware
  */
 app.use(bodyParser.json());
-app.use('/', TradeJournalRouter);
+app.use(helmetCsp(csp));
+app.use('/', TradinAppRouter);
 app.use('/api', AlgoTradingRouter);
 
 // Block all other unwanted routes

@@ -8,7 +8,7 @@ export const LoginPageWrapper = styled.div`
 `;
 
 export const CardLogo = styled.div`
-	width: 100px;
+	width: 60px;
 	align-self: center;
 	margin: 10px 0 20px 0;
 
