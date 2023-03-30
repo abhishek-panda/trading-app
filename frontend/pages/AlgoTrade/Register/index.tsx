@@ -16,6 +16,7 @@ import {
 	SignUpText,
 	LoginLinkWrapper,
 } from "./style";
+import { userNameExpresson, emailExpression, passwordExpression } from '../../../utils/patterns';
 import { Card, Button, Seperator, Input } from "../../../components";
 import showToast, { ToastType } from "../../../utils/toast";
 import { useAppSelector } from "../../../store/hooks";
@@ -36,12 +37,12 @@ const initialValues: ResgisterInput = {
 const validationSchema = Yup.object({
 	uname: Yup.string()
 		.required("Required")
-		.matches(/^[A-Za-z ]{3,20}$/, "Must contain minimum 3 chatacters and maximum upto 20 characters"),
-	email: Yup.string().email("Invalid email format").required("Required"),
+		.matches(userNameExpresson, "Must contain minimum 3 chatacters and maximum upto 20 characters"),
+	email: Yup.string().required("Required").matches(emailExpression, "Invalid email format"),
 	password: Yup.string()
 		.required("Required")
 		.matches(
-			/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/,
+			passwordExpression,
 			"Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and One Special Case Character"
 		),
 });

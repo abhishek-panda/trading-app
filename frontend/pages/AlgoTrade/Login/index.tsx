@@ -17,6 +17,7 @@ import {
 	SignInText,
 	RegisterLinkWrapper,
 } from "./style";
+import { emailExpression, passwordExpression } from '../../../utils/patterns';
 import { Card, Button, Seperator, Input, Link } from "../../../components";
 import showToast, { ToastType } from "../../../utils/toast";
 import { useAppSelector } from "../../../store/hooks";
@@ -33,8 +34,8 @@ const initialValues: LoginInput = {
 };
 
 const validationSchema = Yup.object({
-	uname: Yup.string().email('Invalid email format').required('Required'),
-	password: Yup.string().required('Required').matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/,
+	uname: Yup.string().required("Required").matches(emailExpression, "Invalid email format"),
+	password: Yup.string().required('Required').matches(passwordExpression,
 	"Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and One Special Case Character")
 });
 
