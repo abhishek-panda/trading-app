@@ -1,10 +1,7 @@
 import { Entity, PrimaryColumn, CreateDateColumn, ManyToOne, JoinColumn, Column } from "typeorm"
 import User from "./User";
+import { SESSION_STATE } from "../typings";
 
-export enum SESSION_STATE {
-    VALID = 'true',
-    INVALID = 'false'
-}
 
 
 @Entity()

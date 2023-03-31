@@ -22,8 +22,8 @@ export default class DBConn {
                     User,
                     UserSession
                 ],
-                logging: false,
-                dropSchema: true,
+                logging: true,
+                // dropSchema: true,
             });
         }
 

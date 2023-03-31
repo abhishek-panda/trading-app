@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import path from 'path';
 import winston, { format } from "winston";
 import * as Typings from './typings';
-import Yup from 'yup';
+import * as Yup from 'yup';
 import { Response } from 'express';
 
 

@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validTokenSchema = exports.validUserRegistrationSchema = exports.validPassword = exports.validEmail = exports.validUserName = void 0;
+exports.validUserRegistrationSchema = exports.validPassword = exports.validEmail = exports.validUserName = void 0;
 var Yup = __importStar(require("yup"));
 exports.validUserName = /^[A-Za-z ]{3,20}$/;
 exports.validEmail = /^[a-zA-Z0-9._]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/;
@@ -39,4 +39,3 @@ exports.validUserRegistrationSchema = Yup.object({
         .required("Required")
         .matches(exports.validPassword, "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and One Special Case Character"),
 });
-exports.validTokenSchema = Yup.string().matches(/^Bearer [a-zA-Z0-9]+$/);

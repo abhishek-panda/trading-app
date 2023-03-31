@@ -1,14 +1,14 @@
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
-import Yup from 'yup';
+import * as Yup from 'yup';
 import { DataSource } from 'typeorm';
 import DBConn from '../../../dbConn';
 import User from '../../../entities/User';
-import UserSession, { SESSION_STATE } from '../../../entities/UserSession';
-import { UserRegistrationInputs } from '../../../../libs/typings'
-import { validUserRegistrationSchema, validTokenSchema } from '../../../../libs/utils';
-
-
+import UserSession from '../../../entities/UserSession';
+import { UserRegistrationInputs, StandardResponse } from '../../../../libs/typings'
+import { validUserRegistrationSchema } from '../../../../libs/utils';
+import { validTokenSchema } from '../../../utils';
+import { SESSION_STATE } from '../../../typings';
 
 export default class UserModel {
 
@@ -18,7 +18,7 @@ export default class UserModel {
         this.dbConn = DBConn.getInstance();
     }
 
-    async register(registrationData: UserRegistrationInputs): Promise<Record<string, any>> {
+    async register(registrationData: UserRegistrationInputs): Promise<StandardResponse> {
         try {
             const validUser = await validUserRegistrationSchema.validate(registrationData);
             const userRepository = this.dbConn.getRepository(User);

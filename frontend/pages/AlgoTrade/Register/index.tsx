@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavLink, Navigate } from "react-router-dom";
 import { useFormik } from "formik";
-import * as Yup from "yup";
 import {
 	RegisterPageWrapper,
 	CardLogo,
@@ -16,51 +15,58 @@ import {
 	SignUpText,
 	LoginLinkWrapper,
 } from "./style";
-import { userNameExpresson, emailExpression, passwordExpression } from '../../../utils/patterns';
 import { Card, Button, Seperator, Input } from "../../../components";
 import showToast, { ToastType } from "../../../utils/toast";
-import { useAppSelector } from "../../../store/hooks";
+import { useAppSelector, useAppDispatcher } from "../../../store/hooks";
 import { googleIcon, logo }  from '../../../images';
+import { registerUser } from "../../../reducers/userSlice";
+import { UserRegistrationInputs } from '../../../../libs/typings'
+import { validUserRegistrationSchema } from '../../../../libs/utils';
+import { API_REQUEST_STATE } from '../../../typings/typings';
 
-interface ResgisterInput {
-	uname: string;
-	email: string;
-	password: string;
-}
-
-const initialValues: ResgisterInput = {
+const initialValues: UserRegistrationInputs = {
 	uname: "",
 	email: "",
 	password: "",
 };
 
-const validationSchema = Yup.object({
-	uname: Yup.string()
-		.required("Required")
-		.matches(userNameExpresson, "Must contain minimum 3 chatacters and maximum upto 20 characters"),
-	email: Yup.string().required("Required").matches(emailExpression, "Invalid email format"),
-	password: Yup.string()
-		.required("Required")
-		.matches(
-			passwordExpression,
-			"Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and One Special Case Character"
-		),
-});
-
 const Register = () => {
-	const formik = useFormik({
-		initialValues,
-		validationSchema,
-		onSubmit: (values) => {
-			console.log(values);
-		},
-	});
 
 	const user = useAppSelector(state => state.userData.user);
+	const registration = useAppSelector(state => state.userData.registeration);
+	const dispatch = useAppDispatcher();
+
+	const formik = useFormik({
+		initialValues,
+		validationSchema: validUserRegistrationSchema,
+		onSubmit: (values) => {
+			dispatch(registerUser(values));
+		},
+	});
 
 	if (user) {
 		return <Navigate to="/algotm/dashboard/home" />
 	}
+
+	useEffect(() => {
+		console.log("registration", registration);
+		if (registration) {
+			const { message, state } = registration;
+			let toastState;
+			switch (state) {
+				case API_REQUEST_STATE.SUCCESS:
+					toastState = ToastType.SUCCESS; 
+					break;
+				case API_REQUEST_STATE.FAILURE:
+					toastState = ToastType.ERROR;
+				default:
+					break;
+			}
+			if (toastState && message) {
+				showToast(toastState, message);
+			}
+		}
+	}, [registration]);
 
 	return (
 		<RegisterPageWrapper>
@@ -90,7 +96,7 @@ const Register = () => {
 
 				<SignUpWithEmail>Sign up with Email address</SignUpWithEmail>
 
-				<form>
+				<form onSubmit={formik.handleSubmit}>
 					<InputWrapper>
 						<Input
 							label="Name"
