@@ -1,6 +1,6 @@
 {
-    "watch": ["src"],
+    "watch": ["src", "shared"],
     "ext": ".ts,.js",
     "ignore": [],
-    "exec": "npx ts-node ./server/main.ts -p server.tsconfig.json"
+    "exec": "npx ts-node ./server/main.ts -p ./server/tsconfig.json"
   }

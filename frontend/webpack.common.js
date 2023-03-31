@@ -5,10 +5,10 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPl
 
 const config = {
 	entry: {
-		main: path.resolve(__dirname, "frontend", "index.tsx")
+		main: path.resolve(__dirname, "index.tsx")
 	},
 	output: {
-		path: path.resolve(__dirname, "public"),
+		path: path.resolve(__dirname, ".." ,"public"),
 		filename: "[name].[contenthash].js",
 		clean: true,
 	},
@@ -18,14 +18,8 @@ const config = {
 				test: /\.ts(x)?$/,
 				loader: "ts-loader",
 				options: {
-					configFile: 'frontend.tsconfig.json'
+					configFile: path.resolve(__dirname, "tsconfig.json")
 				},
-				exclude: [
-					/node_modules/,
-					/server/,
-					/build/,
-					/public/
-				],
 			},
 			{
 				test: /\.css$/i,
@@ -59,7 +53,7 @@ const config = {
 		new HtmlWebpackPlugin({
 			title: 'Abhishek Panda - Home',
 			filename: 'index.html',
-			template: path.resolve(__dirname, 'frontend','templates', 'index.hbs')
+			template: path.resolve(__dirname, 'templates', 'index.hbs')
 		}),
 		new MiniCssExtractPlugin(),
 		// new BundleAnalyzerPlugin()

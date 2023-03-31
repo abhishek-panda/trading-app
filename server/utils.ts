@@ -2,9 +2,12 @@ import * as fs from 'fs';
 import path from 'path';
 import winston, { format } from "winston";
 import * as Typings from './typings';
+import Yup from 'yup';
 import { Response } from 'express';
 
-const publicDirPath = path.join(__dirname, '..', 'public');
+
+
+export const publicDirPath = path.join(__dirname, '..', 'public');
 
 const { printf } = format;
 
@@ -91,7 +94,4 @@ export const logger = winston.createLogger({
     ]
 });
 
-export const tokenExpression = /^Bearer [a-zA-Z0-9]+$/;                                                 // Session token
-export const userNameExpresson =   /^[A-Za-z ]{3,20}$/;                                                 // User name
-export const emailExpression = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;                      // email experssion
-export const passwordExpression = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;     // password expression
+export const validTokenSchema = Yup.string().matches(/^Bearer [a-zA-Z0-9]+$/);

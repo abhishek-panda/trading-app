@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import { User } from './apps/shared/entities/User'; 
+import User from './entities/User';
+import UserSession from "./entities/UserSession";
 
 export default class DBConn {
     private static instance: DataSource;
@@ -17,7 +18,10 @@ export default class DBConn {
                 password: process.env.DB_USER_PWD ?? '',
                 database: process.env.DB_NAME ?? 'algo_trading',
                 synchronize: true,
-                entities: [User],
+                entities: [
+                    User,
+                    UserSession
+                ],
                 logging: false,
                 dropSchema: true,
             });

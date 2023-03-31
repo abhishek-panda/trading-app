@@ -1,0 +1,10 @@
+{
+    "extends": "../tsconfig",
+    "compilerOptions" : {
+        "rootDir": ".",
+        "outDir": "../libs",
+        "module": "CommonJS",
+        "strictPropertyInitialization": false,
+        "composite": true
+    }
+}

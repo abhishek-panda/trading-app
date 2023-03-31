@@ -107,6 +107,5 @@
     "build",
     "public",
     "node_modules",
-    "webpack*"
   ]
 }

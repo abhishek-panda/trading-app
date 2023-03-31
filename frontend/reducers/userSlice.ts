@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction }  from '@reduxjs/toolkit';
 import axios from 'axios';
-import { User } from '../models'
-
+import { User, UserRegistrationInputs } from "../../libs/typings";
 
 type UserInitialState = {
 	loading: boolean;
@@ -19,8 +18,17 @@ const initialState: UserInitialState = {
 }
 
 const fetchUser = createAsyncThunk('user/fetch', () => {
-	return axios.get('https://jsonplaceholder.typicode.com/uses/1')
+	return axios.get('/api/user')
 		.then(response => response.data);
+});
+
+const registerUser  = createAsyncThunk('user/register', (formData: UserRegistrationInputs) => {
+	return axios.post('/api/user/register', JSON.stringify(formData), {
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	})
+	.then(response => response.data);
 });
 
 const userSlice = createSlice({
@@ -46,11 +54,31 @@ const userSlice = createSlice({
 			state.error = action.error.message ?? '';
 			state.hasFetched = true;
 		});
+		builder.addCase(registerUser.pending, (state, action ) => {
+			state.loading= true;
+			state.user = undefined;
+			state.error = '';
+		});
+		builder.addCase(registerUser.fulfilled, (state, action: PayloadAction<User>) => {
+			state.loading = false;
+			state.user = action.payload;
+			state.error = '';
+			// state.hasFetched = true;
+		});
+		builder.addCase(registerUser.rejected, (state, action ) => {
+			state.loading= false;
+			state.user = undefined;
+			state.error = action.error.message ?? '';
+			// state.hasFetched = true;
+		});
 	}
 });
 
 export const  userReducers = userSlice.reducer;
 export const fetchUserAction = userSlice.actions;
 
-export default fetchUser;
+export {
+	fetchUser,
+	registerUser
+};
 

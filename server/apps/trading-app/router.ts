@@ -1,21 +1,19 @@
-import { Router, Request, Response, NextFunction } from 'express';
-import * as GlobalUtils from '../../utils';
-import { User } from '../shared/entities/User';
-import DBConn from '../../dbConn';
-
-const TradingAppRouter = Router();
+import { Router } from 'express';
+import HomeController from './controllers/homeController';
+import UserController from './controllers/userController';
 
 
-TradingAppRouter.get('/', async (req: Request, res: Response) => {
-    // const dbConn = DBConn.getInstance();
-    // const userRepository = dbConn.getRepository(User);
-    // const user = new User()
-    // user.firstName = "Timber";
-    // user.lastName = "Saw";
-    // user.age = 25;
-    // const result = await userRepository.save(user);
-    // console.log("Result", result);
-    GlobalUtils.serveIndex(res);
-});
+function intializeTradingAppRoutes() {
+    const TradingAppRouter = Router();
+    const homeController = new HomeController();
+    const userController = new UserController(); 
 
-export default TradingAppRouter;
+    TradingAppRouter.get('/', homeController.default);
+    TradingAppRouter.get('/api/user', userController.getUser);
+    TradingAppRouter.post('/api/user/register', userController.registerUser);
+    TradingAppRouter.post('/api/user/login', userController.loginUser);
+
+    return TradingAppRouter;
+}
+
+export default intializeTradingAppRoutes;

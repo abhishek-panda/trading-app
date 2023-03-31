@@ -4,7 +4,7 @@ import bodyParser from 'body-parser';
 import helmetCsp from 'helmet-csp';
 import * as Schedule from 'node-schedule';
 import express, { Request, Response } from 'express';
-import TradinAppRouter from './apps/trading-app/router';
+import intializeTradingAppRoutes from './apps/trading-app/router';
 import { AlgoTradingRouter, KiteWSTicker } from './apps/algo-trading';
 import * as GlobalTypings from './typings';
 import * as GlobalUtils from './utils';
@@ -25,21 +25,24 @@ const PORT = parseInt(process.env.PORT ?? '2179');
 app.disable('x-powered-by');
 // End Settings
 
-
 /**
  * Middleware
  */
 app.use(bodyParser.json());
 app.use(helmetCsp(csp));
-app.use('/', TradinAppRouter);
-app.use('/api', AlgoTradingRouter);
+// For local only as static assest will be served from nginx
+app.use(express.static(GlobalUtils.publicDirPath));
 
-// Block all other unwanted routes
-app.use(function (req: Request, res: Response) {
-    logger.info(`Invalid request. Path: ${req.path} Headers: ${JSON.stringify(req.headers)}`);
-    GlobalUtils.throw404Error(res);
-});
+function initializeApplicationsRouters() {
+    app.use('/', intializeTradingAppRoutes());
+    app.use('/algo-api', AlgoTradingRouter);
 
+    // Block all other unwanted routes
+    app.use(function (req: Request, res: Response) {
+        logger.info(`Invalid request. Path: ${req.path} Headers: ${JSON.stringify(req.headers)}`);
+        GlobalUtils.throw404Error(res);
+    });
+}
 // End Middleware
 
 
@@ -74,9 +77,12 @@ wsTicker.connect();
 
 DBConn.getInstance().initialize()
     .then(() => {
+        initializeApplicationsRouters();
         app.listen(PORT, () => {
             logger.info(`Server started. Listening on port : ${PORT}`);
         });
     }).catch(error => {
         logger.info(`Failed to connect to datasource. ${JSON.stringify(error)}`);
     });
+
+

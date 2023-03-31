@@ -1,8 +1,8 @@
 import React, { createContext, useContext, PropsWithChildren, useEffect } from "react";
 import { useAppDispatcher, useAppSelector } from "../../store/hooks";
 import LoadingPage from "../../pages/AlgoTrade/Loading";
-import fetchUser from "../../reducers/userSlice";
-import { User } from "../../models";
+import { fetchUser } from "../../reducers/userSlice";
+import { User } from "../../../libs/typings";
 import { Loader } from "../../components";
 
 interface IAuthContext {
