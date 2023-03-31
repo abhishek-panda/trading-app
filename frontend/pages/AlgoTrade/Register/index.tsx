@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { NavLink, Navigate } from "react-router-dom";
 import { useFormik } from "formik";
 import {
@@ -22,7 +22,6 @@ import { googleIcon, logo }  from '../../../images';
 import { registerUser } from "../../../reducers/userSlice";
 import { UserRegistrationInputs } from '../../../../libs/typings'
 import { validUserRegistrationSchema } from '../../../../libs/utils';
-import { API_REQUEST_STATE } from '../../../typings/typings';
 
 const initialValues: UserRegistrationInputs = {
 	uname: "",
@@ -33,7 +32,6 @@ const initialValues: UserRegistrationInputs = {
 const Register = () => {
 
 	const user = useAppSelector(state => state.userData.user);
-	const registration = useAppSelector(state => state.userData.registeration);
 	const dispatch = useAppDispatcher();
 
 	const formik = useFormik({
@@ -47,26 +45,6 @@ const Register = () => {
 	if (user) {
 		return <Navigate to="/algotm/dashboard/home" />
 	}
-
-	useEffect(() => {
-		console.log("registration", registration);
-		if (registration) {
-			const { message, state } = registration;
-			let toastState;
-			switch (state) {
-				case API_REQUEST_STATE.SUCCESS:
-					toastState = ToastType.SUCCESS; 
-					break;
-				case API_REQUEST_STATE.FAILURE:
-					toastState = ToastType.ERROR;
-				default:
-					break;
-			}
-			if (toastState && message) {
-				showToast(toastState, message);
-			}
-		}
-	}, [registration]);
 
 	return (
 		<RegisterPageWrapper>

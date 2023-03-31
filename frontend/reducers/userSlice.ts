@@ -1,19 +1,14 @@
-import { createSlice, createAsyncThunk, PayloadAction }  from '@reduxjs/toolkit';
-import axios from 'axios';
-import { User, UserRegistrationInputs, StandardResponse } from "../../libs/typings";
-import { API_REQUEST_STATE } from '../typings/typings'
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { User, UserRegistrationInputs, IResponse } from "../../libs/typings";
+import request, { REQUEST_METHOD } from '../utils/request';
 
-
-interface ResgistrationResponse extends StandardResponse {
-	state: API_REQUEST_STATE
-}
 
 type UserInitialState = {
 	loading: boolean;
 	user: User | undefined;
 	error: string;
 	hasFetched: boolean;
-	registeration?: ResgistrationResponse
+	registeration?: IResponse
 }
 
 
@@ -25,37 +20,20 @@ const initialState: UserInitialState = {
 }
 
 const fetchUser = createAsyncThunk('user/fetch', () => {
-	return axios.get('/api/user')
-		.then(response => response.data);
+	return request('/api/user', REQUEST_METHOD.GET, {}, {}, false )
+		.then(response => response.json());
 });
 
-const registerUser  = createAsyncThunk('user/register', (formData: UserRegistrationInputs) => {
-	return fetch('/api/user/register', {
-		method: "POST",
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify(formData)
-	})
-	.then(async response => {
-		if (!response.ok) {
-			const data = await response.json();
-			const message = Object.keys(data.error).reduce((accumulator, key) => {
-				accumulator += data.error[key]
-				return accumulator;
-			},'');
-			throw new Error(message);
-		}
-		return response.json();
-	})
-	.then(data => data);
+const registerUser = createAsyncThunk('user/register', (formData: UserRegistrationInputs) => {
+	return request('/api/user/register', REQUEST_METHOD.POST, {}, formData)
+		.then(response => response.json());
 });
 
 const userSlice = createSlice({
 	name: 'user',
 	initialState,
 	reducers: {},
-	extraReducers: (builder)=> {
+	extraReducers: (builder) => {
 		builder.addCase(fetchUser.pending, state => {
 			state.loading = true;
 			state.user = undefined;
@@ -68,28 +46,26 @@ const userSlice = createSlice({
 			state.error = '';
 			state.hasFetched = true;
 		});
-		builder.addCase(fetchUser.rejected, (state, action ) => {
-			state.loading= false;
+		builder.addCase(fetchUser.rejected, (state, action) => {
+			state.loading = false;
 			state.user = undefined;
 			state.error = action.error.message ?? '';
 			state.hasFetched = true;
 		});
-		builder.addCase(registerUser.fulfilled, (state, action: PayloadAction<StandardResponse>) => {
+		builder.addCase(registerUser.fulfilled, (state, action: PayloadAction<IResponse>) => {
 			state.registeration = {
-				state: API_REQUEST_STATE.SUCCESS,
 				message: action.payload.message
 			};
 		});
-		builder.addCase(registerUser.rejected, (state,  action) => {
+		builder.addCase(registerUser.rejected, (state, action) => {
 			state.registeration = {
-				state: API_REQUEST_STATE.FAILURE,
 				message: action.error.message ?? ""
 			};
 		});
 	}
 });
 
-export const  userReducers = userSlice.reducer;
+export const userReducers = userSlice.reducer;
 export const fetchUserAction = userSlice.actions;
 
 export {

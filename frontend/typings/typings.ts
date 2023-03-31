@@ -1,5 +1,0 @@
-export enum API_REQUEST_STATE {
-    PENDING = 'PENDING',
-    SUCCESS = 'SUCCESS',
-    FAILURE = 'FAILURE'
-}

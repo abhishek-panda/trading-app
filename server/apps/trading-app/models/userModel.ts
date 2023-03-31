@@ -5,7 +5,7 @@ import { DataSource } from 'typeorm';
 import DBConn from '../../../dbConn';
 import User from '../../../entities/User';
 import UserSession from '../../../entities/UserSession';
-import { UserRegistrationInputs, StandardResponse } from '../../../../libs/typings'
+import { UserRegistrationInputs, IResponse } from '../../../../libs/typings'
 import { validUserRegistrationSchema } from '../../../../libs/utils';
 import { validTokenSchema } from '../../../utils';
 import { SESSION_STATE } from '../../../typings';
@@ -18,7 +18,7 @@ export default class UserModel {
         this.dbConn = DBConn.getInstance();
     }
 
-    async register(registrationData: UserRegistrationInputs): Promise<StandardResponse> {
+    async register(registrationData: UserRegistrationInputs): Promise<IResponse> {
         try {
             const validUser = await validUserRegistrationSchema.validate(registrationData);
             const userRepository = this.dbConn.getRepository(User);
@@ -48,7 +48,7 @@ export default class UserModel {
         }
     };
 
-    async getUser(authorizationHeader: string) {
+    async getUser(authorizationHeader: string | undefined): Promise<IResponse> {
         const isValidAuthorizationHeader = await validTokenSchema.isValid(authorizationHeader);
         if (authorizationHeader && isValidAuthorizationHeader) {
             const tokens = authorizationHeader.split(" ");
@@ -73,10 +73,18 @@ export default class UserModel {
                     .getRawOne();
 
                 if (result) {
-                    return result;
+                    const response = {
+                        data: result
+                    }
+                    return response;
                 }
             }
         }
-        return undefined;
+        const response = {
+            error: {
+                user: "Unauthorized"
+            }
+        }
+        return response;
     }
 }

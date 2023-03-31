@@ -12,11 +12,9 @@ export default class UserController {
 
     getUser = async (req: Request, res: Response) => {
         const authorizationHeader = req.headers.authorization;
-        if (authorizationHeader) {
-            const result = await this.userModel.getUser(authorizationHeader);
-            return result ? res.status(200).send(result) : res.sendStatus(401);
-        }
-        return res.sendStatus(401);
+        const result = await this.userModel.getUser(authorizationHeader);
+        const status = result.error ? 401 : 200;
+        return res.status(status).send(result);
     }
 
     // "this" is undefined because this is supposed to be route callback 
