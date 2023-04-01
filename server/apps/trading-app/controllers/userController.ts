@@ -37,4 +37,12 @@ export default class UserController {
         return res.status(status).send(result);
     }
 
+    logout = async (req: Request, res: Response) => {
+        const cookies = req.cookies;
+        const authorizationHeader = cookies['SN'];
+        const result = await this.userModel.logout(authorizationHeader);
+        const status = result.error ? 401 : 200;
+        return res.status(status).send(result);
+    }
+
 } 

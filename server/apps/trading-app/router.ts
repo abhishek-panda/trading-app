@@ -12,6 +12,7 @@ function intializeTradingAppRoutes() {
     TradingAppRouter.get('/api/user', userController.getUser);
     TradingAppRouter.post('/api/user/register', userController.registerUser);
     TradingAppRouter.post('/api/user/login', userController.loginUser);
+    TradingAppRouter.get('/api/user/logout', userController.logout);
 
     return TradingAppRouter;
 }

@@ -2,12 +2,13 @@ import React, { createContext, useContext, PropsWithChildren, useEffect } from "
 import { useAppDispatcher, useAppSelector } from "../../store/hooks";
 import LoadingPage from "../../pages/AlgoTrade/Loading";
 import { fetchUser } from "../../reducers/userSlice";
-import { User } from "../../../libs/typings";
+import { User, UserLoginInputs } from "../../../libs/typings";
 import { Loader } from "../../components";
+import { loginUser, logoutUser } from "../../reducers/userSlice";
 
 interface IAuthContext {
 	user?: User;
-	login: (user: User) => void;
+	login: (user: UserLoginInputs) => void;
 	logout: () => void;
 }
 
@@ -18,12 +19,12 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
 	const userData = useAppSelector((state) => state.userData);
 	const dispatch = useAppDispatcher();
 
-	const login = (user: User) => {
-		// setUser(user);
+	const login = (inputData: UserLoginInputs) => {
+		dispatch(loginUser(inputData));
 	};
 
 	const logout = () => {
-		// setUser(undefined);
+		dispatch(logoutUser());
 	};
 
 	useEffect(() => {

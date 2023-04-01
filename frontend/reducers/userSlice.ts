@@ -19,7 +19,7 @@ const initialState: UserInitialState = {
 	hasFetched: false,
 }
 
-const fetchUser = createAsyncThunk('user/fetch', () => {
+const fetchUser = createAsyncThunk('user/fetch', _ => {
 	return request('/api/user', REQUEST_METHOD.GET, {}, {}, false )
 		.then(response => response.json())
 });
@@ -31,6 +31,11 @@ const registerUser = createAsyncThunk('user/register', (formData: UserRegistrati
 
 const loginUser = createAsyncThunk('user/login', (formData: UserLoginInputs) => {
 	return request('/api/user/login', REQUEST_METHOD.POST, {}, formData)
+		.then(response => response.json());
+});
+
+const logoutUser = createAsyncThunk('user/logout', _ => {
+	return request('/api/user/logout', REQUEST_METHOD.GET, {})
 		.then(response => response.json());
 });
 
@@ -75,6 +80,13 @@ const userSlice = createSlice({
 			state.user = undefined;
 			state.error = action.error.message ?? '';
 		});
+		builder.addCase(logoutUser.fulfilled, (state, action: PayloadAction<IResponse>) => {
+			state.user = undefined;
+			state.error = '';
+		});
+		builder.addCase(logoutUser.rejected, (state, action) => {
+			state.error = action.error.message ?? '';
+		});
 	}
 });
 
@@ -85,5 +97,6 @@ export {
 	fetchUser,
 	registerUser,
 	loginUser,
+	logoutUser
 };
 

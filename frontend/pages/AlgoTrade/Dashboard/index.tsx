@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback} from 'react';
 import {Outlet, NavLink, useNavigate} from 'react-router-dom'
 import {
 	DashboardpageWrapper,
@@ -15,15 +15,18 @@ import {
 } from './style';
 import { HeaderMenu, MenuOption, Seperator } from '../../../components';
 import { logo }  from '../../../images';
+import { useAuth } from '../../../utils/contexts/auth';
 
-const UserSettingOptions = [
-	<Option>Account Settings</Option>,
-	<Option>Logout</Option>
-];
 
 const Dashboard = () => {
 
 	const navigate = useNavigate();
+	const auth = useAuth();
+
+	const UserSettingOptions = [
+		<Option>Account Settings</Option>,
+		<Option onClick={()=> auth?.logout()}>Logout</Option>
+	];
 
 	return (
 		<DashboardpageWrapper>

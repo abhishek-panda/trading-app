@@ -18,11 +18,10 @@ import {
 } from "./style";
 import { Card, Button, Seperator, Input, Link } from "../../../components";
 import showToast, { ToastType } from "../../../utils/toast";
-import { useAppSelector, useAppDispatcher } from "../../../store/hooks";
 import { googleIcon, logo }  from '../../../images';
-import { loginUser } from "../../../reducers/userSlice";
 import { UserLoginInputs } from '../../../../libs/typings'
 import { validUserLoginSchema } from '../../../../libs/utils';
+import { useAuth } from '../../../utils/contexts/auth';
 
 const initialValues: UserLoginInputs = {
 	email: "",
@@ -31,18 +30,17 @@ const initialValues: UserLoginInputs = {
 
 const Login = () => {
 
-	const user = useAppSelector(state => state.userData.user);
-	const dispatch = useAppDispatcher();
+	const auth = useAuth();
 
 	const formik = useFormik({
 		initialValues,
 		validationSchema: validUserLoginSchema,
 		onSubmit: (values) => {
-			dispatch(loginUser(values));
+			auth?.login(values);
 		},
 	});
 
-	if (user) {
+	if (auth?.user) {
 		return <Navigate to="/algotm/dashboard/home" />
 	}
 

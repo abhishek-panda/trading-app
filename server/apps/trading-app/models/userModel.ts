@@ -126,4 +126,23 @@ export default class UserModel {
             return errorDetails;
         }
     }
+
+
+    async logout (sessionId: string | undefined): Promise<IResponse> {
+        if (sessionId) {
+            const userSessionRepository = this.dataSource.getRepository(UserSession);
+            const result = userSessionRepository.delete({ id: sessionId });
+            console.log("Result", result);
+            const response = {
+                message: "User logged out successfully"
+            };
+            return response;
+        }
+        const errorDetails = {
+            error: {
+                user: "Unauthorized"
+            }
+        }
+        return errorDetails;
+    }
 }
