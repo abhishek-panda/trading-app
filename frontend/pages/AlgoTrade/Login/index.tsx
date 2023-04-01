@@ -1,7 +1,6 @@
 import React from 'react';
 import { NavLink, Navigate } from "react-router-dom";
 import { useFormik } from "formik";
-import * as Yup from 'yup';
 import {
 	LoginPageWrapper,
 	CardLogo,
@@ -17,38 +16,31 @@ import {
 	SignInText,
 	RegisterLinkWrapper,
 } from "./style";
-import { emailExpression, passwordExpression } from '../../../utils/patterns';
 import { Card, Button, Seperator, Input, Link } from "../../../components";
 import showToast, { ToastType } from "../../../utils/toast";
-import { useAppSelector } from "../../../store/hooks";
+import { useAppSelector, useAppDispatcher } from "../../../store/hooks";
 import { googleIcon, logo }  from '../../../images';
+import { loginUser } from "../../../reducers/userSlice";
+import { UserLoginInputs } from '../../../../libs/typings'
+import { validUserLoginSchema } from '../../../../libs/utils';
 
-interface LoginInput {
-	uname: string;
-	password: string;
-}
-
-const initialValues: LoginInput = {
-	uname: "",
+const initialValues: UserLoginInputs = {
+	email: "",
 	password: "",
 };
 
-const validationSchema = Yup.object({
-	uname: Yup.string().required("Required").matches(emailExpression, "Invalid email format"),
-	password: Yup.string().required('Required').matches(passwordExpression,
-	"Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and One Special Case Character")
-});
-
 const Login = () => {
-	const formik = useFormik({
-		initialValues,
-		validationSchema,
-		onSubmit: (values) => {
-			console.log(values);
-		},
-	});
 
 	const user = useAppSelector(state => state.userData.user);
+	const dispatch = useAppDispatcher();
+
+	const formik = useFormik({
+		initialValues,
+		validationSchema: validUserLoginSchema,
+		onSubmit: (values) => {
+			dispatch(loginUser(values));
+		},
+	});
 
 	if (user) {
 		return <Navigate to="/algotm/dashboard/home" />
@@ -84,12 +76,12 @@ const Login = () => {
 					<InputWrapper>
 						<Input
 							label="Email Address"
-							name="uname"
-							type="email"
-							value={formik.values.uname}
+							name="email"
+							type="text"
+							value={formik.values.email}
 							onChange={formik.handleChange}
 							onBlur={formik.handleBlur}
-							error={formik.touched.uname ? formik.errors.uname : ''}
+							error={formik.touched.email ? formik.errors.email : ''}
 						/>
 					</InputWrapper>
 

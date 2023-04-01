@@ -23,7 +23,12 @@ function request(
         body: method !== REQUEST_METHOD.GET ? JSON.stringify(body) : undefined
     })
     .then(async response => {
-        const data = await response.json();
+        /**
+         * Failed to execute 'json' on 'Response': body stream already read
+         * To avoid this error Cloned the response object.
+         */
+        const clonedResponse = response.clone()
+        const data = await clonedResponse.json();
         if (!response.ok) {
             const errorMessage = Object.keys(data.error).reduce((accumulator, key) => {
                 return accumulator += data.error[key]

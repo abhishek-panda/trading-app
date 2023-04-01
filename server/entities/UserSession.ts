@@ -6,7 +6,7 @@ import { SESSION_STATE } from "../typings";
 
 @Entity()
 export default class UserSession {
-    @PrimaryColumn({ length: 100 })
+    @PrimaryColumn()
     id!: string;
     
     @ManyToOne(() => User, (user) => user.session, { nullable : false})

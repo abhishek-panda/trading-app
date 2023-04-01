@@ -5,23 +5,24 @@ import { DataSource } from 'typeorm';
 import DBConn from '../../../dbConn';
 import User from '../../../entities/User';
 import UserSession from '../../../entities/UserSession';
-import { UserRegistrationInputs, IResponse } from '../../../../libs/typings'
-import { validUserRegistrationSchema } from '../../../../libs/utils';
-import { validTokenSchema } from '../../../utils';
+import { UserRegistrationInputs, UserLoginInputs, IResponse } from '../../../../libs/typings'
+import { validUserRegistrationSchema, validUserLoginSchema } from '../../../../libs/utils';
 import { SESSION_STATE } from '../../../typings';
 
 export default class UserModel {
 
-    private dbConn: DataSource;
+    private static hashLength = 50;
+    private dataSource: DataSource;
+
 
     constructor() {
-        this.dbConn = DBConn.getInstance();
+        this.dataSource = DBConn.getInstance();
     }
 
     async register(registrationData: UserRegistrationInputs): Promise<IResponse> {
         try {
             const validUser = await validUserRegistrationSchema.validate(registrationData);
-            const userRepository = this.dbConn.getRepository(User);
+            const userRepository = this.dataSource.getRepository(User);
             const userExists = await userRepository.findOneBy({ email: validUser.email });
             if (!userExists) {
                 const salt = await bcrypt.genSalt(10);
@@ -49,13 +50,11 @@ export default class UserModel {
     };
 
     async getUser(authorizationHeader: string | undefined): Promise<IResponse> {
-        const isValidAuthorizationHeader = await validTokenSchema.isValid(authorizationHeader);
-        if (authorizationHeader && isValidAuthorizationHeader) {
-            const tokens = authorizationHeader.split(" ");
-            const sessionId = tokens[1];
-            const tempRandomId = crypto.randomBytes(20).toString('hex');
+        if (authorizationHeader) {
+            const sessionId = authorizationHeader;
+            const tempRandomId = crypto.randomBytes(UserModel.hashLength).toString('hex');
             if (sessionId && tempRandomId.length === sessionId.length) {
-                const userRepository = this.dbConn.getRepository(User);
+                const userRepository = this.dataSource.getRepository(User);
                 const result = await userRepository
                     .createQueryBuilder()
                     .select(["name, email"])
@@ -80,11 +79,46 @@ export default class UserModel {
                 }
             }
         }
-        const response = {
+        const errorDetails = {
             error: {
                 user: "Unauthorized"
             }
         }
-        return response;
+        return errorDetails;
+    }
+
+    async login(loginData: UserLoginInputs): Promise<IResponse> {
+        try {
+            const validUser = await validUserLoginSchema.validate(loginData);
+            const userRepository = this.dataSource.getRepository(User);
+            const userExists = await userRepository.findOneBy({ email: validUser.email });
+            if (userExists) {
+                const validPassword = await bcrypt.compare(validUser.password, userExists.password);
+                if (validPassword) {
+                    const userSessionRepository = this.dataSource.getRepository(UserSession);
+                    const sessionId = crypto.randomBytes(UserModel.hashLength).toString('hex');
+
+                    const userSession = new UserSession(sessionId, userExists);
+                    const sessionDetails = await userSessionRepository.save(userSession);
+                    const response = {
+                        message: "Login successful",
+                        data: {
+                            sessionId: sessionDetails.id,
+                            name: sessionDetails.user.name,
+                            email: sessionDetails.user.email
+                        }
+                    }
+                    return response;
+                }
+            }
+            throw new Yup.ValidationError("Login failed", '', 'login');
+        } catch (error: any) {
+            const errorDetails = {
+                error: {
+                    [error.path]: `${error.errors.join()}`
+                }
+            }
+            return errorDetails;
+        }
     }
 }

@@ -11,3 +11,10 @@ export declare const validUserRegistrationSchema: Yup.ObjectSchema<{
     email: undefined;
     password: undefined;
 }, "">;
+export declare const validUserLoginSchema: Yup.ObjectSchema<{
+    email: string;
+    password: string;
+}, Yup.AnyObject, {
+    email: undefined;
+    password: undefined;
+}, "">;

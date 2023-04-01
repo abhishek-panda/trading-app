@@ -11,7 +11,8 @@ export default class UserController {
     }
 
     getUser = async (req: Request, res: Response) => {
-        const authorizationHeader = req.headers.authorization;
+        const cookies = req.cookies;
+        const authorizationHeader = cookies['SN'];
         const result = await this.userModel.getUser(authorizationHeader);
         const status = result.error ? 401 : 200;
         return res.status(status).send(result);
@@ -26,7 +27,14 @@ export default class UserController {
     }
 
     loginUser = async (req: Request, res: Response) => {
-        res.sendStatus(401);
+        const userInputData = req.body;
+        const result = await this.userModel.login(userInputData);
+        const status = result.error ? 401 : 200;
+        if (!result.error) {
+            res.cookie('SN', result.data.sessionId, { httpOnly: true, sameSite: 'strict', secure: true, maxAge: 2 * 60 * 60 * 1000, });
+            delete result.data.sessionId;
+        }
+        return res.status(status).send(result);
     }
 
 } 

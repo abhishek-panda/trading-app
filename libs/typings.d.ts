@@ -7,6 +7,10 @@ export interface UserRegistrationInputs {
     email: string;
     password: string;
 }
+export interface UserLoginInputs {
+    email: string;
+    password: string;
+}
 export interface IResponse {
     data?: any;
     message?: string;

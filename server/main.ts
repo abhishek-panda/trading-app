@@ -1,6 +1,7 @@
 import path from 'path';
 import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 import helmetCsp from 'helmet-csp';
 import * as Schedule from 'node-schedule';
 import express, { Request, Response } from 'express';
@@ -30,6 +31,7 @@ app.disable('x-powered-by');
  */
 app.use(bodyParser.json());
 app.use(helmetCsp(csp));
+app.use(cookieParser());
 // For local only as static assest will be served from nginx
 app.use(express.static(GlobalUtils.publicDirPath));
 
@@ -40,7 +42,7 @@ function initializeApplicationsRouters() {
     // Block all other unwanted routes
     app.use(function (req: Request, res: Response) {
         logger.info(`Invalid request. Path: ${req.path} Headers: ${JSON.stringify(req.headers)}`);
-        GlobalUtils.throw404Error(res);
+        GlobalUtils.serveIndex(res);
     });
 }
 // End Middleware

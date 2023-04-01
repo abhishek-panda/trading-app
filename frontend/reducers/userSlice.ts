@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { User, UserRegistrationInputs, IResponse } from "../../libs/typings";
+import { User, UserRegistrationInputs, UserLoginInputs, IResponse } from "../../libs/typings";
 import request, { REQUEST_METHOD } from '../utils/request';
 
 
@@ -8,7 +8,7 @@ type UserInitialState = {
 	user: User | undefined;
 	error: string;
 	hasFetched: boolean;
-	registeration?: IResponse
+	registration?: IResponse
 }
 
 
@@ -21,11 +21,16 @@ const initialState: UserInitialState = {
 
 const fetchUser = createAsyncThunk('user/fetch', () => {
 	return request('/api/user', REQUEST_METHOD.GET, {}, {}, false )
-		.then(response => response.json());
+		.then(response => response.json())
 });
 
 const registerUser = createAsyncThunk('user/register', (formData: UserRegistrationInputs) => {
 	return request('/api/user/register', REQUEST_METHOD.POST, {}, formData)
+		.then(response => response.json());
+});
+
+const loginUser = createAsyncThunk('user/login', (formData: UserLoginInputs) => {
+	return request('/api/user/login', REQUEST_METHOD.POST, {}, formData)
 		.then(response => response.json());
 });
 
@@ -40,9 +45,9 @@ const userSlice = createSlice({
 			state.error = '';
 			state.hasFetched = true;
 		});
-		builder.addCase(fetchUser.fulfilled, (state, action: PayloadAction<User>) => {
+		builder.addCase(fetchUser.fulfilled, (state, action: PayloadAction<IResponse>) => {
 			state.loading = false;
-			state.user = action.payload;
+			state.user = action.payload.data;
 			state.error = '';
 			state.hasFetched = true;
 		});
@@ -53,23 +58,32 @@ const userSlice = createSlice({
 			state.hasFetched = true;
 		});
 		builder.addCase(registerUser.fulfilled, (state, action: PayloadAction<IResponse>) => {
-			state.registeration = {
+			state.registration = {
 				message: action.payload.message
 			};
 		});
 		builder.addCase(registerUser.rejected, (state, action) => {
-			state.registeration = {
+			state.registration = {
 				message: action.error.message ?? ""
 			};
+		});
+		builder.addCase(loginUser.fulfilled, (state, action: PayloadAction<IResponse>) => {
+			state.user = action.payload.data;
+			state.error = '';
+		});
+		builder.addCase(loginUser.rejected, (state, action) => {
+			state.user = undefined;
+			state.error = action.error.message ?? '';
 		});
 	}
 });
 
 export const userReducers = userSlice.reducer;
-export const fetchUserAction = userSlice.actions;
+export const userActions = userSlice.actions;
 
 export {
 	fetchUser,
-	registerUser
+	registerUser,
+	loginUser,
 };
 
