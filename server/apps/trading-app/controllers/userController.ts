@@ -31,7 +31,7 @@ export default class UserController {
         const result = await this.userModel.login(userInputData);
         const status = result.error ? 401 : 200;
         if (!result.error) {
-            res.cookie('SN', result.data.sessionId, { httpOnly: true, sameSite: 'strict', secure: true, maxAge: 2 * 60 * 60 * 1000, });
+            res.cookie('SN', result.data.sessionId, { httpOnly: true, sameSite: 'strict', secure: true});
             delete result.data.sessionId;
         }
         return res.status(status).send(result);

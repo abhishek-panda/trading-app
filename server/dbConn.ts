@@ -9,9 +9,11 @@ export default class DBConn {
     private constructor() { }
 
     public static getInstance(): DataSource {
+        console.log("Timezone", process.env.TZ);
         if (!DBConn.instance) {
             DBConn.instance = new DataSource({
                 type: "mysql",
+                timezone: process.env.TZ,
                 host: process.env.DB_HOST,
                 port: parseInt(process.env.DB_PORT ?? '3306'),
                 username: process.env.DB_USER ?? '',
@@ -23,7 +25,7 @@ export default class DBConn {
                     UserSession
                 ],
                 logging: true,
-                // dropSchema: true,
+                dropSchema: true,
             });
         }
 

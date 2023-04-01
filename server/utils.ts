@@ -18,7 +18,7 @@ export const logFormat = printf(({ level, message, label, timestamp }) => {
 
 // Get local date time
 export function getLocalDateTime(date: Date = new Date()): Date {
-    const newDate = new Date(date.getTime() - date.getTimezoneOffset() * 60 * 1000);
+    const newDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60 * 1000));
     return newDate;
 }
 

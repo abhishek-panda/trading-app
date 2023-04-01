@@ -3,7 +3,7 @@ export enum ENV_OPERATION {
     REMOVE = 'REMOVE'
 }
 
-export enum SESSION_STATE {
-    VALID = 'true',
-    INVALID = 'false'
+export enum BOOLEAN {
+    TRUE='true',
+    FALSE='false'
 }
