@@ -19,9 +19,6 @@ export default class UserSession {
     @Column()
     expiredOn: Date;
 
-    @Column({ type: 'enum', enum: BOOLEAN, default: BOOLEAN.TRUE })
-    isValid!: BOOLEAN;
-
     constructor(sessionId: string, user: User, createdOn: Date, expiredOn: Date) {
         this.id = sessionId;
         this.user = user;

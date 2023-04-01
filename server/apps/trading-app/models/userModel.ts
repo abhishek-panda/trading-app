@@ -7,7 +7,6 @@ import User from '../../../entities/User';
 import UserSession from '../../../entities/UserSession';
 import { UserRegistrationInputs, UserLoginInputs, IResponse } from '../../../../libs/typings'
 import { validUserRegistrationSchema, validUserLoginSchema } from '../../../../libs/utils';
-import { BOOLEAN } from '../../../typings';
 import { getLocalDateTime } from '../../../utils';
 
 export default class UserModel {
@@ -65,18 +64,21 @@ export default class UserModel {
                             .select("session.userId")
                             .from(UserSession, "session")
                             .where("session.id = :sessionId")
-                            .andWhere("session.isValid = :isValid")
+                            .andWhere("session.expiredOn > :currentTime")
                             .getQuery()
                         return `id = ${subQuery}`;
                     })
-                    .setParameters({ sessionId, isValid: BOOLEAN.TRUE })
+                    .setParameters({ sessionId, currentTime: getLocalDateTime() })
                     .getRawOne();
-
                 if (result) {
                     const response = {
                         data: result
                     }
                     return response;
+                } else {
+                    const userSessionRepository = this.dataSource.getRepository(UserSession);
+                    // Cleaning upon old session
+                    userSessionRepository.delete({ id : sessionId });
                 }
             }
         }
@@ -98,12 +100,9 @@ export default class UserModel {
                 if (validPassword) {
                     const userSessionRepository = this.dataSource.getRepository(UserSession);
                     const sessionId = crypto.randomBytes(UserModel.hashLength).toString('hex');
-
-                    /**
-                     * TODO: Multi session not allowed delete session on logout or update if cookie got expired.
-                     */
                     const currentDateTime = getLocalDateTime();
-                    const cookieExpiredTime = new Date(currentDateTime.getTime() + (parseInt(process.env.COOKIE_EXPIRY_IN_HRS ?? '1' ) * 60 * 60 * 1000));
+                    // parseInt('0.1') => 0 so used parseFloat('0.1') => 0.1
+                    const cookieExpiredTime = new Date(currentDateTime.getTime() + (parseFloat(process.env.COOKIE_EXPIRY_IN_HRS ?? '1' ) * 60 * 60 * 1000));
                     const userSession = new UserSession(sessionId, userExists, currentDateTime, cookieExpiredTime);
                     const sessionDetails = await userSessionRepository.save(userSession);
                     const response = {
