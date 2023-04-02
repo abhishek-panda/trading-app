@@ -11,6 +11,16 @@ const MenuOption = styled.div`
 	background-color: transparent;
 	transition-duration: 0.5s;
 	transition-property: background-color;
+	
+	> a {
+		text-decoration: none;
+		color: rgb(105, 117, 134);
+	}
+
+	:has(> a.active-menu) {
+		background-color: rgb(237,231,246);
+	} 
+
 	:hover {
 		background-color: rgb(237,231,246);
 	}

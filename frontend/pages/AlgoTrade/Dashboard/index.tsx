@@ -41,7 +41,9 @@ const Dashboard = () => {
 				</Logo>
 				<MenuSection>
 					<MenuSectionTitle>Dashboard</MenuSectionTitle>
-					<MenuOption onClick={_ => navigate('home')}>Home</MenuOption>
+					<MenuOption onClick={_ => navigate('home')}>
+						<NavLink to="home" className={({ isActive }) => isActive ? 'active-menu' : ''}>Home</NavLink>
+					</MenuOption>
 				</MenuSection>
 				<Seperator />
 				<MenuSection>
