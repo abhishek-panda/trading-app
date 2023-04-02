@@ -75,9 +75,17 @@ export const Logo = styled.div`
 
 export const Content = styled.div`
 	margin-right: 20px;
+	padding: 15px;
 	background-color: rgb(238,242,246);
 	height: 100%;
 	border-radius: 10px 10px 0 0;
+
+	.content-container {
+		background-color: #fff;
+		border-radius: 8px;
+		height: 100%;
+		padding: 15px;
+	}
 `;
 
 export const MenuSection = styled.section`

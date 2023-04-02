@@ -74,11 +74,16 @@ const Dashboard = () => {
 					<MenuOption onClick={_ => navigate('algo-strategies')}>
 						<NavLink to="algo-strategies" className={({ isActive }) => isActive ? 'active-menu' : ''}>Strategies</NavLink>
 					</MenuOption>
+					<MenuOption onClick={_ => navigate('virtual-trade')}>
+						<NavLink to="virtual-trade" className={({ isActive }) => isActive ? 'active-menu' : ''}>Virtual Trade</NavLink>
+					</MenuOption>
 				</MenuSection>
 			</Nav>
 			<Main>
 				<Content>
-					<Outlet />
+					<div className='content-container'>
+						<Outlet />
+					</div>
 				</Content>
 			</Main>
 		</DashboardpageWrapper>

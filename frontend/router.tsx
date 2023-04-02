@@ -15,6 +15,7 @@ import StrategyPerformance from './pages/algo-trade/dashboard/strategy-performan
 import AlgoBots from './pages/algo-trade/dashboard/algo-bots';
 import AlgoStrategies from './pages/algo-trade/dashboard/algo-strategies';
 import AccountSettings from './pages/algo-trade/dashboard/account-settings';
+import VirtualTrade from './pages/algo-trade/dashboard/vitual-trade';
 import RequiredAuth from './utils/RequiredAuth';
 import { AuthProvider } from './utils/contexts/auth';
 
@@ -39,6 +40,7 @@ const AppRouter = () => {
 						<Route path='algo-bots' element={<AlgoBots />} />
 						<Route path='algo-strategies' element={<AlgoStrategies />} />
 						<Route path='account-settings' element={<AccountSettings />} />
+						<Route path='virtual-trade' element={<VirtualTrade />} />
 					</Route>
 				</Route>
 				<Route path='*' element={<Error404 /> } />

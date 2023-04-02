@@ -11,15 +11,17 @@ The list of items to be picked.
     - Implement TOTP.
 
 * ### Dashboard
-    - Show active menu.
+    - ~~Show active menu.~~
 
 ## Features
 ---
 * ### User Settings
     - Show current logged-in sessions.
-    - Subscription
+    - Subscription model
     - Add payment method
 
-* ### Bots
+* ### Algos
     - Bot registration
-    - Bot status
+    - Bot status check
+    - Virtual Trade with registered bot using available strategies
+    
