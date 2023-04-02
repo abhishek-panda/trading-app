@@ -1,4 +1,4 @@
-import React, { useCallback} from 'react';
+import React from 'react';
 import {Outlet, NavLink, useNavigate} from 'react-router-dom'
 import {
 	DashboardpageWrapper,
@@ -24,7 +24,7 @@ const Dashboard = () => {
 	const auth = useAuth();
 
 	const UserSettingOptions = [
-		<Option>Account Settings</Option>,
+		<Option onClick={_ => navigate('account-settings')}>Account Settings</Option>,
 		<Option onClick={()=> auth?.logout()}>Logout</Option>
 	];
 
@@ -48,20 +48,32 @@ const Dashboard = () => {
 				<Seperator />
 				<MenuSection>
 					<MenuSectionTitle>Postions</MenuSectionTitle>
-					<MenuOption onClick={_ => navigate('active')}>Active</MenuOption>
-					<MenuOption onClick={_ => navigate('past')}>Past</MenuOption>
+					<MenuOption onClick={_ => navigate('active-orders')}>
+						<NavLink to="active-orders" className={({ isActive }) => isActive ? 'active-menu' : ''}>Active</NavLink>
+					</MenuOption>
+					<MenuOption onClick={_ => navigate('past-orders')}>
+						<NavLink to="past-orders" className={({ isActive }) => isActive ? 'active-menu' : ''}>Past</NavLink>
+					</MenuOption>
 				</MenuSection>
 				<Seperator />
 				<MenuSection>
 					<MenuSectionTitle>Performance</MenuSectionTitle>
-					<MenuOption onClick={_ => navigate('portfolio')} >Portfolio</MenuOption>
-					<MenuOption onClick={_ => navigate('strategy')} >Strategy</MenuOption>
+					<MenuOption onClick={_ => navigate('portfolio-performance')} >
+						<NavLink to="portfolio-performance" className={({ isActive }) => isActive ? 'active-menu' : ''}>Portfolio</NavLink>
+					</MenuOption>
+					<MenuOption onClick={_ => navigate('strategy-performance')} >
+						<NavLink to="strategy-performance" className={({ isActive }) => isActive ? 'active-menu' : ''}>Strategy</NavLink>
+					</MenuOption>
 				</MenuSection>
 				<Seperator />
 				<MenuSection>
-					<MenuSectionTitle>Algos</MenuSectionTitle>
-					<MenuOption onClick={_ => navigate('bots')}>Bots</MenuOption>
-					<MenuOption onClick={_ => navigate('strategies')}>Strategies</MenuOption>
+					<MenuSectionTitle>Algo</MenuSectionTitle>
+					<MenuOption onClick={_ => navigate('algo-bots')}>
+						<NavLink to="algo-bots" className={({ isActive }) => isActive ? 'active-menu' : ''}>Bots</NavLink>
+					</MenuOption>
+					<MenuOption onClick={_ => navigate('algo-strategies')}>
+						<NavLink to="algo-strategies" className={({ isActive }) => isActive ? 'active-menu' : ''}>Strategies</NavLink>
+					</MenuOption>
 				</MenuSection>
 			</Nav>
 			<Main>

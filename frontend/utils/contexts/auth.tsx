@@ -1,6 +1,6 @@
 import React, { createContext, useContext, PropsWithChildren, useEffect } from "react";
 import { useAppDispatcher, useAppSelector } from "../../store/hooks";
-import LoadingPage from "../../pages/AlgoTrade/Loading";
+import LoadingPage from "../../pages/algo-trade/loading";
 import { fetchUser } from "../../reducers/userSlice";
 import { User, UserLoginInputs } from "../../../libs/typings";
 import { Loader } from "../../components";
