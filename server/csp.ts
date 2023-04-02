@@ -7,7 +7,7 @@ export const csp = {
         'script-src': [
             "'self'"
         ],
-        'style-src': ["'self'", "'unsafe-inline'"],
+        'style-src': ["'self'", "'unsafe-inline'", 'fonts.googleapis.com'],
         upgradeInsecureRequests:[]
     }
 };
