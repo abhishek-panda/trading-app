@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm"
 import UserSession from "./UserSession";
-import { BOOLEAN } from "../typings";
+import { BOOLEAN, UserRole } from "../../libs/typings";
 
 @Entity()
 export default class User{
@@ -21,6 +21,9 @@ export default class User{
 
     @Column({ type: 'enum', enum: BOOLEAN, default: BOOLEAN.FALSE  })
     isEmailVerified: BOOLEAN;
+
+    @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
+    role: UserRole;
 
     @OneToMany(() => UserSession, (userSession) => userSession.user)
     session: UserSession;

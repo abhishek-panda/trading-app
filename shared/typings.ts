@@ -19,3 +19,32 @@ export interface IResponse {
 	message?: string;
     error?: Record<string, string>
 }
+
+
+export enum UserRole {
+	ADMIN = 'admin',
+	USER = 'user',
+}
+
+
+export enum BOOLEAN {
+    TRUE='true',
+    FALSE='false'
+}
+
+
+export enum BROKER {
+	ZERODHA = "zerodha"
+}
+export interface BrokenClientRegistation {
+	cname: string;
+	broker: BROKER;
+	apiKey: string;
+}
+
+export interface BrokerClient {
+    id: string;
+    cname: string;
+	broker: BROKER;
+    isActive: BOOLEAN;
+}
