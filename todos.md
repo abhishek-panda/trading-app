@@ -8,7 +8,10 @@ The list of items to be picked.
 * ### User Registation and Authentication
     - Send user registration email.
     - Verify email.
+    - Forgot Password
     - Implement TOTP.
+    - Operation/Admin Panel
+    - ~~Validate all api calls (route guard)~~
 
 * ### Dashboard
     - ~~Show active menu.~~

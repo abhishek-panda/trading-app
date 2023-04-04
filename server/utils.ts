@@ -1,10 +1,10 @@
 import * as fs from 'fs'; 
 import path from 'path';
+import NodeCache from 'node-cache';
 import winston, { format } from "winston";
 import * as Typings from './typings';
 import * as Yup from 'yup';
 import { Response } from 'express';
-
 
 
 export const publicDirPath = path.join(__dirname, '..', 'public');
@@ -95,3 +95,8 @@ export const logger = winston.createLogger({
 });
 
 export const validTokenSchema = Yup.string().matches(/^Bearer [a-zA-Z0-9]+$/);
+
+export const cache = new NodeCache({
+    stdTTL: parseFloat(process.env.COOKIE_EXPIRY_IN_HRS ?? '1') * 60 * 60,
+    checkperiod: 1 * 60
+});

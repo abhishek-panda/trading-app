@@ -1,5 +1,7 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import UserModel from '../models/userModel';
+import * as GlobalUtils from '../../../utils';
+import { User } from "../../../../libs/typings";
 
 
 export default class UserController {
@@ -10,11 +12,30 @@ export default class UserController {
         this.userModel = new UserModel();
     }
 
+    routeGuard = async (req: Request, res: Response, next : NextFunction) => {
+        const cookies = req.cookies;
+        const authorizationHeader = cookies['SN'];
+        const user = GlobalUtils.cache.get<User>(authorizationHeader);
+        if (user?.name && user.email) {
+            next();
+        } else {
+            const result = {
+                error: {
+                    user: "Unauthorized"
+                }
+            };
+            return res.status(401).send(result);
+        }
+    }
+
     getUser = async (req: Request, res: Response) => {
         const cookies = req.cookies;
         const authorizationHeader = cookies['SN'];
         const result = await this.userModel.getUser(authorizationHeader);
         const status = result.error ? 401 : 200;
+        if (!result.error) {
+            GlobalUtils.cache.set(authorizationHeader, result.data);
+        }
         return res.status(status).send(result);
     }
 
@@ -32,6 +53,7 @@ export default class UserController {
         const status = result.error ? 401 : 200;
         if (!result.error) {
             res.cookie('SN', result.data.sessionId, { httpOnly: true, sameSite: 'strict', secure: true});
+            GlobalUtils.cache.set(result.data.sessionId, result.data);
             delete result.data.sessionId;
         }
         return res.status(status).send(result);
@@ -42,6 +64,9 @@ export default class UserController {
         const authorizationHeader = cookies['SN'];
         const result = await this.userModel.logout(authorizationHeader);
         const status = result.error ? 401 : 200;
+        if (!result.error) {
+            GlobalUtils.cache.del(authorizationHeader);
+        }
         return res.status(status).send(result);
     }
 

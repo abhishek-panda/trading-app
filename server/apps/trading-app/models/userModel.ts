@@ -132,7 +132,6 @@ export default class UserModel {
         if (sessionId) {
             const userSessionRepository = this.dataSource.getRepository(UserSession);
             const result = userSessionRepository.delete({ id: sessionId });
-            console.log("Result", result);
             const response = {
                 message: "User logged out successfully"
             };

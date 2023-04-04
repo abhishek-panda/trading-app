@@ -9,10 +9,11 @@ function intializeTradingAppRoutes() {
     const userController = new UserController(); 
 
     TradingAppRouter.get('/', homeController.default);
-    TradingAppRouter.get('/api/user', userController.getUser);
+    TradingAppRouter.get('/api/user', userController.routeGuard , userController.getUser);
     TradingAppRouter.post('/api/user/register', userController.registerUser);
     TradingAppRouter.post('/api/user/login', userController.loginUser);
     TradingAppRouter.get('/api/user/logout', userController.logout);
+    // TradingAppRouter.get('',)
 
     return TradingAppRouter;
 }
