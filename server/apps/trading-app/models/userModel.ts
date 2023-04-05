@@ -109,7 +109,7 @@ export default class UserModel {
                         message: "Login successful",
                         data: {
                             sessionId: sessionDetails.id,
-                            userId: sessionDetails.user.id,
+                            id: sessionDetails.user.id,
                             name: sessionDetails.user.name,
                             email: sessionDetails.user.email
                         }

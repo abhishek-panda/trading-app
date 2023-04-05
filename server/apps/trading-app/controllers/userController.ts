@@ -64,7 +64,7 @@ export default class UserController {
         if (!result.error) {
             const sessionId =  result.data.sessionId;
             delete result.data.sessionId;
-            GlobalUtils.cache.set(result.data.sessionId, result.data);
+            GlobalUtils.cache.set(sessionId, result.data);
             res.cookie('SN', sessionId, { httpOnly: true, sameSite: 'strict', secure: true});
         }
         return res.status(status).send(result);

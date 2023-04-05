@@ -46,6 +46,7 @@ export interface BrokenClientRegistation {
 export interface BrokerClient {
     id: string;
     cname: string;
+	apiKey: string;
 	broker: BROKER;
     isActive: BOOLEAN;
 }

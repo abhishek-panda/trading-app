@@ -7,6 +7,7 @@ import BrokerClient from "../../../entities/BrokerClient";
 import User from "../../../entities/User";
 
 
+
 export default class BrokerClientModel {
 
     private dataSource: DataSource;
@@ -26,9 +27,12 @@ export default class BrokerClientModel {
                 if (!clientExists) {
                     const brokerClient = new BrokerClient(validBrokerClient.cname, registrationData.broker, validBrokerClient.apiKey, user);
                     const savedBrokerClient = await brokerClientRepository.save(brokerClient);
+                    const { id, cname, apiKey, broker, isActive} = savedBrokerClient;
                     return {
                         message: "Client registered successfully",
-                        data: savedBrokerClient,
+                        data: {
+                            id, cname, apiKey, broker, isActive
+                        },
                     }
                 } else {
                     throw new Yup.ValidationError("Client already exists.", '', 'brokerClient');
@@ -45,5 +49,19 @@ export default class BrokerClientModel {
             }
            return errorDetails;
         }          
+    }
+
+    async getClients(userId: string): Promise<IResponse> {
+        const brokerClients: BrokerClient[] = await this.dataSource.getRepository(BrokerClient)
+            .createQueryBuilder()
+            .select("*")
+            .from(BrokerClient, "brokerClient")
+            .where("brokerClient.userId = :userId")
+            .setParameters({ userId })
+            .getRawMany();
+        
+        return {
+            data: brokerClients
+        };
     }
 }

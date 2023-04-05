@@ -20,9 +20,6 @@ export default class BrokerClientController {
         if (user) {
             result = await this.brokerClientModel.registerClient(userInputData, user.id);
             status = result.error ? 401 : 200;
-            if (!result.error) {
-                delete result.data.user;
-            }
         } else {
             status = 401;
             result = {
@@ -35,9 +32,22 @@ export default class BrokerClientController {
     }
 
     getClients = async (req: Request, res: Response) => {
-        const userInputData = req.body;
         const cookies = req.cookies;
         const userSessionId = cookies['SN'];
+        const user = GlobalUtils.cache.get<User>(userSessionId);
+        let status: number, result: IResponse;
+        if (user) {
+            result = await this.brokerClientModel.getClients(user.id);
+            status = result.error ? 401 : 200;
+        } else {
+            status = 401;
+            result = {
+                error: {
+                    user: "Unauthorized"
+                }
+            };
+        }
+        return res.status(status).send(result);
     }
 
     updateClient = async (req: Request, res: Response) => {
