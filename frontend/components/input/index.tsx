@@ -19,6 +19,7 @@ const InputWrapper = styled.div<InputWrapperProps>`
 	height: 58px;
 	border-radius: 12px;
 	position: relative;
+	overflow: hidden;
 
 	& > input {
 		outline: none;

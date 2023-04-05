@@ -1,6 +1,5 @@
 import { Entity, PrimaryColumn, CreateDateColumn, ManyToOne, JoinColumn, Column } from "typeorm"
 import User from "./User";
-import { BOOLEAN } from "../typings";
 
 
 

@@ -19,7 +19,6 @@ const GlobalStyle = createGlobalStyle`
 		box-sizing: border-box;
 	}
 
-
 	:root {
 		--font-family: "Roboto" ,sans-serif;
 		--yellow: hsl(45, 100%, 50%);

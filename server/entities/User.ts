@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm"
 import UserSession from "./UserSession";
+import BrokerClient from "./BrokerClient";
 import { BOOLEAN, UserRole } from "../../libs/typings";
 
 @Entity()
@@ -28,6 +29,8 @@ export default class User{
     @OneToMany(() => UserSession, (userSession) => userSession.user)
     session: UserSession;
 
+    @OneToMany(() => BrokerClient, (brokerClient) => brokerClient.broker)
+    broker: BrokerClient;
 
     constructor(name: string, email: string, password: string, joinedOn: Date) {
         this.name = name;

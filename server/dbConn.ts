@@ -1,7 +1,6 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import User from './entities/User';
-import UserSession from "./entities/UserSession";
+import Entites from './entities';
 
 export default class DBConn {
     private static instance: DataSource;
@@ -9,7 +8,6 @@ export default class DBConn {
     private constructor() { }
 
     public static getInstance(): DataSource {
-        console.log("Timezone", process.env.TZ);
         if (!DBConn.instance) {
             DBConn.instance = new DataSource({
                 type: "mysql",
@@ -20,10 +18,7 @@ export default class DBConn {
                 password: process.env.DB_USER_PWD ?? '',
                 database: process.env.DB_NAME ?? 'algo_trading',
                 synchronize: true,
-                entities: [
-                    User,
-                    UserSession
-                ],
+                entities: Entites,
                 logging: true,
                 // dropSchema: true,
             });

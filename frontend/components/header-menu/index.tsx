@@ -22,6 +22,7 @@ export const DropDownMenuWrapper = styled.section`
 	border-radius: 12px;
 	box-shadow: 1px 1px 6px 0px rgba(0, 0, 0, 0.2);
 	display: none;
+	z-index: 1;
 	& ul {
 		padding: 10px;
 	}
