@@ -5,8 +5,6 @@ import { BrokenClientRegistation, IResponse } from "../../../../libs/typings";
 import { validateBrokerClientSchema } from '../../../../libs/utils';
 import BrokerClient from "../../../entities/BrokerClient";
 import User from "../../../entities/User";
-import UserSession from "../../../entities/UserSession";
-import { getLocalDateTime } from '../../../utils';
 
 
 export default class BrokerClientModel {
@@ -17,24 +15,10 @@ export default class BrokerClientModel {
         this.dataSource = DBConn.getInstance();
     }
 
-    async registerClient(registrationData: BrokenClientRegistation, sessionId: string) : Promise<IResponse> {
+    async registerClient(registrationData: BrokenClientRegistation, userId: string) : Promise<IResponse> {
         try {
             const validBrokerClient = await validateBrokerClientSchema.validate(registrationData);
-            const user: User | undefined = await this.dataSource.getRepository(User)
-                .createQueryBuilder()
-                .select("*")
-                .where((qb) => {
-                    const subQuery = qb
-                        .subQuery()
-                        .select("session.userId")
-                        .from(UserSession, "session")
-                        .where("session.id = :sessionId")
-                        .andWhere("session.expiredOn > :currentTime")
-                        .getQuery()
-                    return `id = ${subQuery}`;
-                })
-                .setParameters({ sessionId, currentTime: getLocalDateTime() })
-                .getRawOne();
+            const user = await this.dataSource.getRepository(User).findOneBy({ id: userId})
             
             if (user) {
                 const brokerClientRepository = this.dataSource.getRepository(BrokerClient);

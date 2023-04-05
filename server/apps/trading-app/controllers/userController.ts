@@ -15,9 +15,6 @@ export default class UserController {
     routeGuard = async (req: Request, res: Response, next : NextFunction) => {
         const cookies = req.cookies;
         const authorizationHeader = cookies['SN'];
-        console.log("authorizationHeader", authorizationHeader);
-
-
         if (authorizationHeader) {
             const user = GlobalUtils.cache.get<User>(authorizationHeader);
             if (user?.name && user.email) {
@@ -65,9 +62,10 @@ export default class UserController {
         const result = await this.userModel.login(userInputData);
         const status = result.error ? 401 : 200;
         if (!result.error) {
-            res.cookie('SN', result.data.sessionId, { httpOnly: true, sameSite: 'strict', secure: true});
-            GlobalUtils.cache.set(result.data.sessionId, result.data);
+            const sessionId =  result.data.sessionId;
             delete result.data.sessionId;
+            GlobalUtils.cache.set(result.data.sessionId, result.data);
+            res.cookie('SN', sessionId, { httpOnly: true, sameSite: 'strict', secure: true});
         }
         return res.status(status).send(result);
     }

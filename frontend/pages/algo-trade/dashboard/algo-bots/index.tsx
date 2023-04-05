@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useFormik } from 'formik';
 import { useAppSelector, useAppDispatcher } from "../../../../store/hooks";
 import { Card, Button, Seperator, Input } from "../../../../components";
 import { BrokenClientRegistation, BOOLEAN, BROKER } from '../../../../../libs/typings';
-import { registerBrokerClient } from "../../../../reducers/brokerclientappsSlice";
+import { registerBrokerClient, fetchBrokerClient } from "../../../../reducers/brokerclientappsSlice";
 
 export const InputWrapper = styled.div`
 	margin: 8px 0;
@@ -19,19 +19,19 @@ const initialValues: BrokenClientRegistation = {
 
 
 const AlgoBots = () => {
-
+	const brokers = Object.keys(BROKER);
+	const brokerClientApps = useAppSelector(state => state.brokerData.brokerClientApps);
 	const dispatch = useAppDispatcher();
 	const formik = useFormik({
 		initialValues,
 		onSubmit: (values) => {
-			console.log(values);
 			dispatch(registerBrokerClient(values))
 		},
 	});
 
-	
-
-	const brokers = Object.keys(BROKER);
+	useEffect(() => {
+		dispatch(fetchBrokerClient());
+	}, []);
 
 	return (
 		<div>
@@ -70,6 +70,15 @@ const AlgoBots = () => {
 					</Button>
 				{/* </SignUpBtnWrapper> */}
 			</form>
+
+
+			<div>
+				{brokerClientApps.map(client => {
+					return (
+						<div>{client.cname}</div>
+					)
+				})}
+			</div>
 		</div>
 	)
 }

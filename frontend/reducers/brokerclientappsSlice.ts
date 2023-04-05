@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { BrokenClientRegistation, BrokerClient } from '../../libs/typings'
+import { BrokenClientRegistation, BrokerClient, IResponse } from '../../libs/typings'
 import request, { REQUEST_METHOD } from '../utils/request';
 
 
@@ -10,7 +10,7 @@ type BrokerClientInitialState = {
 
 const initialState: BrokerClientInitialState  = {
     brokers: [],
-    brokerClientApps: []
+    brokerClientApps: [],
 };
 
 
@@ -19,7 +19,7 @@ const registerBrokerClient = createAsyncThunk('brokerClient/register', (formData
         .then(response => response.json());
 });
 
-const fetchBrokerClient = createAsyncThunk('brokerClient/fetch', (formData: BrokenClientRegistation) => {
+const fetchBrokerClient = createAsyncThunk('brokerClient/fetch', _ => {
     return request('/api/broker-client', REQUEST_METHOD.GET, {}, {})
         .then(response => response.json());
 });
@@ -34,7 +34,15 @@ const brokerSlice = createSlice({
     initialState,
     reducers: {},
     extraReducers: (builder) => {
-        
+        builder.addCase(registerBrokerClient.fulfilled, (state, action: PayloadAction<IResponse>) => {
+            state.brokerClientApps.unshift(action.payload.data);
+		});
+        builder.addCase(fetchBrokerClient.fulfilled, (state, action: PayloadAction<IResponse>) => {
+            state.brokerClientApps = action.payload.data;
+		});
+        builder.addCase(fetchBrokerClient.rejected, (state, action) => {
+            state.brokerClientApps = [];
+		});
     }
 });
 

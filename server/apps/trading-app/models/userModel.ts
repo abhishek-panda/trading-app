@@ -57,7 +57,7 @@ export default class UserModel {
                 const userRepository = this.dataSource.getRepository(User);
                 const result = await userRepository
                     .createQueryBuilder()
-                    .select(["name, email"])
+                    .select(["id", "name", "email"])
                     .where((qb) => {
                         const subQuery = qb
                             .subQuery()
@@ -109,6 +109,7 @@ export default class UserModel {
                         message: "Login successful",
                         data: {
                             sessionId: sessionDetails.id,
+                            userId: sessionDetails.user.id,
                             name: sessionDetails.user.name,
                             email: sessionDetails.user.email
                         }
@@ -131,7 +132,7 @@ export default class UserModel {
     async logout (sessionId: string | undefined): Promise<IResponse> {
         if (sessionId) {
             const userSessionRepository = this.dataSource.getRepository(UserSession);
-            const result = userSessionRepository.delete({ id: sessionId });
+            const result = await userSessionRepository.delete({ id: sessionId });
             const response = {
                 message: "User logged out successfully"
             };
