@@ -10,7 +10,7 @@ The list of items to be picked.
     - Verify email.
     - Forgot Password
     - Implement TOTP.
-    - Operation/Admin Panel
+    - Operation/Admin Panel (1)
     - ~~Validate all api calls (route guard)~~
 
 * ### Dashboard
@@ -24,7 +24,9 @@ The list of items to be picked.
     - Add payment method
 
 * ### Algos
-    - Bot registration
-    - Bot status check
+    - ~~Client registration~~
+    - ~~Client status check~~
+    - Make Client active only if state has enbaled.
+    - Register Strategies (2)
     - Virtual Trade with registered bot using available strategies
     
