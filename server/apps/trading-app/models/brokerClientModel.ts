@@ -2,7 +2,8 @@ import { DataSource } from "typeorm";
 import DBConn from "../../../dbConn";
 import * as Yup from 'yup';
 import { validClientTokenRequestSchema } from '../../../utils';
-import { BrokenClientRegistation, IResponse, IBrokerClient, IValidateClient } from "../../../../libs/typings";
+import { BOOLEAN, SBrokerClient } from '../../../typings';
+import { BrokenClientRegistation, IResponse, IValidateClient, IBrokerClient } from "../../../../libs/typings";
 import { validBrokerClientSchema } from '../../../../libs/utils';
 import BrokerClient from "../../../entities/BrokerClient";
 import User from "../../../entities/User";
@@ -29,11 +30,11 @@ export default class BrokerClientModel {
                 if (!clientExists) {
                     const brokerClient = new BrokerClient(validBrokerClient.cname, registrationData.broker, validBrokerClient.apiKey, validBrokerClient.secret, user);
                     const savedBrokerClient = await brokerClientRepository.save(brokerClient);
-                    const { id, cname, apiKey, broker, isActive} = savedBrokerClient;
+                    const { id, cname, apiKey, broker, isEnabled} = savedBrokerClient;
                     return {
                         message: "Client registered successfully",
                         data: {
-                            id, cname, apiKey, broker, isActive
+                            id, cname, apiKey, broker, isEnabled
                         },
                     }
                 } else {
@@ -54,17 +55,27 @@ export default class BrokerClientModel {
     }
 
     async getClients(userId: string): Promise<IResponse> {
-        const brokerClients: IBrokerClient[] = await this.dataSource
+        const brokerClients: SBrokerClient[] = await this.dataSource
             .createQueryBuilder()
-            .select(["id", "cname", "broker", "apiKey", "isActive"])
+            .select(["id", "cname", "broker", "apiKey", "accessToken", "isEnabled"])
             .from(BrokerClient, "brokerClient")
             .where("brokerClient.userId = :userId")
             .setParameters({ userId })
             .getRawMany();
         
-        // console.log("brokerClients", brokerClients);
+     
+        const finalResult = await Promise.all(brokerClients.map(async (client) => {
+            const { apiKey, accessToken } = client;
+            const kiteConnect = new KiteConnectModel(apiKey);
+            const profile = await kiteConnect.getProfile(accessToken);
+            const isActive = profile instanceof Error ? BOOLEAN.FALSE : BOOLEAN.TRUE; 
+            client.isActive = isActive;
+            // @ts-ignore
+            delete client.accessToken;
+            return client
+        }));
         return {
-            data: brokerClients
+            data: finalResult
         };
     }
 

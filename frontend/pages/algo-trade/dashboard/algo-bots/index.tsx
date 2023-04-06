@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useFormik } from 'formik';
 import { useAppSelector, useAppDispatcher } from "../../../../store/hooks";
 import { Card, Button, Input } from "../../../../components";
-import { BrokenClientRegistation, BROKER, IBrokerClient } from '../../../../../libs/typings';
+import { BOOLEAN, BrokenClientRegistation, BROKER, IBrokerClient } from '../../../../../libs/typings';
 import { registerBrokerClient, fetchBrokerClient } from "../../../../reducers/brokerclientappsSlice";
 import { validBrokerClientSchema } from '../../../../../libs/utils';
 import List from '@mui/material/List';
@@ -99,10 +99,11 @@ const AlgoBots = () => {
 				<h4>Client Apps</h4>
 				<hr/>
 				{brokerClientApps.map(client => {
+					const disabled = client.isActive === BOOLEAN.TRUE ? true: false;
 					return (
 						<div style={{ display: 'flex', justifyContent: 'space-between' }}>
 							<span>{client.cname}</span>
-							<button onClick={() => validateClient(client)}>Activate</button>
+							<button disabled={disabled} onClick={() => validateClient(client)}>Activate</button>
 						</div>
 					)
 				})}

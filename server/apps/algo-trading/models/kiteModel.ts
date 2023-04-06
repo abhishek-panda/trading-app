@@ -4,7 +4,6 @@ import logger from '../logger';
 export default class KiteConnectModel {
 
     private kiteconnect: any;
-    private accessToken: string = '';
 
     constructor(apiKey: string) {
         const options = {
@@ -26,8 +25,8 @@ export default class KiteConnectModel {
             });
     }
 
-    getProfile () {
-        this.kiteconnect.setAccessToken(this.accessToken);
+    getProfile (accessToken: string) {
+        this.kiteconnect.setAccessToken(accessToken);
         return this.kiteconnect.getProfile()
             .then(function(response: any) {
                return response;

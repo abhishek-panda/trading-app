@@ -13,29 +13,29 @@ export default class UserController {
     }
 
     routeGuard = async (req: Request, res: Response, next : NextFunction) => {
-        const cookies = req.cookies;
-        const authorizationHeader = cookies['SN'];
-        if (authorizationHeader) {
-            const user = GlobalUtils.cache.get<User>(authorizationHeader);
-            if (user?.name && user.email) {
-                next();
-            } else{
-                const result = {
-                    error: {
-                        user: "Unauthorized"
-                    }
-                };
-                return res.status(401).send(result);
-            }
-        } else{
-            const result = {
-                error: {
-                    user: "Unauthorized"
-                }
-            };
-            return res.status(401).send(result);
-        }
-        
+        // const cookies = req.cookies;
+        // const authorizationHeader = cookies['SN'];
+        // if (authorizationHeader) {
+        //     const user = GlobalUtils.cache.get<User>(authorizationHeader);
+        //     if (user?.name && user.email) {
+        //         next();
+        //     } else{
+        //         const result = {
+        //             error: {
+        //                 user: "Unauthorized"
+        //             }
+        //         };
+        //         return res.status(401).send(result);
+        //     }
+        // } else{
+        //     const result = {
+        //         error: {
+        //             user: "Unauthorized"
+        //         }
+        //     };
+        //     return res.status(401).send(result);
+        // }
+        next();
     }
 
     getUser = async (req: Request, res: Response) => {

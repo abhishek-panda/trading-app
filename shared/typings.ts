@@ -49,6 +49,7 @@ export interface IBrokerClient {
     cname: string;
 	apiKey: string;
 	broker: BROKER;
+	isEnabled: BOOLEAN;
     isActive: BOOLEAN;
 }
 

@@ -29,7 +29,7 @@ export default class BrokerClient {
     user: User;
 
     @Column({ type: 'enum', enum: BOOLEAN, default:BOOLEAN.FALSE })
-    isActive: BOOLEAN;
+    isEnabled: BOOLEAN;
 
     constructor(cname: string, broker: BROKER, apiKey: string, secret: string, user: User) {
         this.cname = cname;
