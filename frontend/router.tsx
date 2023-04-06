@@ -6,6 +6,7 @@ import Error404 from './pages/404';
 import AlgoTrade from './pages/algo-trade'
 import Login from './pages/algo-trade/login';
 import Register from './pages/algo-trade/register';
+import ValidateClient from './pages/algo-trade/validate-client';
 import Dashboard from './pages/algo-trade/dashboard';
 import Home from './pages/algo-trade/dashboard/home';
 import ActiveOrders from './pages/algo-trade/dashboard/active-orders';
@@ -42,6 +43,7 @@ const AppRouter = () => {
 						<Route path='account-settings' element={<AccountSettings />} />
 						<Route path='virtual-trade' element={<VirtualTrade />} />
 					</Route>
+					<Route path='validate' element={<RequiredAuth><ValidateClient /></RequiredAuth>}/>
 				</Route>
 				<Route path='*' element={<Error404 /> } />
 			</Routes>

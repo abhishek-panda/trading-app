@@ -1,15 +1,23 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { BrokenClientRegistation, BrokerClient, IResponse } from '../../libs/typings'
+import { BrokenClientRegistation, IBrokerClient, IResponse } from '../../libs/typings'
 import request, { REQUEST_METHOD } from '../utils/request';
 
 
 type BrokerClientInitialState = {
-    brokers: string[];
-    brokerClientApps: Array<BrokerClient>
+    validateClient: {
+        loading: boolean;
+        error: string;
+        message: string;
+    };
+    brokerClientApps: Array<IBrokerClient>
 }
 
 const initialState: BrokerClientInitialState  = {
-    brokers: [],
+    validateClient: {
+        loading: false,
+        error: '',
+        message: ''
+    },
     brokerClientApps: [],
 };
 
@@ -24,8 +32,13 @@ const fetchBrokerClient = createAsyncThunk('brokerClient/fetch', _ => {
         .then(response => response.json());
 });
 
-const updateBrokerClient = createAsyncThunk('brokerClient/update', (formData: BrokenClientRegistation) => {
-    return request('/api/broker-client', REQUEST_METHOD.PUT, {}, formData)
+const updateBrokerClient = createAsyncThunk('brokerClient/update', (data: BrokenClientRegistation) => {
+    return request('/api/broker-client', REQUEST_METHOD.PUT, {}, data)
+        .then(response => response.json());
+});
+
+const validateBrokerClient = createAsyncThunk('brokerClient/validate', (data: Record<string, any>) => {
+    return request('/api/broker-client', REQUEST_METHOD.PUT, {}, data)
         .then(response => response.json());
 });
 
@@ -43,6 +56,21 @@ const brokerSlice = createSlice({
         builder.addCase(fetchBrokerClient.rejected, (state, action) => {
             state.brokerClientApps = [];
 		});
+        builder.addCase(validateBrokerClient.pending, (state, action) => {
+            state.validateClient.loading = true;
+            state.validateClient.error = '';
+            state.validateClient.message = '';
+		});
+        builder.addCase(validateBrokerClient.fulfilled, (state, action: PayloadAction<IResponse>) => {
+            state.validateClient.loading = false;
+            state.validateClient.error = '';
+            state.validateClient.message = action.payload.message ?? '';
+		});
+        builder.addCase(validateBrokerClient.rejected, (state, action) => {
+            state.validateClient.loading = false;
+            state.validateClient.error =  action.error.message ?? '';
+            state.validateClient.message = '';
+		});
     }
 });
 
@@ -53,4 +81,5 @@ export  {
     registerBrokerClient,
     fetchBrokerClient,
     updateBrokerClient,
+    validateBrokerClient
 };

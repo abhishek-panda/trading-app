@@ -41,12 +41,21 @@ export interface BrokenClientRegistation {
 	cname: string;
 	broker: BROKER;
 	apiKey: string;
+	secret: string;
 }
 
-export interface BrokerClient {
+export interface IBrokerClient {
     id: string;
     cname: string;
 	apiKey: string;
 	broker: BROKER;
     isActive: BOOLEAN;
+}
+
+export interface IValidateClient {
+	action: "login";
+	cid: string;
+	request_token: string;
+	status: "success";
+	type: "login"
 }

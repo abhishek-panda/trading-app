@@ -2,9 +2,14 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useFormik } from 'formik';
 import { useAppSelector, useAppDispatcher } from "../../../../store/hooks";
-import { Card, Button, Seperator, Input } from "../../../../components";
-import { BrokenClientRegistation, BOOLEAN, BROKER } from '../../../../../libs/typings';
+import { Card, Button, Input } from "../../../../components";
+import { BrokenClientRegistation, BROKER, IBrokerClient } from '../../../../../libs/typings';
 import { registerBrokerClient, fetchBrokerClient } from "../../../../reducers/brokerclientappsSlice";
+import { validBrokerClientSchema } from '../../../../../libs/utils';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import Divider from '@mui/material/Divider';
+
 
 export const InputWrapper = styled.div`
 	margin: 8px 0;
@@ -15,6 +20,7 @@ const initialValues: BrokenClientRegistation = {
 	cname: "",
 	broker: BROKER.ZERODHA,
 	apiKey: "",
+	secret: ""
 };
 
 
@@ -24,6 +30,7 @@ const AlgoBots = () => {
 	const dispatch = useAppDispatcher();
 	const formik = useFormik({
 		initialValues,
+		validationSchema: validBrokerClientSchema,
 		onSubmit: (values) => {
 			dispatch(registerBrokerClient(values))
 		},
@@ -32,6 +39,11 @@ const AlgoBots = () => {
 	useEffect(() => {
 		dispatch(fetchBrokerClient());
 	}, []);
+
+	const validateClient = (client: IBrokerClient) => {
+		const redirectParams = encodeURIComponent(`cid=${client.id}`)
+		window.open(`https://kite.zerodha.com/connect/login?v=3&api_key=${client.apiKey}&redirect_params=${redirectParams}`, "_blank", "width=900,height=900");
+	}
 
 	return (
 		<div>
@@ -60,6 +72,18 @@ const AlgoBots = () => {
 					/>
 				</InputWrapper>
 
+				<InputWrapper>
+					<Input
+						label="Secret"
+						name="secret"
+						type="text"
+						value={formik.values.secret}
+						onChange={formik.handleChange}
+						onBlur={formik.handleBlur}
+						error={formik.touched.secret ? formik.errors.secret : ""}
+					/>
+				</InputWrapper>
+
 				<select name='broker' onChange={formik.handleChange} value={formik.values.broker}>
 					{brokers.map(broker => <option value={broker} key={broker}>{broker.toUpperCase()}</option>)}
 				</select>
@@ -71,11 +95,15 @@ const AlgoBots = () => {
 				{/* </SignUpBtnWrapper> */}
 			</form>
 
-
-			<div>
+			<div style={{ marginTop: '30px' }}>
+				<h4>Client Apps</h4>
+				<hr/>
 				{brokerClientApps.map(client => {
 					return (
-						<div>{client.cname}</div>
+						<div style={{ display: 'flex', justifyContent: 'space-between' }}>
+							<span>{client.cname}</span>
+							<button onClick={() => validateClient(client)}>Activate</button>
+						</div>
 					)
 				})}
 			</div>

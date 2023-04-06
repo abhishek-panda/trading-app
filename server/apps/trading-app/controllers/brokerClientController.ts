@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import BrokerClientModel from "../models/brokerClientModel";
 import * as GlobalUtils from '../../../utils';
-import { IResponse, User } from "../../../../libs/typings";
+import { IResponse, User, IValidateClient } from "../../../../libs/typings";
 
 
 export default class BrokerClientController {
@@ -51,6 +51,22 @@ export default class BrokerClientController {
     }
 
     updateClient = async (req: Request, res: Response) => {
-
+        const userInputData: IValidateClient = req.body;
+        const cookies = req.cookies;
+        const userSessionId = cookies['SN'];
+        const user = GlobalUtils.cache.get<User>(userSessionId);
+        let status: number, result: IResponse;
+        if (user) {
+            result = await this.brokerClientModel.updateClient(userInputData, user.id);
+            status = result.error ? 401 : 200;
+        } else {
+            status = 401;
+            result = {
+                error: {
+                    user: "Unauthorized"
+                }
+            };
+        }
+        return res.status(status).send(result);
     }
 }

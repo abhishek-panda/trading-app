@@ -94,7 +94,17 @@ export const logger = winston.createLogger({
     ]
 });
 
-export const validTokenSchema = Yup.string().matches(/^Bearer [a-zA-Z0-9]+$/);
+const validRequestToken = /^[A-Za-z0-9]{3,100}$/;
+const validCid = /^[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/i;
+
+
+export const validClientTokenRequestSchema = Yup.object({
+    action: Yup.string().required("Required").matches(/^login/, "Invalid action"),
+    cid: Yup.string().required("Required").matches(validCid, "Invalid cid"),
+    request_token: Yup.string().required("Required").matches(validRequestToken, "Invalid token"),
+    status: Yup.string().required("Required").matches(/^success/, "Invalid status"),
+    type: Yup.string().required("Required").matches(/^login/, "Invalid type"),
+});
 
 export const cache = new NodeCache({
     stdTTL: parseFloat(process.env.COOKIE_EXPIRY_IN_HRS ?? '1') * 60 * 60,

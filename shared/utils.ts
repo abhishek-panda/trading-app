@@ -4,8 +4,9 @@ import { BROKER } from "./typings";
 export const validUserName = /^[A-Za-z ]{3,20}$/;
 export const validEmail = /^[a-zA-Z0-9._]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/;
 export const validPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
-export const brokerClientName = /^[A-Za-z ]{3,20}$/;
-export const clientApiKey = /^[A-Za-z]{3,20}$/;
+export const validBrokerClientName = /^[A-Za-z ]{3,100}$/;
+export const validClientApiKey = /^[A-Za-z0-9]{3,100}$/;
+export const validSecret = /^[A-Za-z0-9]{3,100}$/;
 
 
 export const validUserRegistrationSchema = Yup.object({
@@ -27,8 +28,9 @@ export const validUserLoginSchema = Yup.object({
     "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and One Special Case Character")
 });
 
-export const validateBrokerClientSchema = Yup.object({
-  cname: Yup.string().required("Required").matches(brokerClientName, "Invalid Broker Client Name"),
-  apiKey: Yup.string().required("Required").matches(clientApiKey, "Invalid API Key"),
+export const validBrokerClientSchema = Yup.object({
+  cname: Yup.string().required("Required").matches(validBrokerClientName, "Invalid Broker Client Name"),
+  apiKey: Yup.string().required("Required").matches(validClientApiKey, "Invalid API Key"),
+  secret: Yup.string().required("Required").matches(validSecret, "Invalid secret"),
   broker: Yup.mixed().oneOf(Object.values(BROKER)).defined().required("Required")
 })

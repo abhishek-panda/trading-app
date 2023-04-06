@@ -18,6 +18,12 @@ export default class BrokerClient {
     @Column()
     apiKey: string;
 
+    @Column()
+    secret: string;
+
+    @Column({ nullable: true })
+    accessToken: string;
+
     @ManyToOne(() => User, (user) => user.broker, { nullable : false})
     @JoinColumn({ name : 'userId'})
     user: User;
@@ -25,10 +31,11 @@ export default class BrokerClient {
     @Column({ type: 'enum', enum: BOOLEAN, default:BOOLEAN.FALSE })
     isActive: BOOLEAN;
 
-    constructor(cname: string, broker: BROKER, apiKey: string, user: User) {
+    constructor(cname: string, broker: BROKER, apiKey: string, secret: string, user: User) {
         this.cname = cname;
         this.broker = broker;
         this.apiKey = apiKey;
+        this.secret = secret;
         this.user = user;
     }
 }
