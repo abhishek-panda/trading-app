@@ -57,7 +57,7 @@ export default class UserModel {
                 const userRepository = this.dataSource.getRepository(User);
                 const result = await userRepository
                     .createQueryBuilder()
-                    .select(["id", "name", "email"])
+                    .select(["id", "name", "email", "role"])
                     .where((qb) => {
                         const subQuery = qb
                             .subQuery()
@@ -111,7 +111,8 @@ export default class UserModel {
                             sessionId: sessionDetails.id,
                             id: sessionDetails.user.id,
                             name: sessionDetails.user.name,
-                            email: sessionDetails.user.email
+                            email: sessionDetails.user.email,
+                            role: sessionDetails.user.role
                         }
                     }
                     return response;
