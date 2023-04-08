@@ -51,8 +51,8 @@ const Controls = () => {
 
 				<InputWrapper>
 					<Input
-						label="API Key"
-						name="apiKey"
+						label="Strategy Name"
+						name="name"
 						type="text"
 						value={formik.values.name}
 						onChange={formik.handleChange}
