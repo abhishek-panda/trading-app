@@ -2,9 +2,9 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useFormik } from 'formik';
 import { useAppSelector, useAppDispatcher } from "../../../../../store/hooks";
-import { Card, Button, Input } from "../../../../../components";
+import { Button, Input } from "../../../../../components";
 import { BOOLEAN, BrokenClientRegistation, BROKER, IBrokerClient } from '../../../../../../libs/typings';
-import { registerBrokerClient, fetchBrokerClient } from "../../../../../reducers/brokerclientappsSlice";
+import { registerBrokerClient, fetchBrokerClient } from "../../../../../reducers/algoSettingsSlice";
 import { validBrokerClientSchema } from '../../../../../../libs/utils';
 
 
@@ -23,7 +23,7 @@ const initialValues: BrokenClientRegistation = {
 
 const AlgoBots = () => {
 	const brokers = Object.keys(BROKER);
-	const brokerClientApps = useAppSelector(state => state.brokerData.brokerClientApps);
+	const brokerClientApps = useAppSelector(state => state.algoSettings.brokerClientApps);
 	const dispatch = useAppDispatcher();
 	const formik = useFormik({
 		initialValues,
@@ -82,6 +82,7 @@ const AlgoBots = () => {
 				</InputWrapper>
 
 				<select name='broker' onChange={formik.handleChange} value={formik.values.broker}>
+					<option value="">Select</option>
 					{brokers.map(broker => <option value={broker} key={broker}>{broker.toUpperCase()}</option>)}
 				</select>
 

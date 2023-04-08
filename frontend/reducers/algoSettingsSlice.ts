@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { BrokenClientRegistation, IBrokerClient, IResponse } from '../../libs/typings'
+import { BrokenClientRegistation, IBrokerClient, IResponse, ISubscription } from '../../libs/typings'
 import request, { REQUEST_METHOD } from '../utils/request';
 
 
@@ -10,6 +10,7 @@ type BrokerClientInitialState = {
         message: string;
     };
     brokerClientApps: Array<IBrokerClient>
+    subscriptions: Array<ISubscription>
 }
 
 const initialState: BrokerClientInitialState  = {
@@ -19,6 +20,7 @@ const initialState: BrokerClientInitialState  = {
         message: ''
     },
     brokerClientApps: [],
+    subscriptions: []
 };
 
 
@@ -42,7 +44,22 @@ const validateBrokerClient = createAsyncThunk('brokerClient/validate', (data: Re
         .then(response => response.json());
 });
 
-const brokerSlice = createSlice({
+const registerSubscription = createAsyncThunk('subscription/register', (data: ISubscription) => {
+    return request('/api/subscription', REQUEST_METHOD.POST, {}, data)
+        .then(response => response.json());
+});
+
+const fetchSubscription = createAsyncThunk('subscription/fetch', _ => {
+    return request('/api/subscription', REQUEST_METHOD.GET, {}, {})
+        .then(response => response.json());
+});
+
+const updateSubscription = createAsyncThunk('subscription/register', (data: ISubscription) => {
+    return request('/api/subscription', REQUEST_METHOD.PUT, {}, data)
+        .then(response => response.json());
+});
+
+const algoSettingsSlice = createSlice({
     name: 'broker',
     initialState,
     reducers: {},
@@ -74,12 +91,15 @@ const brokerSlice = createSlice({
     }
 });
 
-export const brokerReducers = brokerSlice.reducer;
-export const brokerActions = brokerSlice.actions;
+export const algoSettingsReducers = algoSettingsSlice.reducer;
+export const algoSettingsActions = algoSettingsSlice.actions;
 
 export  {
     registerBrokerClient,
     fetchBrokerClient,
     updateBrokerClient,
-    validateBrokerClient
+    validateBrokerClient,
+    registerSubscription,
+    fetchSubscription,
+    updateSubscription
 };

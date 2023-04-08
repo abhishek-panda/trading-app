@@ -67,3 +67,25 @@ export interface IStrategy {
 	name: string;
 	description: string;
 }
+
+export interface ISubscription {
+	name: string;
+	brokerClient: string;
+	strategy: string;
+	timeframe: string;
+}
+
+export enum TradingTimeFrame {
+    "1MIN" = "1",
+    "3MIN" = "3",
+    "5MIN" = "5",
+    "15MIN" = "15",
+    "30MIN" = "30",
+    "45MIN" = "45",
+    "1H" = "60",
+    "2H" = "120",
+    "3H" = "180",
+    "4H" = "240",
+    "1D" = "D",
+    "1W" = "W"
+}

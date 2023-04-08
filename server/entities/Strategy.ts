@@ -1,5 +1,5 @@
-import { Entity, PrimaryColumn, Column } from "typeorm"
-
+import { Entity, PrimaryColumn, Column, OneToMany } from "typeorm"
+import Subscription from "./Subscription";
 
 
 @Entity()
@@ -12,6 +12,9 @@ export default class Strategy {
 
     @Column()
     description: string;
+
+    @OneToMany(() => Subscription, (subscription) => subscription.strategy)
+    subscription: Subscription;
 
     constructor(sid: string, name: string, description: string) {
         this.sid = sid;

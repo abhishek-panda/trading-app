@@ -8,6 +8,9 @@ export default class UserSession {
     @PrimaryColumn()
     id: string;
     
+    @Column()
+    userId: string;
+
     @ManyToOne(() => User, (user) => user.session, { nullable : false})
     @JoinColumn({ name : 'userId'})
     user: User;

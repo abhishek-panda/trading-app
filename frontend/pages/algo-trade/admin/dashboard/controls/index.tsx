@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useEffect} from "react";
 import styled from 'styled-components';
 import { useFormik } from 'formik';
 import { useAppSelector, useAppDispatcher } from "../../../../../store/hooks";
 import { IStrategy } from '../../../../../../libs/typings'
 import { Card, Button, Input } from "../../../../../components";
 import { validStrategySchema } from '../../../../../../libs/utils';
-import { registerStrategy } from "../../../../../reducers/adminSlice";
+import { registerStrategy, fetchStrategy } from "../../../../../reducers/adminSlice";
 
 
 export const InputWrapper = styled.div`
@@ -32,6 +32,9 @@ const Controls = () => {
 		},
 	});
 
+	useEffect(() => {
+		dispatch(fetchStrategy());
+	}, []);
 
 	return (
 		<section>

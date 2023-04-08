@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-import { BROKER } from "./typings";
+import { BROKER, TradingTimeFrame } from "./typings";
 
 export const validUserName = /^[A-Za-z ]{3,20}$/;
 export const validEmail = /^[a-zA-Z0-9._]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/;
@@ -11,6 +11,9 @@ export const validStrategyID = /^[A-Z_]{3,20}$/;
 export const validStrategyName = /^[A-Za-z]{3,20}$/;
 export const validStrategyDescription = /^[A-Za-z -,.0-9]{20,200}$/;
 
+export const validSubscriptionName = /^[A-Za-z]{3,20}$/;
+export const validbrokerClient = /^[A-Za-z0-9_-]{3,100}$/;
+export const validstrategy = /^[A-Za-z0-9_-]{3,100}$/;
 
 export const validUserRegistrationSchema = Yup.object({
   uname: Yup.string()
@@ -42,4 +45,16 @@ export const validStrategySchema = Yup.object({
   sid: Yup.string().required("Required").matches(validStrategyID, "Invalid ID"),
   name: Yup.string().required("Required").matches(validStrategyName, "Invalid Name"),
   description : Yup.string().required("Required").matches(validStrategyDescription, "Invalid Description"),
-})
+});
+
+export const validSubscriptionSchema = Yup.object({
+  name: Yup.string().required("Required").matches(validSubscriptionName, "Invalid Name"),
+  brokerClient : Yup.string().required("Required").matches(validbrokerClient, "Invalid Broker Client"),
+  strategy : Yup.string().required("Required").matches(validstrategy, "Invalid Strategy"),
+  timeframe: Yup.mixed().oneOf(Object.values(TradingTimeFrame)).defined().required("Required")
+});
+
+
+export const getEnumKeys = (enumType: any): string[] => {
+  return Object.keys(enumType).filter(key => isNaN(Number(key)));
+}

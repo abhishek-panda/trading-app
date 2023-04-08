@@ -46,7 +46,7 @@ export default class AdminModel {
    async getStrategies() {
         const brokerClients: IStrategy[] = await this.dataSource
             .createQueryBuilder()
-            .select(["id", "name", "description"])
+            .select(["sid", "name", "description"])
             .from(Strategy, "stategy")
             .getRawMany();
         return {

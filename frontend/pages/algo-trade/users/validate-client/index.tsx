@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAppSelector, useAppDispatcher } from "../../../../store/hooks";
-import { validateBrokerClient } from "../../../../reducers/brokerclientappsSlice";
+import { validateBrokerClient } from "../../../../reducers/algoSettingsSlice";
 import { Card, Loader } from '../../../../components';
 import styled from 'styled-components';
 
@@ -16,7 +16,7 @@ const PageWrapper = styled.div`
 
 const ValidateClient = () => {
     const [searchParams] = useSearchParams();
-    const validateClient = useAppSelector(state => state.brokerData.validateClient);
+    const validateClient = useAppSelector(state => state.algoSettings.validateClient);
 	const dispatch = useAppDispatcher();
 
     const dataParams: Record<string, any> = {};
