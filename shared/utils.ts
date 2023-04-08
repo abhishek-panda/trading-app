@@ -7,6 +7,9 @@ export const validPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\
 export const validBrokerClientName = /^[A-Za-z ]{3,100}$/;
 export const validClientApiKey = /^[A-Za-z0-9]{3,100}$/;
 export const validSecret = /^[A-Za-z0-9]{3,100}$/;
+export const validStrategyID = /^[A-Z_]{3,20}$/;
+export const validStrategyName = /^[A-Za-z]{3,20}$/;
+export const validStrategyDescription = /^[A-Za-z -,.0-9]{20,200}$/;
 
 
 export const validUserRegistrationSchema = Yup.object({
@@ -33,4 +36,10 @@ export const validBrokerClientSchema = Yup.object({
   apiKey: Yup.string().required("Required").matches(validClientApiKey, "Invalid API Key"),
   secret: Yup.string().required("Required").matches(validSecret, "Invalid secret"),
   broker: Yup.mixed().oneOf(Object.values(BROKER)).defined().required("Required")
+})
+
+export const validStrategySchema = Yup.object({
+  sid: Yup.string().required("Required").matches(validStrategyID, "Invalid ID"),
+  name: Yup.string().required("Required").matches(validStrategyName, "Invalid Name"),
+  description : Yup.string().required("Required").matches(validStrategyDescription, "Invalid Description"),
 })

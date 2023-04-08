@@ -2,6 +2,7 @@ export interface User {
 	id: string;
 	name: string;
 	email: string;
+	role: UserRole;
 }
 
 export interface UserRegistrationInputs {
@@ -59,4 +60,10 @@ export interface IValidateClient {
 	request_token: string;
 	status: "success";
 	type: "login"
+}
+
+export interface IStrategy {
+	sid: string;
+	name: string;
+	description: string;
 }

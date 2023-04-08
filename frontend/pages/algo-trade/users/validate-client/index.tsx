@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useAppSelector, useAppDispatcher } from "../../../store/hooks";
-import { validateBrokerClient } from "../../../reducers/brokerclientappsSlice";
-import { Card, Loader } from '../../../components';
+import { useAppSelector, useAppDispatcher } from "../../../../store/hooks";
+import { validateBrokerClient } from "../../../../reducers/brokerclientappsSlice";
+import { Card, Loader } from '../../../../components';
 import styled from 'styled-components';
 
 const PageWrapper = styled.div`

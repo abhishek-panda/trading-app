@@ -5,6 +5,7 @@ import { fetchUser } from "../../reducers/userSlice";
 import { User, UserLoginInputs } from "../../../libs/typings";
 import { Loader } from "../../components";
 import { loginUser, logoutUser } from "../../reducers/userSlice";
+import { Outlet } from 'react-router-dom';
 
 interface IAuthContext {
 	user?: User;
@@ -33,7 +34,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
 	return (
 		<AuthContext.Provider value={{ user: userData.user, login, logout }}>
-			{!(userData.hasFetched === true && userData.loading === false) ? <LoadingPage><Loader diameter={100} thickness={6}></Loader></LoadingPage> : children}
+			{!(userData.hasFetched === true && userData.loading === false) ? <LoadingPage><Loader diameter={100} thickness={6}></Loader></LoadingPage> : <Outlet />}
 		</AuthContext.Provider>
 	);
 };

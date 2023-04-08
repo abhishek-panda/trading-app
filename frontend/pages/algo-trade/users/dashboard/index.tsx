@@ -13,9 +13,9 @@ import {
 	MenuSectionTitle,
 	Option
 } from './style';
-import { HeaderMenu, MenuOption, Seperator } from '../../../components';
-import { logo }  from '../../../images';
-import { useAuth } from '../../../utils/contexts/auth';
+import { HeaderMenu, MenuOption, Seperator } from '../../../../components';
+import { logo }  from '../../../../images';
+import { useAuth } from '../../../../utils/contexts/auth';
 
 
 const Dashboard = () => {

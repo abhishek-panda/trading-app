@@ -1,14 +1,19 @@
 import React, { PropsWithChildren } from 'react';
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "./contexts/auth";
+import { UserRole } from '../../libs/typings';
 
-const RequiredAuth: React.FC<PropsWithChildren> = ({ children }) => {
+interface RequiredAuth extends PropsWithChildren {
+	allowedRoles: UserRole[];
+}
+
+const RequiredAuth: React.FC<RequiredAuth> = (props) => {
 	const auth = useAuth();
 	if (!auth?.user){
 		return <Navigate to="/algotm/login" />
+	} else {
+		return props.allowedRoles.find(role => role === auth.user?.role) ? <Outlet/> :  <Navigate to="/algotm/login" />;
 	}
-
-	return <>{children}</>;
 }
 
 export default RequiredAuth;
