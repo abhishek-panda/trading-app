@@ -63,7 +63,7 @@ const Controls = () => {
 
 				<InputWrapper>
 					<Input
-						label="description"
+						label="Description"
 						name="description"
 						type="text"
 						value={formik.values.description}
