@@ -25,9 +25,6 @@ export default class BrokerClientModel {
             // @ts-ignore
             const selectedBroker = Object.keys(BROKER).find(value => BROKER[value] === validBrokerClient.broker);
             const user = await this.dataSource.getRepository(User).findOneBy({ id: userId});
-            
-            console.log("selectedBroker", selectedBroker);
-            console.log("user", user);
 
             if (user && selectedBroker) {
                 const brokerClientRepository = this.dataSource.getRepository(BrokerClient);
@@ -152,7 +149,7 @@ export default class BrokerClientModel {
                     const client = await this.getClient(userId, userInput.cid);
                     if (result.affected) {
                         return {
-                            message: "Client status changed successfully",
+                            message: "Client updated successfully",
                             data: client.data
                         };
                     }

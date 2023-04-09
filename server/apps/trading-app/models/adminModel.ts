@@ -1,7 +1,7 @@
 import { DataSource } from "typeorm";
 import DBConn from "../../../dbConn";
 import * as Yup from 'yup';
-import { IStrategy } from '../../../../libs/typings';
+import { IResponse, IStrategy } from '../../../../libs/typings';
 import { validStrategySchema } from '../../../../libs/utils';
 import Strategy from "../../../entities/Strategy";
 
@@ -15,7 +15,7 @@ export default class AdminModel {
         this.dataSource = DBConn.getInstance();
     }
 
-   async registerStrategy(registrationData: IStrategy) {
+   async registerStrategy(registrationData: IStrategy): Promise<IResponse> {
         try {
             const validStrategy = await validStrategySchema.validate(registrationData);
             const strategyRepository = this.dataSource.getRepository(Strategy);
@@ -43,7 +43,7 @@ export default class AdminModel {
         }
    }
 
-   async getStrategies() {
+   async getStrategies(): Promise<IResponse> {
         const brokerClients: IStrategy[] = await this.dataSource
             .createQueryBuilder()
             .select(["sid", "name", "description"])

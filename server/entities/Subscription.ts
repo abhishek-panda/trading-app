@@ -35,4 +35,12 @@ export default class Subscription {
 
     @Column({ type: 'enum', enum: BOOLEAN, default: BOOLEAN.TRUE })
     testMode: BOOLEAN;
+
+    constructor(brokerClientId: string, strategyId: string, interval: TradingTimeFrame, name: string, subscribedOn: Date) {
+        this.brokerClientId = brokerClientId;
+        this.strategyId = strategyId;
+        this.interval = interval;
+        this.name = name;
+        this.subscribedOn = subscribedOn;
+    }
 }
