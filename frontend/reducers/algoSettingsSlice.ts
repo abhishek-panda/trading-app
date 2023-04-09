@@ -34,12 +34,7 @@ const fetchBrokerClient = createAsyncThunk('brokerClient/fetch', _ => {
         .then(response => response.json());
 });
 
-const updateBrokerClient = createAsyncThunk('brokerClient/update', (data: BrokenClientRegistation) => {
-    return request('/api/broker-client', REQUEST_METHOD.PUT, {}, data)
-        .then(response => response.json());
-});
-
-const validateBrokerClient = createAsyncThunk('brokerClient/validate', (data: Record<string, any>) => {
+const updateBrokerClient = createAsyncThunk('brokerClient/update', (data: Record<string, any>) => {
     return request('/api/broker-client', REQUEST_METHOD.PUT, {}, data)
         .then(response => response.json());
 });
@@ -73,17 +68,20 @@ const algoSettingsSlice = createSlice({
         builder.addCase(fetchBrokerClient.rejected, (state, action) => {
             state.brokerClientApps = [];
 		});
-        builder.addCase(validateBrokerClient.pending, (state, action) => {
+        builder.addCase(updateBrokerClient.pending, (state, action) => {
             state.validateClient.loading = true;
             state.validateClient.error = '';
             state.validateClient.message = '';
 		});
-        builder.addCase(validateBrokerClient.fulfilled, (state, action: PayloadAction<IResponse>) => {
+        builder.addCase(updateBrokerClient.fulfilled, (state, action: PayloadAction<IResponse>) => {
             state.validateClient.loading = false;
             state.validateClient.error = '';
             state.validateClient.message = action.payload.message ?? '';
+            state.brokerClientApps =  state.brokerClientApps.map(client => {
+                return client.id === action.payload.data.id ?  action.payload.data : client;
+            });
 		});
-        builder.addCase(validateBrokerClient.rejected, (state, action) => {
+        builder.addCase(updateBrokerClient.rejected, (state, action) => {
             state.validateClient.loading = false;
             state.validateClient.error =  action.error.message ?? '';
             state.validateClient.message = '';
@@ -98,7 +96,6 @@ export  {
     registerBrokerClient,
     fetchBrokerClient,
     updateBrokerClient,
-    validateBrokerClient,
     registerSubscription,
     fetchSubscription,
     updateSubscription

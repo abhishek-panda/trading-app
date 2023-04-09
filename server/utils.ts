@@ -95,8 +95,7 @@ export const logger = winston.createLogger({
 });
 
 const validRequestToken = /^[A-Za-z0-9]{3,100}$/;
-const validCid = /^[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/i;
-
+export const validCid = /^[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/i;
 
 export const validClientTokenRequestSchema = Yup.object({
     action: Yup.string().required("Required").matches(/^login/, "Invalid action"),

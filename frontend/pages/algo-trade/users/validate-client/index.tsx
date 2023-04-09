@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAppSelector, useAppDispatcher } from "../../../../store/hooks";
-import { validateBrokerClient } from "../../../../reducers/algoSettingsSlice";
+import { updateBrokerClient } from "../../../../reducers/algoSettingsSlice";
 import { Card, Loader } from '../../../../components';
 import styled from 'styled-components';
 
@@ -26,7 +26,7 @@ const ValidateClient = () => {
     }
 
     useEffect(() => {
-        dispatch(validateBrokerClient(dataParams))
+        dispatch(updateBrokerClient(dataParams))
         window.onunload = refreshParent;
         function refreshParent() {
             window.opener.location.reload();

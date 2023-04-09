@@ -5,11 +5,6 @@ export enum ENV_OPERATION {
     REMOVE = 'REMOVE'
 }
 
-export enum BOOLEAN {
-    TRUE='true',
-    FALSE='false'
-}
-
 export interface SBrokerClient extends IBrokerClient {
     accessToken: string;
 }

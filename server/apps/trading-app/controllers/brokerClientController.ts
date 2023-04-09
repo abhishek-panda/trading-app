@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import BrokerClientModel from "../models/brokerClientModel";
 import * as GlobalUtils from '../../../utils';
-import { IResponse, User, IValidateClient } from "../../../../libs/typings";
+import { IResponse, User } from "../../../../libs/typings";
 
 
 export default class BrokerClientController {
@@ -51,7 +51,7 @@ export default class BrokerClientController {
     }
 
     updateClient = async (req: Request, res: Response) => {
-        const userInputData: IValidateClient = req.body;
+        const userInputData: Record<string,any> = req.body;
         const cookies = req.cookies;
         const userSessionId = cookies['SN'];
         const user = GlobalUtils.cache.get<User>(userSessionId);

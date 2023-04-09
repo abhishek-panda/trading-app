@@ -1,11 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { useFormik } from 'formik';
 import { useAppSelector, useAppDispatcher } from "../../../../../store/hooks";
 import { Button, Input } from "../../../../../components";
 import { BOOLEAN, BrokenClientRegistation, BROKER, IBrokerClient } from '../../../../../../libs/typings';
-import { registerBrokerClient, fetchBrokerClient } from "../../../../../reducers/algoSettingsSlice";
+import { registerBrokerClient, fetchBrokerClient, updateBrokerClient } from "../../../../../reducers/algoSettingsSlice";
 import { validBrokerClientSchema } from '../../../../../../libs/utils';
+import Switch from '@mui/material/Switch';
+
 
 
 export const InputWrapper = styled.div`
@@ -38,8 +40,23 @@ const AlgoBots = () => {
 	}, []);
 
 	const validateClient = (client: IBrokerClient) => {
-		const redirectParams = encodeURIComponent(`cid=${client.id}`)
+		const redirectParams = encodeURIComponent(`cid=${client.id}&type=validate`)
 		window.open(`https://kite.zerodha.com/connect/login?v=3&api_key=${client.apiKey}&redirect_params=${redirectParams}`, "_blank", "width=900,height=900");
+	}
+
+	const toggleClient = (client: IBrokerClient) => {
+		const isEnabled =  client.isEnabled === BOOLEAN.TRUE ? true: false;
+		if (isEnabled) {
+			const agreeMsg = 'I UNDERSTAND';
+			let promptMsg = prompt(`CAUTION: Deactivating client will stop execution of any existing trades. Make sure to close all trades before deactivating client. Type '${agreeMsg}' to continue`);
+			if (promptMsg !== agreeMsg) return; 
+		}
+		const payload = {
+			cid: client.id,
+			type: 'update',
+			status: (!isEnabled).toString(),
+		};
+		dispatch(updateBrokerClient(payload))
 	}
 
 	return (
@@ -97,11 +114,13 @@ const AlgoBots = () => {
 				<h4>Client Apps</h4>
 				<hr/>
 				{brokerClientApps.map(client => {
-					const disabled = client.isActive === BOOLEAN.TRUE ? true: false;
+					const isEnabled =  client.isEnabled === BOOLEAN.TRUE ? true: false;
+					const isActive = client.isActive === BOOLEAN.TRUE ? true: false;
 					return (
 						<div style={{ display: 'flex', justifyContent: 'space-between' }}>
 							<span>{client.cname}</span>
-							<button disabled={disabled} onClick={() => validateClient(client)}>Activate</button>
+							<Switch checked={isEnabled} onChange={_ => toggleClient(client)} color='secondary'/>
+							<button disabled={isActive} onClick={_ => validateClient(client)}>Activate</button>
 						</div>
 					)
 				})}

@@ -25,7 +25,7 @@ const AlgoStrategies = () => {
 	
 	const dispatch = useAppDispatcher();
 	let strategies = useAppSelector(state => state.adminData.controls.strategies);
-	let brokerClients = useAppSelector(state => state.algoSettings.brokerClientApps.filter(client => client.isActive === BOOLEAN.TRUE));
+	let brokerClients = useAppSelector(state => state.algoSettings.brokerClientApps.filter(client => client.isEnabled === BOOLEAN.TRUE));
 	
 	const formik = useFormik({
 		initialValues,
@@ -67,7 +67,7 @@ const AlgoStrategies = () => {
 				<form onSubmit={formik.handleSubmit}>
 					<InputWrapper>
 						<Input
-							label="Client Name"
+							label="Subscription Name"
 							name="name"
 							type="text"
 							value={formik.values.name}

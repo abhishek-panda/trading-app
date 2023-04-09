@@ -20,7 +20,7 @@ export default class DBConn {
                 synchronize: true,
                 entities: Entites,
                 logging: true,
-                dropSchema: true,
+                // dropSchema: true,
             });
         }
 
