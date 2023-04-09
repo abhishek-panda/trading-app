@@ -35,7 +35,8 @@ const ValidateClient = () => {
 
     useEffect(() => {
         if (validateClient.message !== '' || validateClient.error !== '') {
-            window.close();
+            // window.close();
+           
         }
     }, [validateClient.message, validateClient.error])
 

@@ -37,8 +37,9 @@ const Register = () => {
 	const formik = useFormik({
 		initialValues,
 		validationSchema: validUserRegistrationSchema,
-		onSubmit: (values) => {
+		onSubmit: (values, { resetForm }) => {
 			dispatch(registerUser(values));
+			resetForm();
 		},
 	});
 

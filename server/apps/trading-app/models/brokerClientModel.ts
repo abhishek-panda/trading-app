@@ -3,7 +3,7 @@ import DBConn from "../../../dbConn";
 import * as Yup from 'yup';
 import { validClientTokenRequestSchema, validCid } from '../../../utils';
 import { SBrokerClient } from '../../../typings';
-import { BrokenClientRegistation, IResponse, BOOLEAN } from "../../../../libs/typings";
+import { BrokenClientRegistation, IResponse, BOOLEAN, BROKER } from "../../../../libs/typings";
 import { validBrokerClientSchema} from '../../../../libs/utils';
 import BrokerClient from "../../../entities/BrokerClient";
 import User from "../../../entities/User";
@@ -22,13 +22,19 @@ export default class BrokerClientModel {
     async registerClient(registrationData: BrokenClientRegistation, userId: string) : Promise<IResponse> {
         try {
             const validBrokerClient = await validBrokerClientSchema.validate(registrationData);
+            // @ts-ignore
+            const selectedBroker = Object.keys(BROKER).find(value => BROKER[value] === validBrokerClient.broker);
             const user = await this.dataSource.getRepository(User).findOneBy({ id: userId});
             
-            if (user) {
+            console.log("selectedBroker", selectedBroker);
+            console.log("user", user);
+
+            if (user && selectedBroker) {
                 const brokerClientRepository = this.dataSource.getRepository(BrokerClient);
                 const clientExists = await brokerClientRepository.findOneBy({ apiKey: validBrokerClient.apiKey});
                 if (!clientExists) {
-                    const brokerClient = new BrokerClient(validBrokerClient.cname, registrationData.broker, validBrokerClient.apiKey, validBrokerClient.secret, user);
+                    // @ts-ignore
+                    const brokerClient = new BrokerClient(validBrokerClient.cname, BROKER[selectedBroker], validBrokerClient.apiKey, validBrokerClient.secret, user);
                     const savedBrokerClient = await brokerClientRepository.save(brokerClient);
                     const { id, cname, apiKey, broker, isEnabled} = savedBrokerClient;
                     return {
@@ -111,7 +117,7 @@ export default class BrokerClientModel {
 
     async updateClient(userInput: Record<string, any>, userId: string): Promise<IResponse> {
         try {
-            if (userInput.type === 'validate') {
+            if (userInput.updateType === 'validate') {
 
                 const validTokenRequest = await validClientTokenRequestSchema.validate(userInput);
                 
@@ -138,7 +144,7 @@ export default class BrokerClientModel {
                     }
                 }
             }
-            else if (userInput.type === 'update') {
+            else if (userInput.updateType === 'update') {
                 const validBrokerClientId = await Yup.string().matches(validCid).isValid(userInput.cid as string ?? "");
                 const validStatus = await Yup.mixed().oneOf(Object.values(BOOLEAN)).isValid(userInput.status as BOOLEAN ?? BOOLEAN.FALSE);
                 if (validBrokerClientId && validStatus) {

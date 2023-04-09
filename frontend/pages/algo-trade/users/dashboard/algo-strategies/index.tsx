@@ -30,9 +30,9 @@ const AlgoStrategies = () => {
 	const formik = useFormik({
 		initialValues,
 		validationSchema: validSubscriptionSchema,
-		onSubmit: (values) => {
-			console.log(values)
+		onSubmit: (values, { resetForm }) => {
 			dispatch(registerSubscription(values))
+			resetForm();
 		},
 	});
 

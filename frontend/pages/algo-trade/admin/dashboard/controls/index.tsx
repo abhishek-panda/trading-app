@@ -27,8 +27,9 @@ const Controls = () => {
 	const formik = useFormik({
 		initialValues,
 		validationSchema: validStrategySchema,
-		onSubmit: (values) => {
+		onSubmit: (values, { resetForm }) => {
 			dispatch(registerStrategy(values));
+			resetForm();
 		},
 	});
 

@@ -1,15 +1,16 @@
 import * as Yup from "yup";
-import { BROKER, TradingTimeFrame } from "./typings";
+import { TradingTimeFrame } from "./typings";
 
-export const validUserName = /^[A-Za-z ]{3,20}$/;
+export const validUserName = /^[A-Za-z\s]{3,20}$/;
 export const validEmail = /^[a-zA-Z0-9._]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/;
 export const validPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
-export const validBrokerClientName = /^[A-Za-z ]{3,100}$/;
+export const validBrokerClientName = /^[A-Za-z\s]{3,100}$/;
+export const validBrokerName = /^[A-Za-z\s]{3,100}$/;
 export const validClientApiKey = /^[A-Za-z0-9]{3,100}$/;
 export const validSecret = /^[A-Za-z0-9]{3,100}$/;
 export const validStrategyID = /^[A-Z_]{3,20}$/;
-export const validStrategyName = /^[A-Za-z]{3,20}$/;
-export const validStrategyDescription = /^[A-Za-z -,.0-9]{20,200}$/;
+export const validStrategyName = /^[A-Za-z0-9\s_-]{3,30}$/;
+export const validStrategyDescription = /^[A-Za-z0-9\s._,]{20,200}$/;
 
 export const validSubscriptionName = /^[A-Za-z]{3,20}$/;
 export const validbrokerClient = /^[A-Za-z0-9_-]{3,100}$/;
@@ -38,7 +39,7 @@ export const validBrokerClientSchema = Yup.object({
   cname: Yup.string().required("Required").matches(validBrokerClientName, "Invalid Broker Client Name"),
   apiKey: Yup.string().required("Required").matches(validClientApiKey, "Invalid API Key"),
   secret: Yup.string().required("Required").matches(validSecret, "Invalid secret"),
-  broker: Yup.mixed().oneOf(Object.values(BROKER)).defined().required("Required")
+  broker: Yup.string().required("Required").matches(validBrokerName, "Invalid Broker")
 })
 
 export const validStrategySchema = Yup.object({

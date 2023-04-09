@@ -34,8 +34,9 @@ const Login = () => {
   const formik = useFormik({
     initialValues,
     validationSchema: validUserLoginSchema,
-    onSubmit: (values) => {
+    onSubmit: (values, { resetForm }) => {
       auth?.login(values);
+      resetForm();
     },
   });
 

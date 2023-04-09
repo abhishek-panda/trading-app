@@ -40,7 +40,7 @@ export enum BROKER {
 }
 export interface BrokenClientRegistation {
 	cname: string;
-	broker: BROKER;
+	broker: string;
 	apiKey: string;
 	secret: string;
 }

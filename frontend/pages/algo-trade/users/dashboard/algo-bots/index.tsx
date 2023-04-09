@@ -17,7 +17,7 @@ export const InputWrapper = styled.div`
 
 const initialValues: BrokenClientRegistation = {
 	cname: "",
-	broker: BROKER.ZERODHA,
+	broker: "",
 	apiKey: "",
 	secret: ""
 };
@@ -30,8 +30,9 @@ const AlgoBots = () => {
 	const formik = useFormik({
 		initialValues,
 		validationSchema: validBrokerClientSchema,
-		onSubmit: (values) => {
+		onSubmit: (values, { resetForm }) => {
 			dispatch(registerBrokerClient(values))
+			resetForm();
 		},
 	});
 
@@ -40,7 +41,7 @@ const AlgoBots = () => {
 	}, []);
 
 	const validateClient = (client: IBrokerClient) => {
-		const redirectParams = encodeURIComponent(`cid=${client.id}&type=validate`)
+		const redirectParams = encodeURIComponent(`cid=${client.id}&updateType=validate`)
 		window.open(`https://kite.zerodha.com/connect/login?v=3&api_key=${client.apiKey}&redirect_params=${redirectParams}`, "_blank", "width=900,height=900");
 	}
 
@@ -53,7 +54,7 @@ const AlgoBots = () => {
 		}
 		const payload = {
 			cid: client.id,
-			type: 'update',
+			updateType: 'update',
 			status: (!isEnabled).toString(),
 		};
 		dispatch(updateBrokerClient(payload))
@@ -98,10 +99,14 @@ const AlgoBots = () => {
 					/>
 				</InputWrapper>
 
-				<select name='broker' onChange={formik.handleChange} value={formik.values.broker}>
+				<select name='broker' onChange={formik.handleChange} value={formik.values.broker} onBlur={formik.handleBlur}>
 					<option value="">Select</option>
-					{brokers.map(broker => <option value={broker} key={broker}>{broker.toUpperCase()}</option>)}
+					{
+						//@ts-ignore
+						brokers.map(broker => <option value={BROKER[broker]} key={broker}>{broker}</option>)
+					}
 				</select>
+				<label>{formik.touched.broker ? formik.errors.broker : ""}</label>
 
 				{/* <SignUpBtnWrapper> */}
 					<Button buttonColor="rgb(103, 58, 183)" hasBorder={false}>
