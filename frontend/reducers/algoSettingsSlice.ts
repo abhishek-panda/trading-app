@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { BrokenClientRegistation, IBrokerClient, IResponse, ISubscription } from '../../libs/typings'
+import { BrokenClientRegistation, IBrokerClient, IResponse, ISubscription, ISubscriptionData } from '../../libs/typings'
 import request, { REQUEST_METHOD } from '../utils/request';
 
 
@@ -10,7 +10,7 @@ type BrokerClientInitialState = {
         message: string;
     };
     brokerClientApps: Array<IBrokerClient>
-    subscriptions: Array<ISubscription>
+    subscriptions: Array<ISubscriptionData>
 }
 
 const initialState: BrokerClientInitialState  = {
@@ -49,7 +49,7 @@ const fetchSubscription = createAsyncThunk('subscription/fetch', _ => {
         .then(response => response.json());
 });
 
-const updateSubscription = createAsyncThunk('subscription/register', (data: ISubscription) => {
+const updateSubscription = createAsyncThunk('subscription/register', (data: ISubscriptionData) => {
     return request('/api/subscription', REQUEST_METHOD.PUT, {}, data)
         .then(response => response.json());
 });
@@ -85,6 +85,16 @@ const algoSettingsSlice = createSlice({
             state.validateClient.loading = false;
             state.validateClient.error =  action.error.message ?? '';
             state.validateClient.message = '';
+		});
+
+        builder.addCase(registerSubscription.fulfilled, (state, action: PayloadAction<IResponse>) => {
+            state.subscriptions.unshift(action.payload.data);
+        });
+        builder.addCase(fetchSubscription.fulfilled, (state, action: PayloadAction<IResponse>) => {
+            state.subscriptions = action.payload.data;
+		});
+        builder.addCase(fetchSubscription.rejected, (state, action) => {
+            state.subscriptions = [];
 		});
     }
 });

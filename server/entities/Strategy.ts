@@ -14,7 +14,7 @@ export default class Strategy {
     description: string;
 
     @OneToMany(() => Subscription, (subscription) => subscription.strategy)
-    subscription: Subscription;
+    subscription: Subscription[];
 
     constructor(sid: string, name: string, description: string) {
         this.sid = sid;

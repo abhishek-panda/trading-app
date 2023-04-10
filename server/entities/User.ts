@@ -27,10 +27,10 @@ export default class User{
     role: UserRole;
 
     @OneToMany(() => UserSession, (userSession) => userSession.user)
-    session: UserSession;
+    session: UserSession[];
 
     @OneToMany(() => BrokerClient, (brokerClient) => brokerClient.broker)
-    broker: BrokerClient;
+    broker: BrokerClient[];
 
     constructor(name: string, email: string, password: string, joinedOn: Date) {
         this.name = name;

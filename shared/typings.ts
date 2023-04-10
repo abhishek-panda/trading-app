@@ -75,6 +75,11 @@ export interface ISubscription {
 	timeframe: string;
 }
 
+export interface ISubscriptionData extends ISubscription {
+    brokerClientName: string;
+    strategyName: string;
+}
+
 export enum TradingTimeFrame {
     "1MIN" = "1",
     "3MIN" = "3",

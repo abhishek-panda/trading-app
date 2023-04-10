@@ -31,7 +31,21 @@ export default class SubscriptionController {
     }
 
     getSubscription = async (req: Request, res: Response) => {
-        
+        const userSessionId = req.cookies['SN'];
+        const user = GlobalUtils.cache.get<User>(userSessionId);
+        let status: number, result: IResponse;
+        if (user) {
+            result = await this.subscriptionModel.fetchSubscription(user.id);
+            status = result.error ? 401 : 200;
+        } else {
+            status = 401;
+            result = {
+                error: {
+                    user: "Unauthorized"
+                }
+            };
+        }
+        return res.status(status).send(result);
     }
 
     unsubscribe = async (req: Request, res: Response) => {

@@ -36,7 +36,7 @@ export default class BrokerClient {
     isEnabled: BOOLEAN;
 
     @OneToMany(() => Subscription, (subscription) => subscription.brokerClient)
-    subscription: Subscription;
+    subscription: Subscription[];
 
     constructor(cname: string, broker: BROKER, apiKey: string, secret: string, user: User) {
         this.cname = cname;

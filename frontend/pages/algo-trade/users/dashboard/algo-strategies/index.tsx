@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useFormik } from 'formik';
 import { fetchStrategy } from "../../../../../reducers/adminSlice";
 import { useAppSelector, useAppDispatcher } from "../../../../../store/hooks";
-import { fetchBrokerClient, registerSubscription } from '../../../../../reducers/algoSettingsSlice';
+import { fetchBrokerClient, registerSubscription, fetchSubscription } from '../../../../../reducers/algoSettingsSlice';
 import { BOOLEAN, ISubscription, TradingTimeFrame } from '../../../../../../libs/typings'
 import { validSubscriptionSchema, getEnumKeys } from '../../../../../../libs/utils';
 import { Button, Input } from "../../../../../components";
@@ -26,6 +26,7 @@ const AlgoStrategies = () => {
 	const dispatch = useAppDispatcher();
 	let strategies = useAppSelector(state => state.adminData.controls.strategies);
 	let brokerClients = useAppSelector(state => state.algoSettings.brokerClientApps.filter(client => client.isEnabled === BOOLEAN.TRUE));
+	const subscriptions = useAppSelector(state => state.algoSettings.subscriptions);
 	
 	const formik = useFormik({
 		initialValues,
@@ -41,6 +42,7 @@ const AlgoStrategies = () => {
 	useEffect(() => {
 		dispatch(fetchBrokerClient());
 		dispatch(fetchStrategy());
+		dispatch(fetchSubscription());
 	}, []);
 
 
@@ -111,6 +113,23 @@ const AlgoStrategies = () => {
 						<span>Subscribe</span>
 					</Button>
 				</form>
+			</section>
+
+			<section style={{ marginTop: '30px' }}>
+				<h4>Subscriptions</h4>
+
+				{
+					subscriptions.map(subscription => {
+						return (
+							<div style={{ display: 'flex', justifyContent: 'space-between'}}>
+								<span>{subscription.name}</span>
+								<span>{subscription.brokerClientName}</span>
+								<span>{subscription.strategyName}</span>
+								<span>{subscription.timeframe}</span>
+							</div>
+						)
+					})
+				}
 			</section>
 		</>
 	)
