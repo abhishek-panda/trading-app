@@ -2,7 +2,7 @@ import { Router } from 'express';
 import HomeController from './controllers/homeController';
 import UserController from './controllers/userController';
 import BrokerClientController from './controllers/brokerClientController';
-import AdminController from './controllers/adminController';
+import ControlPanelController from './controllers/controlPanelController';
 import SubscriptionController from './controllers/subscriptionController';
 
 function intializeTradingAppRoutes() {
@@ -10,7 +10,7 @@ function intializeTradingAppRoutes() {
     const homeController = new HomeController();
     const userController = new UserController();
     const brokerClientController = new BrokerClientController();
-    const adminController = new AdminController();
+    const controlPanelController = new ControlPanelController();
     const subscriptionController = new SubscriptionController();
     const { routeGuard } = userController;
 
@@ -22,8 +22,8 @@ function intializeTradingAppRoutes() {
     TradingAppRouter.post('/api/broker-client', routeGuard, brokerClientController.registerClient);
     TradingAppRouter.get('/api/broker-client', routeGuard, brokerClientController.getClients);
     TradingAppRouter.put('/api/broker-client', routeGuard, brokerClientController.updateClient);
-    TradingAppRouter.post('/api/strategy', routeGuard, adminController.registerStrategy);
-    TradingAppRouter.get('/api/strategy', routeGuard, adminController.getStrategy);
+    TradingAppRouter.post('/api/strategy', routeGuard, controlPanelController.registerStrategy);
+    TradingAppRouter.get('/api/strategy', routeGuard, controlPanelController.getStrategy);
     TradingAppRouter.post('/api/subscription', routeGuard, subscriptionController.subscribe);
     TradingAppRouter.get('/api/subscription', routeGuard, subscriptionController.getSubscription);
     TradingAppRouter.delete('/api/subscription', routeGuard, subscriptionController.unsubscribe);

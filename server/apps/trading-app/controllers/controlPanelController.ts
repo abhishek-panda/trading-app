@@ -1,17 +1,17 @@
 import { Request, Response } from "express";
-import AdminModel from "../models/adminModel";
+import ControlPanelModel from "../models/controlPanelModel";
 import * as GlobalUtils from '../../../utils';
 import { User, UserRole } from "../../../../libs/typings";
 import BaseController from "./baseController";
 
 
-export default class AdminController extends BaseController {
+export default class ControlPanelController extends BaseController {
 
-    private adminModel : AdminModel;
+    private controlPanelModel : ControlPanelModel;
 
     constructor() {
         super();
-        this.adminModel = new AdminModel();
+        this.controlPanelModel = new ControlPanelModel();
     }
 
     registerStrategy = async (req: Request, res: Response) => {
@@ -19,7 +19,7 @@ export default class AdminController extends BaseController {
         const userSessionId = req.cookies['SN'];
         const user = GlobalUtils.cache.get<User>(userSessionId);
         const [status, response] = await this.getStatusAndResponse(() => {
-            return (user && user.role === UserRole.ADMIN) ? this.adminModel.registerStrategy(userInputData) : undefined;
+            return (user && user.role === UserRole.ADMIN) ? this.controlPanelModel.registerStrategy(userInputData) : undefined;
         });
         return res.status(status).send(response);
     }
@@ -29,7 +29,7 @@ export default class AdminController extends BaseController {
         const userSessionId = cookies['SN'];
         const user = GlobalUtils.cache.get<User>(userSessionId);
         const [status, response] = await this.getStatusAndResponse(() => {
-            return user ? this.adminModel.getStrategies() : undefined;
+            return user ? this.controlPanelModel.getStrategies() : undefined;
         });
         return res.status(status).send(response);
     }

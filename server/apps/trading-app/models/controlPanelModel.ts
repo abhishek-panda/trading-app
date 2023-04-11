@@ -7,7 +7,7 @@ import Strategy from "../../../entities/Strategy";
 
 
 
-export default class AdminModel {
+export default class ControlPanelModel {
 
     private dataSource: DataSource;
 
