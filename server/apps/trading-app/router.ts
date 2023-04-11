@@ -26,7 +26,7 @@ function intializeTradingAppRoutes() {
     TradingAppRouter.get('/api/strategy', routeGuard, controlPanelController.getStrategy);
     TradingAppRouter.post('/api/subscription', routeGuard, subscriptionController.subscribe);
     TradingAppRouter.get('/api/subscription', routeGuard, subscriptionController.getSubscription);
-    TradingAppRouter.delete('/api/subscription', routeGuard, subscriptionController.unsubscribe);
+    TradingAppRouter.put('/api/subscription', routeGuard, subscriptionController.updateSubscription);
     return TradingAppRouter;
 }
 

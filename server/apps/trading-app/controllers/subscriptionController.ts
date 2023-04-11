@@ -32,7 +32,13 @@ export default class SubscriptionController extends BaseController{
         return res.status(status).send(response);
     }
 
-    unsubscribe = async (req: Request, res: Response) => {
-
+    updateSubscription = async (req: Request, res: Response) => {
+        const userInputData = req.body;
+        const userSessionId = req.cookies['SN'];
+        const user = GlobalUtils.cache.get<User>(userSessionId);
+        const [status, response] = await this.getStatusAndResponse(() => {
+            return user ? this.subscriptionModel.updateSubscription(userInputData, user.id) : undefined;
+        });
+        return res.status(status).send(response);
     }
 }

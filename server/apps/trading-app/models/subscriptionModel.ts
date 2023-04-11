@@ -105,4 +105,11 @@ export default class SubscriptionModel {
         }
     }
 
+    async updateSubscription (inputData: Record<string, any>, userId: string): Promise<IResponse> {
+        // TODO: Logic for update
+        return {
+            data: {}
+        }
+    }
+
 }
