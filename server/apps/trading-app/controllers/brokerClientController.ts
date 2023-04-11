@@ -1,14 +1,16 @@
 import { Request, Response } from "express";
 import BrokerClientModel from "../models/brokerClientModel";
 import * as GlobalUtils from '../../../utils';
-import { IResponse, User } from "../../../../libs/typings";
+import { User } from "../../../../libs/typings";
+import BaseController from "./baseController";
 
 
-export default class BrokerClientController {
+export default class BrokerClientController extends BaseController {
 
     private brokerClientModel : BrokerClientModel;
 
     constructor() {
+        super();
         this.brokerClientModel = new BrokerClientModel();
     }
 
@@ -16,38 +18,20 @@ export default class BrokerClientController {
         const userInputData = req.body;
         const userSessionId = req.cookies['SN'];
         const user = GlobalUtils.cache.get<User>(userSessionId);
-        let status: number, result: IResponse;
-        if (user) {
-            result = await this.brokerClientModel.registerClient(userInputData, user.id);
-            status = result.error ? 401 : 200;
-        } else {
-            status = 401;
-            result = {
-                error: {
-                    user: "Unauthorized"
-                }
-            };
-        }
-        return res.status(status).send(result);
+        const [status, response] = await this.getStatusAndResponse(() => {
+            return user ? this.brokerClientModel.registerClient(userInputData, user.id) : undefined;
+        });
+        return res.status(status).send(response);
     }
 
     getClients = async (req: Request, res: Response) => {
         const cookies = req.cookies;
         const userSessionId = cookies['SN'];
         const user = GlobalUtils.cache.get<User>(userSessionId);
-        let status: number, result: IResponse;
-        if (user) {
-            result = await this.brokerClientModel.getClients(user.id);
-            status = result.error ? 401 : 200;
-        } else {
-            status = 401;
-            result = {
-                error: {
-                    user: "Unauthorized"
-                }
-            };
-        }
-        return res.status(status).send(result);
+        const [status, response] = await this.getStatusAndResponse(() => {
+            return user ? this.brokerClientModel.getClients(user.id) : undefined;
+        });
+        return res.status(status).send(response);
     }
 
     updateClient = async (req: Request, res: Response) => {
@@ -55,18 +39,9 @@ export default class BrokerClientController {
         const cookies = req.cookies;
         const userSessionId = cookies['SN'];
         const user = GlobalUtils.cache.get<User>(userSessionId);
-        let status: number, result: IResponse;
-        if (user) {
-            result = await this.brokerClientModel.updateClient(userInputData, user.id);
-            status = result.error ? 401 : 200;
-        } else {
-            status = 401;
-            result = {
-                error: {
-                    user: "Unauthorized"
-                }
-            };
-        }
-        return res.status(status).send(result);
+        const [status, response] = await this.getStatusAndResponse(() => {
+            return user ? this.brokerClientModel.updateClient(userInputData, user.id) : undefined;
+        });
+        return res.status(status).send(response);
     }
 }

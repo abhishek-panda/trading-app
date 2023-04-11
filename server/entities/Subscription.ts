@@ -30,7 +30,7 @@ export default class Subscription {
     @Column()
     subscribedOn: Date;
 
-    @Column({ type: 'enum', enum: BOOLEAN, default: BOOLEAN.FALSE })
+    @Column({ type: 'enum', enum: BOOLEAN, default: BOOLEAN.TRUE })
     isActive: BOOLEAN;
 
     @Column({ type: 'enum', enum: BOOLEAN, default: BOOLEAN.TRUE })

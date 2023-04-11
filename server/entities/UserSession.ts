@@ -21,6 +21,10 @@ export default class UserSession {
     @Column()
     expiredOn: Date;
 
+    // TODO: Save user login meta like ip address
+    @Column({ nullable: true })
+    meta: string;
+
     constructor(sessionId: string, user: User, createdOn: Date, expiredOn: Date) {
         this.id = sessionId;
         this.user = user;

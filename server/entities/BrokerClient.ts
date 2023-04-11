@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Column, OneToMany } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn, Column, OneToMany, DeleteDateColumn } from "typeorm"
 import User from "./User";
 import { BROKER, BOOLEAN } from "../../libs/typings";
 import Subscription from "./Subscription";
@@ -23,7 +23,6 @@ export default class BrokerClient {
 
     @Column({ nullable: true })
     accessToken: string;
-
 
     @Column()
     userId: string;
