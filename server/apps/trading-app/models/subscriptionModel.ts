@@ -30,7 +30,7 @@ export default class SubscriptionModel {
                     brokerClientId: validSubscription.brokerClient,
                     strategyId:  validSubscription.strategy,
                     // @ts-ignore
-                    interval: validSubscription.timeframe
+                    timeframe: validSubscription.timeframe
                 });
                 if (!subscriptionExists) {
                     // @ts-ignore

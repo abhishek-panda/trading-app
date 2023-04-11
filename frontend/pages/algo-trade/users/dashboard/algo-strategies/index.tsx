@@ -3,10 +3,12 @@ import styled from 'styled-components';
 import { useFormik } from 'formik';
 import { fetchStrategy } from "../../../../../reducers/adminSlice";
 import { useAppSelector, useAppDispatcher } from "../../../../../store/hooks";
-import { fetchBrokerClient, registerSubscription, fetchSubscription } from '../../../../../reducers/algoSettingsSlice';
-import { BOOLEAN, ISubscription, TradingTimeFrame } from '../../../../../../libs/typings'
+import { fetchBrokerClient, registerSubscription, fetchSubscription, updateSubscription } from '../../../../../reducers/algoSettingsSlice';
+import { BOOLEAN, ISubscription, ISubscriptionData, TradingTimeFrame } from '../../../../../../libs/typings'
 import { validSubscriptionSchema, getEnumKeys } from '../../../../../../libs/utils';
 import { Button, Input } from "../../../../../components";
+import Switch from '@mui/material/Switch';
+
 
 export const InputWrapper = styled.div`
 	margin: 8px 0;
@@ -15,8 +17,8 @@ export const InputWrapper = styled.div`
 
 const initialValues: ISubscription = {
 	name: "",
-	brokerClient: "",
-	strategy: "",
+	brokerClientId: "",
+	strategyId: "",
 	timeframe: ""
 };
 
@@ -45,7 +47,17 @@ const AlgoStrategies = () => {
 		dispatch(fetchSubscription());
 	}, []);
 
-
+	const toggleSubscription = (subscription: ISubscriptionData, toUpdate: string) => {
+		const isActive = BOOLEAN.TRUE === subscription.isActive ? true : false;
+		const testMode = BOOLEAN.TRUE === subscription.testMode ? true : false;
+		const payload = {
+			brokerClientId: subscription.brokerClientId,
+			strategyId: subscription.strategyId,
+			isActive: toUpdate === 'status' ? (!isActive).toString() : subscription.isActive,
+			testMode: toUpdate === 'mode' ? (!testMode).toString() : subscription.testMode
+		}
+		dispatch(updateSubscription(payload));
+	} 
 	
 
 	return (
@@ -81,20 +93,20 @@ const AlgoStrategies = () => {
 
 					<InputWrapper>
 						<label htmlFor='broker-client'>Broker Client</label>
-						<select id="broker-client" name='brokerClient' onChange={formik.handleChange} value={formik.values.brokerClient} onBlur={formik.handleBlur}>
+						<select id="broker-client" name='brokerClient' onChange={formik.handleChange} value={formik.values.brokerClientId} onBlur={formik.handleBlur}>
 							<option value="">Select</option>
 							{brokerClients.map(brokerClient => <option value={brokerClient.id} key={brokerClient.id}>{brokerClient.cname.toUpperCase()}</option>)}
 						</select>
-						{formik.touched.brokerClient ? <span>{formik.errors.brokerClient}</span> : undefined}
+						{formik.touched.brokerClientId ? <span>{formik.errors.brokerClientId}</span> : undefined}
 					</InputWrapper>
 
 					<InputWrapper>
 						<label htmlFor='strategy'>Strategy</label>
-						<select id="strategy" name='strategy' onChange={formik.handleChange} value={formik.values.strategy} onBlur={formik.handleBlur}>
+						<select id="strategy" name='strategy' onChange={formik.handleChange} value={formik.values.strategyId} onBlur={formik.handleBlur}>
 							<option value="">Select</option>
 							{strategies.map(strategy => <option value={strategy.sid} key={strategy.sid}>{strategy.name.toUpperCase()}</option>)}
 						</select>
-						{formik.touched.strategy ? <span>{formik.errors.strategy}</span> : undefined}
+						{formik.touched.strategyId ? <span>{formik.errors.strategyId}</span> : undefined}
 					</InputWrapper>
 					
 					<InputWrapper>
@@ -120,12 +132,24 @@ const AlgoStrategies = () => {
 
 				{
 					subscriptions.map(subscription => {
+						const isActive = BOOLEAN.TRUE === subscription.isActive ? true : false;
+						const testMode = BOOLEAN.TRUE === subscription.testMode ? true : false;
+						console.log(subscription)
 						return (
 							<div style={{ display: 'flex', justifyContent: 'space-between'}}>
 								<span>{subscription.name}</span>
 								<span>{subscription.brokerClientName}</span>
 								<span>{subscription.strategyName}</span>
-								<span>{subscription.timeframe}</span>
+								<span>{subscription.timeframe}+</span>
+								<div>
+									<label htmlFor={`${subscription.brokerClientId}_${subscription.strategyId}`}>Enable</label>
+									<Switch id={`${subscription.brokerClientId}_${subscription.strategyId}`} checked={isActive} onChange={ () => toggleSubscription(subscription, 'status')} color='secondary'/>
+								</div>
+								<div>
+									<label htmlFor={`${subscription.brokerClientId}_${subscription.strategyId}`}>Deploy</label>
+									<Switch id={`${subscription.brokerClientId}_${subscription.strategyId}`} checked={testMode} onChange={ () => toggleSubscription(subscription, 'mode')} color='secondary'/>
+									<label htmlFor={`${subscription.brokerClientId}_${subscription.strategyId}`}>Test</label>
+								</div>
 							</div>
 						)
 					})

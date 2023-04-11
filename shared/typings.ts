@@ -70,14 +70,16 @@ export interface IStrategy {
 
 export interface ISubscription {
 	name: string;
-	brokerClient: string;
-	strategy: string;
+	brokerClientId: string;
+	strategyId: string;
 	timeframe: string;
 }
 
 export interface ISubscriptionData extends ISubscription {
     brokerClientName: string;
     strategyName: string;
+	testMode: BOOLEAN;
+	isActive: BOOLEAN;
 }
 
 export enum TradingTimeFrame {

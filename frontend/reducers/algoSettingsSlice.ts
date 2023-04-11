@@ -49,7 +49,7 @@ const fetchSubscription = createAsyncThunk('subscription/fetch', _ => {
         .then(response => response.json());
 });
 
-const updateSubscription = createAsyncThunk('subscription/register', (data: ISubscriptionData) => {
+const updateSubscription = createAsyncThunk('subscription/update', (data: Record<string, any>) => {
     return request('/api/subscription', REQUEST_METHOD.PUT, {}, data)
         .then(response => response.json());
 });
@@ -95,6 +95,16 @@ const algoSettingsSlice = createSlice({
 		});
         builder.addCase(fetchSubscription.rejected, (state, action) => {
             state.subscriptions = [];
+		});
+
+        builder.addCase(updateSubscription.fulfilled, (state, action) => {
+            state.subscriptions =  state.subscriptions.map(subscrition => {
+                return (
+                        subscrition.brokerClientId === action.payload.data.brokerClientId  &&
+                        subscrition.strategyId === action.payload.data.strategyId &&
+                        subscrition.timeframe === action.payload.data.timeframe
+                    ) ?  action.payload.data : subscrition;
+            });
 		});
     }
 });

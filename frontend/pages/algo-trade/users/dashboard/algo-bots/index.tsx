@@ -124,7 +124,7 @@ const AlgoBots = () => {
 					return (
 						<div style={{ display: 'flex', justifyContent: 'space-between' }}>
 							<span>{client.cname}</span>
-							<Switch checked={isEnabled} onChange={_ => toggleClient(client)} color='secondary'/>
+							<div><label htmlFor={client.id}>Enable</label><Switch id={client.id} checked={isEnabled} onChange={_ => toggleClient(client)} color='secondary'/></div>
 							<button disabled={isActive} onClick={_ => validateClient(client)}>Activate</button>
 						</div>
 					)
