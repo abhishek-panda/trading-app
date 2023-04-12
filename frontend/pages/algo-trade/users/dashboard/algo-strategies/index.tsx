@@ -50,9 +50,25 @@ const AlgoStrategies = () => {
 	const toggleSubscription = (subscription: ISubscriptionData, toUpdate: string) => {
 		const isActive = BOOLEAN.TRUE === subscription.isActive ? true : false;
 		const testMode = BOOLEAN.TRUE === subscription.testMode ? true : false;
+
+		if (toUpdate === 'status' && isActive) {
+			const agreeMsg = 'I UNDERSTAND';
+			let promptMsg = prompt(`CAUTION: Deactivating subscription will stop execution of any existing trades. Make sure to close all trades before deactivating client. Type '${agreeMsg}' to continue`);
+			if (promptMsg !== agreeMsg) return;
+		}
+
+		if (toUpdate === 'mode' && testMode) {
+			const agreeMsg = 'I UNDERSTAND';
+			let promptMsg = prompt(`CAUTION: This will stop all virtual trade and initiate real trade on right time. Type '${agreeMsg}' to continue`);
+			if (promptMsg !== agreeMsg) return;
+		}
+
+
+
 		const payload = {
 			brokerClientId: subscription.brokerClientId,
 			strategyId: subscription.strategyId,
+			timeframe: subscription.timeframe,
 			isActive: toUpdate === 'status' ? (!isActive).toString() : subscription.isActive,
 			testMode: toUpdate === 'mode' ? (!testMode).toString() : subscription.testMode
 		}

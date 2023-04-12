@@ -1,12 +1,12 @@
 import { DataSource } from "typeorm";
 import DBConn from "../../../dbConn";
 import * as Yup from 'yup';
-import { IResponse, IStrategy, ISubscription, TradingTimeFrame, ISubscriptionData, BOOLEAN, } from "../../../../libs/typings";
-import { validSubscriptionSchema } from "../../../../libs/utils";
+import { IResponse, IStrategy, TradingTimeFrame, ISubscriptionData, BOOLEAN, } from "../../../../libs/typings";
+import { validSubscriptionSchema, validStrategyId, validBrokerClientId } from "../../../../libs/utils";
 import BrokerClient from "../../../entities/BrokerClient";
 import Strategy from "../../../entities/Strategy";
 import Subscription from "../../../entities/Subscription";
-import { getLocalDateTime, validCid } from "../../../utils";
+import { getLocalDateTime } from "../../../utils";
 
 export default class SubscriptionModel {
 
@@ -107,13 +107,31 @@ export default class SubscriptionModel {
 
     async updateSubscription (userInput: Record<string, any>, userId: string): Promise<IResponse> {
         // TODO: Logic for update
-        const validBrokerClientId = await Yup.string().matches(validCid).isValid(userInput.cid as string ?? "");
-        // const strategyId = await Yup.string().matches()
-        const testMode = await Yup.mixed().oneOf(Object.values(BOOLEAN)).isValid(userInput.testMode as BOOLEAN ?? BOOLEAN.FALSE);
-        const isActive = await Yup.mixed().oneOf(Object.values(BOOLEAN)).isValid(userInput.isActive as BOOLEAN ?? BOOLEAN.FALSE);
-        return {
-            data: {}
-        }
-    }
+        const validBrokerClient = await Yup.string().matches(validBrokerClientId).isValid(userInput.brokerClientId as string ?? "");
+        const validStrategy = await Yup.string().matches(validStrategyId).isValid(userInput.strategyId as string ?? "");
+        const validTimeframe = await Yup.mixed().oneOf(Object.values(TradingTimeFrame)).isValid(userInput.timeframe);
+        const validTestMode = await Yup.mixed().oneOf(Object.values(BOOLEAN)).isValid(userInput.testMode as BOOLEAN ?? BOOLEAN.FALSE);
+        const validIsActive = await Yup.mixed().oneOf(Object.values(BOOLEAN)).isValid(userInput.isActive as BOOLEAN ?? BOOLEAN.FALSE);
 
+       if (validBrokerClient && validStrategy && validTimeframe && validTestMode && validIsActive) {
+            const subscriptionRespository = this.dataSource.getRepository(Subscription);
+            const result = await subscriptionRespository
+                .update(
+                    { brokerClientId : userInput.brokerClientId, strategyId: userInput.strategyId, timeframe: userInput.timeframe},
+                    { testMode: userInput.testMode, isActive: userInput.isActive }
+                );
+            const subscription = await subscriptionRespository.findOneBy({ brokerClientId : userInput.brokerClientId, strategyId: userInput.strategyId, timeframe: userInput.timeframe });
+            if (result.affected) {
+                return {
+                    data: subscription,
+                    message: "Client activated successfully"
+                }
+            }
+       }
+        return {
+            error: {
+                "subscription": "Failed to update subscription"
+            }
+        };
+    }
 }
