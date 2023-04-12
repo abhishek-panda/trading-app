@@ -93,7 +93,7 @@ const AlgoStrategies = () => {
 
 					<InputWrapper>
 						<label htmlFor='broker-client'>Broker Client</label>
-						<select id="broker-client" name='brokerClient' onChange={formik.handleChange} value={formik.values.brokerClientId} onBlur={formik.handleBlur}>
+						<select id="broker-client" name='brokerClientId' onChange={formik.handleChange} value={formik.values.brokerClientId} onBlur={formik.handleBlur}>
 							<option value="">Select</option>
 							{brokerClients.map(brokerClient => <option value={brokerClient.id} key={brokerClient.id}>{brokerClient.cname.toUpperCase()}</option>)}
 						</select>
@@ -102,7 +102,7 @@ const AlgoStrategies = () => {
 
 					<InputWrapper>
 						<label htmlFor='strategy'>Strategy</label>
-						<select id="strategy" name='strategy' onChange={formik.handleChange} value={formik.values.strategyId} onBlur={formik.handleBlur}>
+						<select id="strategy" name='strategyId' onChange={formik.handleChange} value={formik.values.strategyId} onBlur={formik.handleBlur}>
 							<option value="">Select</option>
 							{strategies.map(strategy => <option value={strategy.sid} key={strategy.sid}>{strategy.name.toUpperCase()}</option>)}
 						</select>

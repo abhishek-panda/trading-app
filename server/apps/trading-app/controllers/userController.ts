@@ -42,9 +42,7 @@ export default class UserController {
         const authorizationHeader = cookies['SN'];
         const result = await this.userModel.getUser(authorizationHeader);
         const status = result.error ? 401 : 200;
-        if (!result.error) {
-            GlobalUtils.cache.set(authorizationHeader, result.data);
-        }
+        !result.error ? GlobalUtils.cache.set(authorizationHeader, result.data) : GlobalUtils.cache.del(authorizationHeader);
         return res.status(status).send(result);
     }
 

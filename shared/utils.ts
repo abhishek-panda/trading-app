@@ -1,20 +1,39 @@
 import * as Yup from "yup";
 import { TradingTimeFrame } from "./typings";
 
-export const validUserName = /^[A-Za-z\s]{3,20}$/;
+
+export const validuuId =  /^[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/i;
+export const validAlphaNumericText = /^[A-Za-z0-9\s]{3,100}$/;
+/**
+ * User
+ */
+export const validUserName = validAlphaNumericText;
 export const validEmail = /^[a-zA-Z0-9._]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/;
 export const validPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
-export const validBrokerClientName = /^[A-Za-z\s]{3,100}$/;
-export const validBrokerName = /^[A-Za-z\s]{3,100}$/;
-export const validClientApiKey = /^[A-Za-z0-9]{3,100}$/;
-export const validSecret = /^[A-Za-z0-9]{3,100}$/;
-export const validStrategyID = /^[A-Z_]{3,20}$/;
-export const validStrategyName = /^[A-Za-z0-9\s_-]{3,30}$/;
+
+
+/**
+ * Broker
+ */
+export const validBrokerName = validAlphaNumericText;
+
+/**
+ * Broker Client
+ */
+export const validBrokerClientId = validuuId;
+export const validBrokerClientName = validAlphaNumericText;
+export const validBrokerClientApiKey = /^[A-Za-z0-9]{3,100}$/;
+export const validBrokerClientSecret = /^[A-Za-z0-9]{3,100}$/;
+
+/**
+ * Strategy
+ */
+export const validStrategyId =  /^[A-Za-z0-9\s_]{3,100}$/;
+export const validStrategyName = validAlphaNumericText;
 export const validStrategyDescription = /^[A-Za-z0-9\s._,]{20,200}$/;
 
-export const validSubscriptionName = /^[A-Za-z]{3,20}$/;
-export const validbrokerClient = /^[A-Za-z0-9_-]{3,100}$/;
-export const validstrategy = /^[A-Za-z0-9_-]{3,100}$/;
+/** Subscription */
+export const validSubscriptionName = validAlphaNumericText;
 
 export const validUserRegistrationSchema = Yup.object({
   uname: Yup.string()
@@ -37,23 +56,24 @@ export const validUserLoginSchema = Yup.object({
 
 export const validBrokerClientSchema = Yup.object({
   cname: Yup.string().required("Required").matches(validBrokerClientName, "Invalid Broker Client Name"),
-  apiKey: Yup.string().required("Required").matches(validClientApiKey, "Invalid API Key"),
-  secret: Yup.string().required("Required").matches(validSecret, "Invalid secret"),
+  apiKey: Yup.string().required("Required").matches(validBrokerClientApiKey, "Invalid API Key"),
+  secret: Yup.string().required("Required").matches(validBrokerClientSecret, "Invalid secret"),
   broker: Yup.string().required("Required").matches(validBrokerName, "Invalid Broker")
 })
 
 export const validStrategySchema = Yup.object({
-  sid: Yup.string().required("Required").matches(validStrategyID, "Invalid ID"),
+  sid: Yup.string().required("Required").matches(validStrategyId, "Invalid Id"),
   name: Yup.string().required("Required").matches(validStrategyName, "Invalid Name"),
   description : Yup.string().required("Required").matches(validStrategyDescription, "Invalid Description"),
 });
 
 export const validSubscriptionSchema = Yup.object({
   name: Yup.string().required("Required").matches(validSubscriptionName, "Invalid Name"),
-  brokerClient : Yup.string().required("Required").matches(validbrokerClient, "Invalid Broker Client"),
-  strategy : Yup.string().required("Required").matches(validstrategy, "Invalid Strategy"),
+  brokerClientId : Yup.string().required("Required").matches(validBrokerClientId, "Invalid Broker Client"),
+  strategyId : Yup.string().required("Required").matches(validStrategyId, "Invalid Strategy"),
   timeframe: Yup.mixed().oneOf(Object.values(TradingTimeFrame)).defined().required("Required")
 });
+
 
 
 export const getEnumKeys = (enumType: any): string[] => {

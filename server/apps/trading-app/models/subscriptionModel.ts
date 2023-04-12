@@ -1,12 +1,12 @@
 import { DataSource } from "typeorm";
 import DBConn from "../../../dbConn";
 import * as Yup from 'yup';
-import { IResponse, IStrategy, ISubscription, TradingTimeFrame, ISubscriptionData } from "../../../../libs/typings";
+import { IResponse, IStrategy, ISubscription, TradingTimeFrame, ISubscriptionData, BOOLEAN, } from "../../../../libs/typings";
 import { validSubscriptionSchema } from "../../../../libs/utils";
 import BrokerClient from "../../../entities/BrokerClient";
 import Strategy from "../../../entities/Strategy";
 import Subscription from "../../../entities/Subscription";
-import { getLocalDateTime } from "../../../utils";
+import { getLocalDateTime, validCid } from "../../../utils";
 
 export default class SubscriptionModel {
 
@@ -21,20 +21,20 @@ export default class SubscriptionModel {
             const validSubscription = await validSubscriptionSchema.validate(inputData);
             // @ts-ignore
             const selectedTimeFrame = Object.keys(TradingTimeFrame).find(value => TradingTimeFrame[value] === validSubscription.timeframe);
-            const clientExists = await this.dataSource.getRepository(BrokerClient).findOneBy({ id:  validSubscription.brokerClient, userId });
-            const strategyExists = await this.dataSource.getRepository(Strategy).findOneBy({ sid: validSubscription.strategy });
+            const clientExists = await this.dataSource.getRepository(BrokerClient).findOneBy({ id:  validSubscription.brokerClientId, userId });
+            const strategyExists = await this.dataSource.getRepository(Strategy).findOneBy({ sid: validSubscription.strategyId });
             if (selectedTimeFrame && clientExists && strategyExists) {
                 const subscriptionRepository = await this.dataSource.getRepository(Subscription);
                 // check if subscription exists
                 const subscriptionExists =  await subscriptionRepository.findOneBy({
-                    brokerClientId: validSubscription.brokerClient,
-                    strategyId:  validSubscription.strategy,
+                    brokerClientId: validSubscription.brokerClientId,
+                    strategyId:  validSubscription.strategyId,
                     // @ts-ignore
                     timeframe: validSubscription.timeframe
                 });
                 if (!subscriptionExists) {
                     // @ts-ignore
-                    const subscription = new Subscription(validSubscription.brokerClient, validSubscription.strategy, TradingTimeFrame[selectedTimeFrame], validSubscription.name, getLocalDateTime());
+                    const subscription = new Subscription(validSubscription.brokerClientId, validSubscription.strategyId, TradingTimeFrame[selectedTimeFrame], validSubscription.name, getLocalDateTime());
                     const result = await this.dataSource.getRepository(Subscription).save(subscription);
                     return {
                         message: "Subscried successfully",
@@ -105,8 +105,12 @@ export default class SubscriptionModel {
         }
     }
 
-    async updateSubscription (inputData: Record<string, any>, userId: string): Promise<IResponse> {
+    async updateSubscription (userInput: Record<string, any>, userId: string): Promise<IResponse> {
         // TODO: Logic for update
+        const validBrokerClientId = await Yup.string().matches(validCid).isValid(userInput.cid as string ?? "");
+        // const strategyId = await Yup.string().matches()
+        const testMode = await Yup.mixed().oneOf(Object.values(BOOLEAN)).isValid(userInput.testMode as BOOLEAN ?? BOOLEAN.FALSE);
+        const isActive = await Yup.mixed().oneOf(Object.values(BOOLEAN)).isValid(userInput.isActive as BOOLEAN ?? BOOLEAN.FALSE);
         return {
             data: {}
         }
