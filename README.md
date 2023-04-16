@@ -85,3 +85,19 @@ Removing MySQL
 4. apt autoremove
 5. apt autoclean
 
+
+### Check running node process
+
+ps aux | grep node
+
+
+
+### Block access to backend services
+
+iptables -F
+iptables -P INPUT DROP
+iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+iptables-save > /etc/iptables/rules.v4
+iptables-restore < /etc/iptables/rules.v4
