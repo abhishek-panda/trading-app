@@ -31,3 +31,23 @@ The list of items to be picked.
     - ~~Virtual Trade with registered bot using available strategies~~
     - 
     
+
+Apps
+Trading user Portal 
+Algo server 
+WS server for collecting Analytics and for rolling window.
+Shared database
+
+
+Architecture 
+
+
+Trradingview Signal 
+    ----> Check subscription and trigger the strategy
+
+
+
+Rolling window for maximum profit
+    ----> Restart websocket server.
+    ----> Subscribe to websocket
+        ----> Push data to kafka server(for failover) ----> InfluxDB to collect trading position's tikcer

@@ -1,13 +1,14 @@
 import { DataSource } from "typeorm";
 import DBConn from "../../../dbConn";
 import * as Yup from 'yup';
-import { validClientTokenRequestSchema, validCid } from '../../../utils';
+import { validClientTokenRequestSchema, validCid, cache } from '../../../utils';
 import { SBrokerClient } from '../../../typings';
 import { BrokenClientRegistation, IResponse, BOOLEAN, BROKER } from "../../../../libs/typings";
 import { validBrokerClientSchema} from '../../../../libs/utils';
 import BrokerClient from "../../../entities/BrokerClient";
 import User from "../../../entities/User";
-import KiteConnectModel from "../../algo-trading/models/kiteModel";
+import KiteConnectModel from "../../algo-trading/core/kite-connect";
+import { KiteWSTicker } from "../../algo-trading";
 
 
 
@@ -111,7 +112,9 @@ export default class BrokerClientModel {
         };
     }
 
-
+    /**
+     * Create WS client if it doesn't exists.
+     */
     async updateClient(userInput: Record<string, any>, userId: string): Promise<IResponse> {
         try {
             if (userInput.updateType === 'validate') {
@@ -131,13 +134,18 @@ export default class BrokerClientModel {
                     const kiteConnect = new KiteConnectModel(client.apiKey);
                     const accessToken = await kiteConnect.getAccessToken(validTokenRequest.request_token, client.secret);
                     if (accessToken instanceof Error) {
+                        cache.del(`WS_${client.apiKey}`);
                         throw new Yup.ValidationError(accessToken.message, '', 'token');
                     }
-                    const result = await this.dataSource.getRepository(BrokerClient).update({ id: validTokenRequest.cid }, { accessToken});
+                    const result = await this.dataSource.getRepository(BrokerClient).update({ id: validTokenRequest.cid }, { accessToken });
+                    const wsTicker = new KiteWSTicker({ api_key: client.apiKey, access_token: accessToken });
+                    wsTicker.connect();
+                    cache.set(`WS_${client.apiKey}`, wsTicker);
+
                     if (result.affected) {
                         return {
                             message: "Client activated successfully"
-                        }
+                        };
                     }
                 }
             }

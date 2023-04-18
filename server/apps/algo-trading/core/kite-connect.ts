@@ -6,7 +6,7 @@ import { BasketOrderItem } from '../typings';
 /**
  * TODO: Add return type of member function
  */
-export default class KiteConnectModel {
+export default class KiteConnect {
 
     private kiteconnect: any;
 

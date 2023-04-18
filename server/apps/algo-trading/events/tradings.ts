@@ -1,8 +1,8 @@
 import EventEmitter from 'events';
-import * as Utils from './utils';
-import * as Typings from './typings';
-import * as Strategies from './stategies'
-import logger from './logger';
+import * as Utils from '../utils';
+import * as Typings from '../typings';
+import * as Strategies from '../stategies'
+import logger from '../logger';
 const Kite =  require('./kite');
 
 const TradeEvent = new EventEmitter();

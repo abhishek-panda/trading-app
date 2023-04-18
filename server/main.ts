@@ -6,7 +6,8 @@ import helmetCsp from 'helmet-csp';
 import * as Schedule from 'node-schedule';
 import express, { Request, Response } from 'express';
 import intializeTradingAppRoutes from './apps/trading-app/router';
-import { AlgoTradingRouter, KiteWSTicker } from './apps/algo-trading';
+import intializeAlgoTradingRoutes from './apps/algo-trading/router';
+
 import * as GlobalTypings from './typings';
 import * as GlobalUtils from './utils';
 import { csp } from './csp';
@@ -37,7 +38,7 @@ app.use(express.static(GlobalUtils.publicDirPath));
 
 function initializeApplicationsRouters() {
     app.use('/', intializeTradingAppRoutes());
-    app.use('/algo-api', AlgoTradingRouter);
+    app.use('/algo-api', intializeAlgoTradingRoutes());
 
     // Block all other unwanted routes
     app.use(function (req: Request, res: Response) {
@@ -48,29 +49,34 @@ function initializeApplicationsRouters() {
 // End Middleware
 
 
+function initializeApplicationWS() {
+    
+}
+
+
 /**
  * Schedulers
  */
 // Clearing old request token. Need to login everyday.
-const rule = new Schedule.RecurrenceRule();
-rule.hour = 8;
-rule.minute = 0;
-rule.tz = process.env.TZ ?? 'Asia/Kolkata';
-Schedule.scheduleJob(rule, function() {
-    delete process.env.ACCESS_TOKEN;
-    GlobalUtils.addRemoveEnv(envFilePath, GlobalTypings.ENV_OPERATION.REMOVE, 'ACCESS_TOKEN');
-    logger.info('Scheduler triggered. Removing access token');
-});
+// const rule = new Schedule.RecurrenceRule();
+// rule.hour = 8;
+// rule.minute = 0;
+// rule.tz = process.env.TZ ?? 'Asia/Kolkata';
+// Schedule.scheduleJob(rule, function() {
+//     delete process.env.ACCESS_TOKEN;
+//     GlobalUtils.addRemoveEnv(envFilePath, GlobalTypings.ENV_OPERATION.REMOVE, 'ACCESS_TOKEN');
+//     logger.info('Scheduler triggered. Removing access token');
+// });
 
 
 /**
  * Websocket for get tickers and order status
  */
-let wsTicker  = new KiteWSTicker({
-    api_key: process.env.API_KEY ?? '',
-    access_token: process.env.ACCESS_TOKEN ?? ''
-});
-wsTicker.connect();
+// let wsTicker  = new KiteWSTicker({
+//     api_key: process.env.API_KEY ?? '',
+//     access_token: process.env.ACCESS_TOKEN ?? ''
+// });
+// wsTicker.connect();
 
 
 /**
@@ -80,6 +86,7 @@ wsTicker.connect();
 DBConn.getInstance().initialize()
     .then(() => {
         initializeApplicationsRouters();
+        initializeApplicationWS();
         app.listen(PORT, () => {
             logger.info(`Server started. Listening on port : ${PORT}`);
         });
