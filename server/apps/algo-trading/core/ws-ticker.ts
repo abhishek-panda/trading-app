@@ -15,26 +15,29 @@ interface WSTickerParams {
 }
 
 class KiteWSTicker {
-    private ticker: WSTicker;
+    private ticker?: WSTicker;
 
     constructor(params: WSTickerParams) {
         this.ticker = new KiteTicker({
             api_key: params.api_key,
             access_token: params.access_token,
-        });
+        }) as WSTicker;
 
         this.ticker.autoReconnect(false, 2, 30);
         this.ticker.on('connect', function () {
             logger.info("KiteTicker WS connected");
         });
-        this.ticker.on('disconnect', function (error: Error) {
+        this.ticker.on('disconnect', (error: Error) => {
             logger.error(`KiteTicker WS connection disconnected.${error?.message ?? new Date()}.`);
+            delete this.ticker;
         });
-        this.ticker.on('error',  function(error: Error) {
+        this.ticker.on('error',  (error: Error) => {
             logger.error(`KiteTicker WS connection closed on error.${error?.message ?? ''}`);
+            delete this.ticker;
         });
-        this.ticker.on('close', function (error: Error) {
+        this.ticker.on('close', (error: Error) => {
             logger.error(`KiteTicker WS connection closed.${error?.message ?? ''}`);
+            delete this.ticker;
         });
         this.ticker.on('order_update', function(order: any) {
             logger.info(`Order status : ${JSON.stringify(order)}`);
@@ -42,11 +45,11 @@ class KiteWSTicker {
     }
 
     public connect () {
-        this.ticker.connect();
+        this.ticker?.connect();
     }
 
     public disconnect () {
-        this.ticker.disconnect();
+        this.ticker?.disconnect();
     }
 
     public getInstance() {
