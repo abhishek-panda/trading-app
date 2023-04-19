@@ -1,5 +1,5 @@
 import EventEmitter from 'events';
-import WSModel from "../../algo-trading/models/wsModel";
+import WSController from '../../algo-trading/controllers/wsController';
 
 const WSEvent = new EventEmitter();
 
@@ -13,15 +13,15 @@ function registerWS(inputs: string) {
         (payload.apiKey && typeof payload.apiKey === 'string') && 
         (payload.accessToken && typeof payload.accessToken === 'string')
     ) {
-        const wsModel = new WSModel();
-        wsModel.initializeWS(payload.apiKey, payload.accessToken);
+        const wsController = new WSController();
+        wsController.initialize(payload.apiKey, payload.accessToken);
     }
 }
 
 function unregisterWS(apiKey: string) {
     if (apiKey && typeof apiKey === 'string') {
-        const wsModel = new WSModel();
-        wsModel.uninitializeWS(apiKey);
+        const wsController = new WSController();
+        wsController.uninitializeWS(apiKey);
     }
 }
 

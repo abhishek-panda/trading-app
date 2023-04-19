@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import logger from "../logger";
-import { TradeEvent } from "../events/tradings";
+import TradeEvent from "../events/trade";
 
 export default class TradingviewController {
 

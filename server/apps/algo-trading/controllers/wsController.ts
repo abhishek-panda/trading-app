@@ -14,4 +14,8 @@ export default class WSController {
         this.wsModel.initializeAll();
     }
 
+    uninitializeWS(apiKey: string) {
+        this.wsModel.uninitializeWS(apiKey);
+    }
+
 }
