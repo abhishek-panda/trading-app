@@ -48,6 +48,10 @@ class KiteWSTicker {
     public disconnect () {
         this.ticker.disconnect();
     }
+
+    public getInstance() {
+        return this.ticker;
+    }
 }
 
 export default KiteWSTicker;

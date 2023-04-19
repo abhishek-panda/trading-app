@@ -8,7 +8,7 @@ import { validBrokerClientSchema} from '../../../../libs/utils';
 import BrokerClient from "../../../entities/BrokerClient";
 import User from "../../../entities/User";
 import KiteConnectModel from "../../algo-trading/core/kite-connect";
-import { KiteWSTicker } from "../../algo-trading";
+import WSModel from "../../algo-trading/models/wsModel";
 
 
 
@@ -138,10 +138,8 @@ export default class BrokerClientModel {
                         throw new Yup.ValidationError(accessToken.message, '', 'token');
                     }
                     const result = await this.dataSource.getRepository(BrokerClient).update({ id: validTokenRequest.cid }, { accessToken });
-                    const wsTicker = new KiteWSTicker({ api_key: client.apiKey, access_token: accessToken });
-                    wsTicker.connect();
-                    cache.set(`WS_${client.apiKey}`, wsTicker);
-
+                    const wsModel = new WSModel();
+                    wsModel.initializeWS(client.apiKey, accessToken)
                     if (result.affected) {
                         return {
                             message: "Client activated successfully"
@@ -172,5 +170,20 @@ export default class BrokerClientModel {
             }
            return errorDetails;
         }
+    }
+
+
+    /**
+     * Internal Usage for WS
+     */
+    async getAllActiveClients(): Promise<SBrokerClient[]> {
+        const clients:  SBrokerClient[] =  await this.dataSource
+                .createQueryBuilder()
+                .select(["id", "cname", "broker", "apiKey", "accessToken", "isEnabled"])
+                .from(BrokerClient, "brokerClient")
+                .where("brokerClient.isEnabled = :enabled")
+                .setParameters({ enabled: BOOLEAN.TRUE })
+                .getRawMany();
+        return clients;
     }
 }

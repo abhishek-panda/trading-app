@@ -1,7 +1,11 @@
 import { Router } from 'express';
 import TradingviewController from './controllers/tradingviewController';
+import WSController from './controllers/wsController';
 
-
+function intializeAlgoWS() {
+    const wsController = new WSController();
+    wsController.initializeAll();
+}
 
 function intializeAlgoTradingRoutes() {
     const AlgoTradingRoute = Router();
@@ -12,5 +16,5 @@ function intializeAlgoTradingRoutes() {
     return AlgoTradingRoute;
 }
 
-
+export { intializeAlgoWS };
 export default intializeAlgoTradingRoutes;

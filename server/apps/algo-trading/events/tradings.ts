@@ -3,7 +3,7 @@ import * as Utils from '../utils';
 import * as Typings from '../typings';
 import * as Strategies from '../stategies'
 import logger from '../logger';
-const Kite =  require('./kite');
+const Kite =  require('./../core/kite-connect');
 
 const TradeEvent = new EventEmitter();
 

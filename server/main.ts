@@ -6,7 +6,7 @@ import helmetCsp from 'helmet-csp';
 import * as Schedule from 'node-schedule';
 import express, { Request, Response } from 'express';
 import intializeTradingAppRoutes from './apps/trading-app/router';
-import intializeAlgoTradingRoutes from './apps/algo-trading/router';
+import intializeAlgoTradingRoutes, { intializeAlgoWS } from './apps/algo-trading/router';
 
 import * as GlobalTypings from './typings';
 import * as GlobalUtils from './utils';
@@ -50,7 +50,7 @@ function initializeApplicationsRouters() {
 
 
 function initializeApplicationWS() {
-    
+    intializeAlgoWS();
 }
 
 
