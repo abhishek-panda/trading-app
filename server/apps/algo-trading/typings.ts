@@ -1,4 +1,4 @@
-
+import { TradingTimeFrame } from '../../../libs/typings';
 /**
  * Enums
  */
@@ -43,7 +43,12 @@ export enum OderType {
     SLM = 'SL-M'
 }
 
-
+export enum SignalType {
+    sellenter = "sellenter",
+    sellexit = "sellexit",
+    buyenter = "buyenter",
+    buyexit = "buyexit"
+}
 
 /**
  * Interfaces
@@ -55,24 +60,9 @@ export interface MonthlyContract {
     daysLeft: number;
 }
 
-export enum TradingTimeFrame {
-    "1MIN" = "1",
-    "3MIN" = "3",
-    "5MIN" = "5",
-    "15MIN" = "15",
-    "30MIN" = "30",
-    "45MIN" = "45",
-    "1H" = "60",
-    "2H" = "120",
-    "3H" = "180",
-    "4H" = "240",
-    "1D" = "D",
-    "1W" = "W"
-}
-
 export interface Signal {
-    title: string;
-    signalType: string;
+    id: string;
+    signalType: SignalType;
     ticker: string;
     timeFrame: TradingTimeFrame;
 }
@@ -96,7 +86,7 @@ export interface BasketOrderItem {
 
 export interface StrategyOrder {
     ticker: string;
-    title: string;
+    id: string;
     transaction: TransactionType,
     orders: BasketOrderItem[],
     timeFrame: TradingTimeFrame;

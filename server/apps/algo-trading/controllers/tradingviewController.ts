@@ -23,6 +23,7 @@ export default class TradingviewController {
         }
     }
 
+    // TODO: Remove this route after testing
     testCheck256 = (req: Request, res: Response) => {
         const stringifiedBody = JSON.stringify(req.body);
         TradeEvent.emit('tradeExecutor', stringifiedBody);

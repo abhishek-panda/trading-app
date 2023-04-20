@@ -8,7 +8,6 @@ import { validBrokerClientSchema} from '../../../../libs/utils';
 import BrokerClient from "../../../entities/BrokerClient";
 import User from "../../../entities/User";
 import KiteConnectModel from "../../algo-trading/core/kite-connect";
-import WSModel from "../../algo-trading/models/wsModel";
 import WSEvent from "../../algo-trading/events/ws";
 
 

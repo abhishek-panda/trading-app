@@ -85,7 +85,7 @@ export default async function followTrendStrategy(signal: Typings.Signal, ticker
             if (userAvailableMargin > basketMarginRequired) {
                 strategyOrder = {
                     ticker: signal.ticker,
-                    title: signal.title,
+                    id: signal.id,
                     transaction: transactionType,
                     orders: [hedgeBasketOrder, positionalBasketOrder], // Basket order item are important to reduce margin price
                     timeFrame: signal.timeFrame
