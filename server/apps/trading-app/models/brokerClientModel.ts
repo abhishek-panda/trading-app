@@ -7,7 +7,7 @@ import { BrokenClientRegistation, IResponse, BOOLEAN, BROKER } from "../../../..
 import { validBrokerClientSchema} from '../../../../libs/utils';
 import BrokerClient from "../../../entities/BrokerClient";
 import User from "../../../entities/User";
-import KiteConnectModel from "../../algo-trading/core/kite-connect";
+import KiteConnect from "../../algo-trading/core/kite-connect";
 import WSEvent from "../../algo-trading/events/ws";
 
 
@@ -69,7 +69,7 @@ export default class BrokerClientModel {
      
         const finalResult = await Promise.all(brokerClients.map(async (client) => {
             const { apiKey, accessToken } = client;
-            const kiteConnect = new KiteConnectModel(apiKey);
+            const kiteConnect = new KiteConnect(apiKey);
             const profile = await kiteConnect.getProfile(accessToken);
             const isActive = profile instanceof Error ? BOOLEAN.FALSE : BOOLEAN.TRUE; 
             client.isActive = isActive;
@@ -97,7 +97,7 @@ export default class BrokerClientModel {
         let finalResult = {};
         if (brokerClient) {
             const { apiKey, accessToken } = brokerClient;
-            const kiteConnect = new KiteConnectModel(apiKey);
+            const kiteConnect = new KiteConnect(apiKey);
             const profile = await kiteConnect.getProfile(accessToken);
             const isActive = profile instanceof Error ? BOOLEAN.FALSE : BOOLEAN.TRUE; 
             brokerClient.isActive = isActive;
@@ -130,7 +130,7 @@ export default class BrokerClientModel {
                 .getRawOne();
                 
                 if (client && client.userId === userId) {
-                    const kiteConnect = new KiteConnectModel(client.apiKey);
+                    const kiteConnect = new KiteConnect(client.apiKey);
                     const accessToken = await kiteConnect.getAccessToken(validTokenRequest.request_token, client.secret);
                     if (accessToken instanceof Error) {
                         WSEvent.emit('unregister', client.apiKey);

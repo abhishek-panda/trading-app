@@ -3,12 +3,11 @@ import DBConn from '../../../dbConn';
 import * as Typings from '../typings';
 import * as Utils from '../utils';
 import * as Yup from 'yup';
-import logger from '../logger';
 import KiteConnect from '../core/kite-connect';
 import { BOOLEAN, TradingTimeFrame } from '../../../../libs/typings';
 import { validStrategyId } from '../../../../libs/utils';
-import Subscription from '../../../entities/Subscription';
 import BrokerClient from '../../../entities/BrokerClient';
+import strategyResolver from '../stategies/resolver';
 
 
 
@@ -21,13 +20,6 @@ export default class TradeModel {
     }
 
     async executeOrder(signal: Typings.Signal) {
-        /**
-         * 1. Validate input
-         * 2. Check existance in DB.
-         * 3. Save trade
-         * 4. Update trade entry
-         */
-
         const tickerName = Utils.TICKER[signal.ticker];
         const validSignalType = await Yup.mixed().oneOf(Object.values(Typings.SignalType)).isValid(signal.signalType);
         const validTimeframe = await Yup.string().oneOf(Object.values(TradingTimeFrame)).isValid(signal.timeFrame);
@@ -40,8 +32,8 @@ export default class TradeModel {
                 .innerJoinAndSelect(
                     "brokerClient.subscription",
                     "subscription",
-                    "subscription.isActive = :isActive",
-                    { isActive: BOOLEAN.TRUE }
+                    "subscription.isActive = :isActive AND subscription.strategyId = :strategyId AND subscription.timeframe = :timeframe",
+                    { isActive: BOOLEAN.TRUE,  strategyId: signal.id, timeframe: signal.timeFrame }
                 )
                 .where("brokerClient.isEnabled = :isEnabled")
                 .setParameters({
@@ -49,35 +41,17 @@ export default class TradeModel {
                 })
                 .getMany();
 
-            if (brokerClientDetails.length > 0) {
-                brokerClientDetails.forEach(client => {
-                    console.log(client.subscription);
-                })
+            for (let count = 0; count < brokerClientDetails.length;  count++) {
+                const client = brokerClientDetails[count];
+                const kiteConnect = new KiteConnect(client.apiKey);
+                const profile = await kiteConnect.getProfile(client.accessToken);
+                if (!(profile instanceof Error)) {
+                    const subscriptions = client.subscription;
+                    subscriptions.forEach(subscription => {
+                        strategyResolver(subscription.strategyId);
+                    });
+                }
             }
         }
-        // const tickerName = Utils.TICKER[signal.ticker];
-        // if (process.env.ACCESS_TOKEN && tickerName !== undefined) {
-        //     const currentTicker = `${Typings.Exchange.NSE}:${tickerName}`; // "NSE:NIFTY 50"
-        //     const currentTickerQuote = await Kite.getQuote([currentTicker]);
-        //     if (!(currentTickerQuote instanceof Error) && currentTickerQuote[currentTicker]) {
-        //         const currentTickerLastPrice = currentTickerQuote[currentTicker].last_price ?? 0;
-        //         if (currentTickerLastPrice > 0) {
-        //             const strategyOrder = await Strategies.followTrendStrategy(signal, currentTickerLastPrice);
-        //             if (strategyOrder) {
-        //                 const orderPromises: Promise<string>[] = [];
-        //                 strategyOrder.orders.forEach(order => {
-        //                     const orderPromise = Kite.placeOrder("regular", order);
-        //                     orderPromises.push(orderPromise);
-        //                 });
-        //                 Promise.all(orderPromises).then(orderIds => {
-        //                     const stringifiedOrderIds =  orderIds.join(',');
-        //                     logger.info(`${strategyOrder.transaction} orders Placed : ${stringifiedOrderIds}`)
-        //                 }).catch(err => {
-        //                     console.log(err);
-        //                 })
-        //             }
-        //         }
-        //     }
-        // }
     }
 }
