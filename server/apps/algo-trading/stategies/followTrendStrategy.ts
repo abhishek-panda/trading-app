@@ -1,5 +1,5 @@
-import * as Utils from './../utils';
-import * as Typings from './../typings';
+import * as Utils from '../utils';
+import * as Typings from '../typings';
 //import * as Kite from './../kite';
 import * as GlobalUtils from '../../../utils';
 import logger from '../logger';

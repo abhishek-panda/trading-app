@@ -94,7 +94,7 @@ export default class KiteConnect {
     * TODO: To check if basket order can be placed instead of single order
     *  To verify the parameters.
     */
-    placeOrder(accessToken: string, variety: string, order: BasketOrderItem) {
+    placeOrder(accessToken: string, variety: string, order: BasketOrderItem): Promise<string|Error> {
         this.kiteconnect.setAccessToken(accessToken);
         logger.info(`Placing order. ${JSON.stringify(order)}`);
         return this.kiteconnect.placeOrder(variety, order).then(function(response: any) {

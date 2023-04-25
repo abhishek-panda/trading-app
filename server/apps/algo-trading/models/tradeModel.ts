@@ -48,7 +48,8 @@ export default class TradeModel {
                 if (!(profile instanceof Error)) {
                     const subscriptions = client.subscription;
                     subscriptions.forEach(subscription => {
-                        strategyResolver(subscription.strategyId);
+                        const strategy  = strategyResolver(kiteConnect, client.accessToken, subscription.strategyId);
+                        strategy?.process(signal)
                     });
                 }
             }
