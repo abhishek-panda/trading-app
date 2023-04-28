@@ -1,5 +1,5 @@
 import EventEmitter from 'events';
-import * as Typings from '../typings';
+import * as Typings from '../../../typings';
 import TradeController from '../controllers/tradeController';
 
 

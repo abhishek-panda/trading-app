@@ -1,5 +1,5 @@
-import * as Utils from '../utils';
-import * as Typings from '../typings';
+import * as Utils from '../../../utils';
+import * as Typings from '../../../typings';
 //import * as Kite from './../kite';
 import * as GlobalUtils from '../../../utils';
 import logger from '../logger';
@@ -42,8 +42,11 @@ export default async function followTrendStrategy(signal: Typings.Signal, ticker
 
         if (transactionType && optionType ) {
             const targetPrices = Utils.getTargetPrices(tickerLastPrice, expectedPercentageMove, transactionType);
-            const positionContractTicker = Utils.getMonthlyContractTicker(contractExpiryDate, signal.ticker, targetPrices.position, optionType);
-            const hedgeContractTicker = Utils.getMonthlyContractTicker(contractExpiryDate, signal.ticker, targetPrices.hedge, optionType);
+            // const positionContractTicker = Utils.getMonthlyContractTicker(contractExpiryDate, signal.ticker, targetPrices.position, optionType);
+            // const hedgeContractTicker = Utils.getMonthlyContractTicker(contractExpiryDate, signal.ticker, targetPrices.hedge, optionType);
+
+            const positionContractTicker = ""
+            const hedgeContractTicker = ""
 
             const positionalBasketOrder : Typings.BasketOrderItem = {
                 exchange: Typings.Exchange.NFO,

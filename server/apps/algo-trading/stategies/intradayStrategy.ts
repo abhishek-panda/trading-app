@@ -1,11 +1,14 @@
 import BaseStrategy from "./baseStrategy"
-import * as Typings from '../typings';
-import * as Utils from '../utils';
+import * as Typings from '../../../typings';
+import * as Utils from '../../../utils';
 import * as GlobalUtils from "../../../utils";
+import logger from "../logger";
 
 export default class IntradayStrategy extends BaseStrategy {
     
     async process(signal: Typings.Signal) {
+        const DEBUG = true;
+        const quantity = 1;
         const tickerName = Utils.TICKER[signal.ticker];
         const currentTicker = `${Typings.Exchange.NSE}:${tickerName}`; // "NSE:NIFTY 50"
         const kiteConnect = this.getKiteConnect();
@@ -15,112 +18,98 @@ export default class IntradayStrategy extends BaseStrategy {
         if (!(currentTickerQuote instanceof Error) && currentTickerQuote[currentTicker]) {
             const currentTickerLastPrice = currentTickerQuote[currentTicker].last_price ?? 0;
             if (currentTickerLastPrice > 0) {
-                let contractExpiryDate;
-                let strategyOrder : Typings.StrategyOrder | undefined;
                 const today =  GlobalUtils.getLocalDateTime(new Date());
-                const calenderDate = today.getDate();
+
+                // Picking next of next expiry to minimize theta decay effect and good liquidity.
+                const weeklyExpiryDate = Utils.getWeeklyExpiryDate(today, 1);  // NIFTY2350417700CE
+
+                // NIFTY23MAY17700CE
+                const monthlyExpiryDate = Utils.getMonthlyLastExipryDate(today.getFullYear(), today.getMonth(), Typings.WEEKDAYS.THRUSDAY); 
+
+                const daysToExpire = GlobalUtils.getDaysInBetween(monthlyExpiryDate, weeklyExpiryDate);
                 
-                const shouldConsiderNextExpiry = calenderDate > Utils.EXPIRY_THRESHOLD_DATE;
-                if (shouldConsiderNextExpiry) {
-                    const nextMonth = GlobalUtils.getNextMonth(today);
-                    contractExpiryDate = Utils.getMonthlyLastExipryDate(nextMonth.getFullYear(), nextMonth.getMonth(), Typings.WEEKDAYS.THRUSDAY);
-                } else {
-                    contractExpiryDate = Utils.getMonthlyLastExipryDate(today.getFullYear(), today.getMonth(), Typings.WEEKDAYS.THRUSDAY);
-                }
-                if (contractExpiryDate) {
-                                
-                    const daysToExpire = GlobalUtils.getDaysInBetween(today, contractExpiryDate);
-                    const expectedPercentageMove = Utils.expectedPercentageMove(daysToExpire);
-                    
+                // No intraday on thrusday
+                if (DEBUG || today.getDay() !== 4) {
                     let transactionType: Typings.TransactionType | undefined;
                     let optionType: Typings.OPTION | undefined;
                     
                     if (signal.signalType === 'buyenter') {
                         transactionType = Typings.TransactionType.BUY;
-                        optionType = Typings.OPTION.PE;
+                        optionType = Typings.OPTION.CE;
                     }
                     if (signal.signalType === 'sellenter') {
+                        transactionType = Typings.TransactionType.BUY;
+                        optionType = Typings.OPTION.PE;
+                    }
+                    if (signal.signalType === 'buyexit') {
                         transactionType = Typings.TransactionType.SELL;
                         optionType = Typings.OPTION.CE;
                     }
-
-                    if (transactionType && optionType ) {
-                        const targetPrices = Utils.getTargetPrices(tickerLastPrice, expectedPercentageMove, transactionType);
-                        const positionContractTicker = Utils.getMonthlyContractTicker(contractExpiryDate, signal.ticker, targetPrices.position, optionType);
-                        const hedgeContractTicker = Utils.getMonthlyContractTicker(contractExpiryDate, signal.ticker, targetPrices.hedge, optionType);
-
-                        const positionalBasketOrder : Typings.BasketOrderItem = {
-                            exchange: Typings.Exchange.NFO,
-                            tradingsymbol: positionContractTicker,
-                            transaction_type: Typings.TransactionType.SELL,
-                            variety: "regular",
-                            product: Typings.ProductType.NRML,
-                            order_type: Typings.OderType.MARKET,
-                            quantity: 50,
-                            price: 0,
-                            trigger_price: 0,
-                        };
-                        const hedgeBasketOrder : Typings.BasketOrderItem = {
-                            exchange: Typings.Exchange.NFO,
-                            tradingsymbol: hedgeContractTicker,
-                            transaction_type: Typings.TransactionType.BUY,
-                            variety: "regular",
-                            product: Typings.ProductType.NRML,
-                            order_type: Typings.OderType.MARKET,
-                            quantity: 50,
-                            price: 0,
-                            trigger_price: 0,
-                        }
-
-                        let userAvailableMargin = 0;
-                        let basketMarginRequired = 0;
-                        const [userMargin, basketMargin] = await Promise.all([
-                            Kite.getMargin(),
-                            Kite.getBasketMargin([hedgeBasketOrder, positionalBasketOrder]) // Basket order item are important to reduce margin price
-                        ]);
-                        
-                        if (!(userMargin instanceof Error) && userMargin?.available) {
-                            userAvailableMargin = userMargin?.available?.live_balance ?? 0;
-                        }
-                        if (!(basketMargin instanceof Error) && basketMargin?.initial) {
-                            basketMarginRequired = basketMargin?.initial?.total ?? 0;
-                        }
-
-                        if (userAvailableMargin > basketMarginRequired) {
-                            strategyOrder = {
-                                ticker: signal.ticker,
-                                id: signal.id,
-                                transaction: transactionType,
-                                orders: [hedgeBasketOrder, positionalBasketOrder], // Basket order item are important to reduce margin price
-                                timeFrame: signal.timeFrame
-                            };
-                        } else {
-                            logger.info("Insufficient margin available");
-                        }
+                    if (signal.signalType === 'sellexit') {
+                        transactionType = Typings.TransactionType.SELL;
+                        optionType = Typings.OPTION.PE;
                     }
-                
+                    if (transactionType && optionType) {
+                        const strikePrice = currentTickerLastPrice - (currentTickerLastPrice % 50);
+                        const expiryDate = (daysToExpire === 0) ? monthlyExpiryDate : weeklyExpiryDate;
+                        const expiryType = (daysToExpire === 0) ? Typings.ExpiryType.MONTHLY : Typings.ExpiryType.WEEKLY;
+                        const contractTicker = Utils.getContractTicker(expiryDate, signal.ticker, strikePrice, optionType, expiryType);
+
+                        const currentContractTicker = `${Typings.Exchange.NFO}:${contractTicker}`; // "NFO:NIFTY2350417800CE"
+                        const currentContractTickerQuote = await kiteConnect.getQuote(accessToken, [currentContractTicker]);
+
+                        if (!(currentContractTickerQuote instanceof Error) && currentContractTickerQuote[currentContractTicker]) {
+                            const currentContractTickerLastPrice = currentContractTickerQuote[currentContractTicker].last_price ?? 0;
+                            const intradayOrder : Typings.BasketOrderItem = {
+                                exchange: Typings.Exchange.NFO,
+                                tradingsymbol: contractTicker,
+                                transaction_type: transactionType,
+                                variety: "regular",
+                                product: Typings.ProductType.NRML,
+                                order_type: Typings.OderType.MARKET,
+                                quantity: 50 * quantity,
+                                price: Math.ceil(currentContractTickerLastPrice),
+                                trigger_price: 0,
+                            };
+
+                            let userAvailableMargin = 0;
+                            let basketMarginRequired = 0;
+                            const [userMargin, basketMargin] = await Promise.all([
+                                kiteConnect.getMargin(accessToken),
+                                kiteConnect.getBasketMargin(accessToken, [intradayOrder]) // Basket order item are important to reduce margin price
+                            ]);
+
+                            if (!(userMargin instanceof Error) && userMargin?.available) {
+                                userAvailableMargin = userMargin?.available?.live_balance ?? 0;
+                            }
+                            if (!(basketMargin instanceof Error) && basketMargin?.initial) {
+                                basketMarginRequired = basketMargin?.initial?.total ?? 0;
+                            }
+
+                            // console.log("contractTicker", contractTicker);
+                            // console.log("userAvailableMargin", userAvailableMargin);
+                            // console.log("basketMarginRequired", basketMarginRequired);
+
+                            if (userAvailableMargin > basketMarginRequired) {
+                                const orderStatus = await this.execute(intradayOrder);
+                                if (!(orderStatus instanceof Error)) {
+
+                                    // Save transaction to DB
+                                }
+                                // strategyOrder = {
+                                //     ticker: signal.ticker,
+                                //     id: signal.id,
+                                //     transaction: transactionType,
+                                //     orders: [intradayOrder], // Basket order item are important to reduce margin price
+                                //     timeFrame: signal.timeFrame
+                                // };
+                            } else {
+                                logger.info("Insufficient margin available");
+                            }   
+                        }      
+                    }
                 }
-                return strategyOrder;
-
-
-
-                // const strategyOrder = await Strategies.followTrendStrategy(signal, currentTickerLastPrice);
-                // if (strategyOrder) {
-                //     const orderPromises: Promise<string>[] = [];
-                //     strategyOrder.orders.forEach(order => {
-                //         const orderPromise = Kite.placeOrder("regular", order);
-                //         orderPromises.push(orderPromise);
-                //     });
-                //     Promise.all(orderPromises).then(orderIds => {
-                //         const stringifiedOrderIds =  orderIds.join(',');
-                //         logger.info(`${strategyOrder.transaction} orders Placed : ${stringifiedOrderIds}`)
-                //     }).catch(err => {
-                //         console.log(err);
-                //     })
-                // }
             }
         }
-        this.execute({});
     }
-
 }

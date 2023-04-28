@@ -3,6 +3,7 @@ import UserSession from "./UserSession";
 import BrokerClient from "./BrokerClient";
 import Strategy from './Strategy';
 import Subscription from './Subscription';
+import Transaction from './Transaction';
 
 
 export default [
@@ -11,4 +12,5 @@ export default [
     BrokerClient,
     Strategy,
     Subscription,
+    Transaction
 ]

@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
 import DBConn from '../../../dbConn';
-import * as Typings from '../typings';
-import * as Utils from '../utils';
+import * as Typings from '../../../typings';
+import * as Utils from '../../../utils';
 import * as Yup from 'yup';
 import KiteConnect from '../core/kite-connect';
 import { BOOLEAN, TradingTimeFrame } from '../../../../libs/typings';
@@ -48,7 +48,7 @@ export default class TradeModel {
                 if (!(profile instanceof Error)) {
                     const subscriptions = client.subscription;
                     subscriptions.forEach(subscription => {
-                        const strategy  = strategyResolver(kiteConnect, client.accessToken, subscription.strategyId);
+                        const strategy  = strategyResolver(kiteConnect, client.accessToken, subscription);
                         strategy?.process(signal)
                     });
                 }

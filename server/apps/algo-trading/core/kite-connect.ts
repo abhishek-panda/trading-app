@@ -1,6 +1,6 @@
 const Kite = require('kiteconnect');
 import logger from '../logger';
-import { BasketOrderItem } from '../typings';
+import { BasketOrderItem } from '../../../typings';
 
 
 /**

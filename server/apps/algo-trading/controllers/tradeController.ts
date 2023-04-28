@@ -1,5 +1,5 @@
 import TradeModel from "../models/tradeModel";
-import * as Typings from '../typings';
+import * as Typings from '../../../typings';
 
 export default class TradeController {
     private tradeModel: TradeModel;

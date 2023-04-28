@@ -1,12 +1,13 @@
 import BaseStrategy from "./baseStrategy";
-import CrossoverStrategy from "./intradayStrategy";
+import IntradayStrategy from "./intradayStrategy";
 import KiteConnect from '../core/kite-connect';
+import Subscription from "../../../entities/Subscription";
 
 
-function strategyResolver( kiteConnect: KiteConnect, accessToken: string, strategyId: string): BaseStrategy | null {
-       switch (strategyId) {
-              case "ICTS":
-                     return new CrossoverStrategy(kiteConnect, accessToken);
+function strategyResolver( kiteConnect: KiteConnect, accessToken: string, subscription: Subscription): BaseStrategy | null {
+       switch (subscription.strategyId) {
+              case "ITCS":
+                     return new IntradayStrategy(kiteConnect, accessToken, subscription);
               default:
                      return null;
        }
