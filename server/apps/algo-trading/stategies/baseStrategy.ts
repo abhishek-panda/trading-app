@@ -2,6 +2,8 @@ import { BOOLEAN } from "../../../../libs/typings";
 import Subscription from "../../../entities/Subscription";
 import KiteConnect from "../core/kite-connect";
 import * as Typings from '../../../typings';
+import TransactionController from "../controllers/transactionController";
+import { cache } from "../../../utils";
 
 export default abstract class BaseStrategy {
     
@@ -14,14 +16,21 @@ export default abstract class BaseStrategy {
         this.subscription = subscription;
     }
     abstract process(signal: Typings.Signal): void;
-    protected execute(order:  Typings.BasketOrderItem) {
+    protected async placeOrder(transactionId: string, order:  Typings.BasketOrderItem) {
+        const tradeController = new TransactionController();
         if (this.subscription.testMode === BOOLEAN.TRUE) {
-            return new Promise((resolve, _) => {
-                const order_id = Math.ceil(Math.random() * Math.pow(10,15));
-                resolve(order_id);
-            });
-        }
-        return this.kiteConnect.placeOrder(this.accessToken, "regular", order);
+            const order_id = `${Math.ceil(Math.random() * Math.pow(10,15))}`;
+            tradeController.save(transactionId, this.getSubscription(),  order, order_id);
+        } else {
+            const order_id = await this.kiteConnect.placeOrder(this.accessToken, "regular", order);
+            const transactionData = {
+                transactionId,
+                subscription: this.subscription,
+                order,
+                orderId: order_id
+            };
+            cache.set(`OID_${order_id}`, transactionData);
+        }  
     }
 
     protected getKiteConnect() {

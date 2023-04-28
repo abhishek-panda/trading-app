@@ -3,6 +3,7 @@ import * as Typings from '../../../typings';
 import * as Utils from '../../../utils';
 import * as GlobalUtils from "../../../utils";
 import logger from "../logger";
+import { v4 as uuidv4 } from 'uuid';
 
 export default class IntradayStrategy extends BaseStrategy {
     
@@ -14,6 +15,7 @@ export default class IntradayStrategy extends BaseStrategy {
         const kiteConnect = this.getKiteConnect();
         const accessToken = this.getKiteConnectAccessToken();
         const currentTickerQuote = await kiteConnect.getQuote(accessToken, [currentTicker]);
+        const transactionId = uuidv4();
         
         if (!(currentTickerQuote instanceof Error) && currentTickerQuote[currentTicker]) {
             const currentTickerLastPrice = currentTickerQuote[currentTicker].last_price ?? 0;
@@ -85,24 +87,9 @@ export default class IntradayStrategy extends BaseStrategy {
                             if (!(basketMargin instanceof Error) && basketMargin?.initial) {
                                 basketMarginRequired = basketMargin?.initial?.total ?? 0;
                             }
-
-                            // console.log("contractTicker", contractTicker);
-                            // console.log("userAvailableMargin", userAvailableMargin);
-                            // console.log("basketMarginRequired", basketMarginRequired);
-
-                            if (userAvailableMargin > basketMarginRequired) {
-                                const orderStatus = await this.execute(intradayOrder);
-                                if (!(orderStatus instanceof Error)) {
-
-                                    // Save transaction to DB
-                                }
-                                // strategyOrder = {
-                                //     ticker: signal.ticker,
-                                //     id: signal.id,
-                                //     transaction: transactionType,
-                                //     orders: [intradayOrder], // Basket order item are important to reduce margin price
-                                //     timeFrame: signal.timeFrame
-                                // };
+                            
+                            if (DEBUG || userAvailableMargin > basketMarginRequired) {
+                                this.placeOrder(transactionId, intradayOrder);
                             } else {
                                 logger.info("Insufficient margin available");
                             }   

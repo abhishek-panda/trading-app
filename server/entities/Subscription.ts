@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn, OneToMany } from "typeorm";
+import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn } from "typeorm";
 import { TradingTimeFrame, BOOLEAN } from "../../libs/typings";
 import Strategy from "./Strategy";
 import BrokerClient from "./BrokerClient";
@@ -7,9 +7,6 @@ import BrokerClient from "./BrokerClient";
 @Entity()
 export default class Subscription {
     
-    @Column("uuid", { unique : true, nullable: false })
-    id: string;
-
     @PrimaryColumn()
     brokerClientId: string;
 
