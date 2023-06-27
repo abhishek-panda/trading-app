@@ -9,7 +9,7 @@ type AdminInitialState = {
     };
 }
 
-const initialState: AdminInitialState  = {
+const initialState: AdminInitialState = {
     controls: {
         strategies: []
     },
@@ -17,12 +17,12 @@ const initialState: AdminInitialState  = {
 
 
 const registerStrategy = createAsyncThunk('strategy/register', (data: IStrategy) => {
-    return request('/api/strategy', REQUEST_METHOD.POST, {}, data)
+    return request('/algotm/api/strategy', REQUEST_METHOD.POST, {}, data)
         .then(response => response.json());
 });
 
 const fetchStrategy = createAsyncThunk('strategy/fetch', _ => {
-    return request('/api/strategy', REQUEST_METHOD.GET, {}, {})
+    return request('/algotm/api/strategy', REQUEST_METHOD.GET, {}, {})
         .then(response => response.json());
 });
 
@@ -34,20 +34,20 @@ const adminSlice = createSlice({
     extraReducers: (builder) => {
         builder.addCase(registerStrategy.fulfilled, (state, action: PayloadAction<IResponse>) => {
             state.controls.strategies.unshift(action.payload.data);
-		});
+        });
         builder.addCase(fetchStrategy.fulfilled, (state, action: PayloadAction<IResponse>) => {
             state.controls.strategies = action.payload.data;
-		});
+        });
         builder.addCase(fetchStrategy.rejected, (state, action) => {
             state.controls.strategies = [];
-		});
+        });
     }
 });
 
 export const adminReducers = adminSlice.reducer;
 export const adminActions = adminSlice.actions;
 
-export  {
+export {
     registerStrategy,
     fetchStrategy,
 };

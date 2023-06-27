@@ -20,22 +20,22 @@ const initialState: UserInitialState = {
 }
 
 const fetchUser = createAsyncThunk('user/fetch', _ => {
-	return request('/api/user', REQUEST_METHOD.GET, {}, {}, false )
+	return request('/algotm/api/user', REQUEST_METHOD.GET, {}, {}, false)
 		.then(response => response.json())
 });
 
 const registerUser = createAsyncThunk('user/register', (formData: UserRegistrationInputs) => {
-	return request('/api/user/register', REQUEST_METHOD.POST, {}, formData)
+	return request('/algotm/api/user/register', REQUEST_METHOD.POST, {}, formData)
 		.then(response => response.json());
 });
 
 const loginUser = createAsyncThunk('user/login', (formData: UserLoginInputs) => {
-	return request('/api/user/login', REQUEST_METHOD.POST, {}, formData)
+	return request('/algotm/api/user/login', REQUEST_METHOD.POST, {}, formData)
 		.then(response => response.json());
 });
 
 const logoutUser = createAsyncThunk('user/logout', _ => {
-	return request('/api/user/logout', REQUEST_METHOD.GET, {})
+	return request('/algotm/api/user/logout', REQUEST_METHOD.GET, {})
 		.then(response => response.json());
 });
 
