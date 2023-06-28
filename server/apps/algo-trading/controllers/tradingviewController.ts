@@ -16,7 +16,7 @@ export default class TradingviewController {
             const stringifiedBody = JSON.stringify(req.body);
             const message = `${stringifiedBody}`;
             logger.info(`Trading signal recieved. ${message}`);
-            // TradeEvent.emit('tradeExecutor', stringifiedBody);
+            TradeEvent.emit('tradeExecutor', stringifiedBody);
             return res.sendStatus(200);
         } else {
             return res.sendStatus(400);
