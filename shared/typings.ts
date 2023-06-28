@@ -19,9 +19,13 @@ export interface UserLoginInputs {
 export interface IResponse {
 	data?: any;
 	message?: string;
-    error?: Record<string, string>
+	error?: Record<string, string>
 }
 
+export enum TRADE_STATUS {
+	ENTRY = "ENTRY",
+	EXIT = "EXIT"
+}
 
 export enum UserRole {
 	ADMIN = 'admin',
@@ -30,8 +34,15 @@ export enum UserRole {
 
 
 export enum BOOLEAN {
-    TRUE='true',
-    FALSE='false'
+	TRUE = 'true',
+	FALSE = 'false'
+}
+
+export enum ORDER_STATUS {
+	OPEN = "OPEN",
+	COMPLETE = "COMPLETE",
+	CANCELLED = "CANCELLED",
+	REJECTED = "REJECTED"
 }
 
 
@@ -46,12 +57,12 @@ export interface BrokenClientRegistation {
 }
 
 export interface IBrokerClient {
-    id: string;
-    cname: string;
+	id: string;
+	cname: string;
 	apiKey: string;
 	broker: BROKER;
 	isEnabled: BOOLEAN;
-    isActive: BOOLEAN;
+	isActive: BOOLEAN;
 }
 
 export interface IValidateClient {
@@ -76,23 +87,23 @@ export interface ISubscription {
 }
 
 export interface ISubscriptionData extends ISubscription {
-    brokerClientName: string;
-    strategyName: string;
+	brokerClientName: string;
+	strategyName: string;
 	testMode: BOOLEAN;
 	isActive: BOOLEAN;
 }
 
 export enum TradingTimeFrame {
-    "1MIN" = "1",
-    "3MIN" = "3",
-    "5MIN" = "5",
-    "15MIN" = "15",
-    "30MIN" = "30",
-    "45MIN" = "45",
-    "1H" = "60",
-    "2H" = "120",
-    "3H" = "180",
-    "4H" = "240",
-    "1D" = "D",
-    "1W" = "W"
+	"1MIN" = "1",
+	"3MIN" = "3",
+	"5MIN" = "5",
+	"15MIN" = "15",
+	"30MIN" = "30",
+	"45MIN" = "45",
+	"1H" = "60",
+	"2H" = "120",
+	"3H" = "180",
+	"4H" = "240",
+	"1D" = "D",
+	"1W" = "W"
 }

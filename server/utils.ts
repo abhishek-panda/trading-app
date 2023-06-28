@@ -1,4 +1,4 @@
-import * as fs from 'fs'; 
+import * as fs from 'fs';
 import path from 'path';
 import NodeCache from 'node-cache';
 import winston, { format } from "winston";
@@ -26,11 +26,11 @@ export function getLocalDateTime(date: Date = new Date()): Date {
 export function getDaysInBetween(from: Date, to: Date): number {
     let d1 = from as any;
     let d2 = to as any;
-    return Math.ceil((d1 - d2)/(1000 * 60 * 60 * 24));
+    return Math.ceil((d1 - d2) / (1000 * 60 * 60 * 24));
 }
 
 export function moveDaysBy(day: Date, count: number): Date {
-    var movedDate = day;
+    var movedDate = new Date(day);
     movedDate.setDate(movedDate.getDate() + count);
     return movedDate;
 }
@@ -40,15 +40,15 @@ export function getNextMonth(date: Date, monthsInAdvance: number = 1): Date {
     const calenderDate = date.getDate();
     const calenderMonth = date.getMonth();
     const calenderYear = date.getFullYear();
-    const newMonth = (calenderMonth + monthsInAdvance ) % 12;
+    const newMonth = (calenderMonth + monthsInAdvance) % 12;
     const incrementBy = Math.floor((calenderMonth + monthsInAdvance) / 12);
     const newYear = (calenderYear + incrementBy);
     return getLocalDateTime(new Date(newYear, newMonth, calenderDate));
 }
 
 
-export function addRemoveEnv (filePath: string, operation: Typings.ENV_OPERATION, key: string, value: string = '') : void {
-    fs.readFile(filePath, 'utf8', function(error, data) {
+export function addRemoveEnv(filePath: string, operation: Typings.ENV_OPERATION, key: string, value: string = ''): void {
+    fs.readFile(filePath, 'utf8', function (error, data) {
         if (error) throw error;
         let tokenFound = false;
         const configurations = data.split("\n");
@@ -61,7 +61,7 @@ export function addRemoveEnv (filePath: string, operation: Typings.ENV_OPERATION
                 }
                 return finalConfig += config !== '' ? `${config}\n` : config;
             }, newConfigurations);
-            
+
             if (!tokenFound) {
                 newConfigurations += `${key}=${value}`;
             }
@@ -78,7 +78,7 @@ export function addRemoveEnv (filePath: string, operation: Typings.ENV_OPERATION
     });
 }
 
-export function throw404Error(res: Response) : void {
+export function throw404Error(res: Response): void {
     res.status(404).sendFile(path.resolve(publicDirPath, 'index.html'));
 }
 
@@ -88,14 +88,16 @@ export function serveIndex(res: Response): void {
 
 export const logger = winston.createLogger({
     levels: winston.config.npm.levels,
-    transports:[
+    transports: [
         new winston.transports.File({
             dirname: 'logs',
             filename: 'app.log',
             level: 'info',
-            format: winston.format.combine(winston.format.label({ label: 'APP' }), winston.format.timestamp({ format : function() {
-                return getLocalDateTime().toISOString();
-             }}), logFormat)
+            format: winston.format.combine(winston.format.label({ label: 'APP' }), winston.format.timestamp({
+                format: function () {
+                    return getLocalDateTime().toISOString();
+                }
+            }), logFormat)
         })
     ]
 });
@@ -117,8 +119,8 @@ export const cache = new NodeCache({
 });
 
 export const EXPIRY_THRESHOLD_DATE = 15;
-export const TICKER : Record<string, string | undefined>=  {
-    "NIFTY" : "NIFTY 50",
+export const TICKER: Record<string, string | undefined> = {
+    "NIFTY": "NIFTY 50",
 }
 
 export function getWeeklyExpiryDate(date: Date, forwardBy: number = 0): Date {
@@ -132,8 +134,8 @@ export function getMonthlyLastExipryDate(year: number, month: number, exipryDay:
     /**
      * Note: Wrap new Date with getLocalDateTime to adjust local time offset
      */
-    const lastDayOfMonth = getLocalDateTime(new Date(year, month+1, 0)); // points to last day of Month
-    const lastWeekday =  lastDayOfMonth.getDay();
+    const lastDayOfMonth = getLocalDateTime(new Date(year, month + 1, 0)); // points to last day of Month
+    const lastWeekday = lastDayOfMonth.getDay();
     /**
      * getDay() will remove the day of week Sunday won't be exclude as Sunday is 0
      * 
@@ -147,11 +149,11 @@ export function getMonthlyLastExipryDate(year: number, month: number, exipryDay:
         const extraday = lastWeekday - exipryDay;
         lastDayOfMonth.setDate(lastDayOfMonth.getDate() - extraday);
     }
-    
+
     return lastDayOfMonth;
 }
 
-export function getContractTicker(date: Date, ticker: string, strikePrice: number, option: Typings.OPTION, expiryType: Typings.ExpiryType) {
+export function getContractTicker(date: Date, ticker: string, strikePrice: number = 0, option: Typings.OPTION, expiryType: Typings.ExpiryType) {
     const monthsIdentifier = [
         "JAN",
         "FEB",
@@ -169,41 +171,44 @@ export function getContractTicker(date: Date, ticker: string, strikePrice: numbe
     const currentMonth = date.getMonth();
     const currentYear = date.getFullYear();
     const currentDate = date.getDate();
-    const monthIdentifier = expiryType === Typings.ExpiryType.MONTHLY ? monthsIdentifier[currentMonth]: currentMonth + 1;
+    const monthIdentifier = expiryType === Typings.ExpiryType.MONTHLY ? monthsIdentifier[currentMonth] : currentMonth + 1;
     const dateIdentifier = currentDate < 10 ? `0${currentDate}` : currentDate;
     const yearIdentifier = currentYear % 100;
-    const contractTicker =  expiryType === Typings.ExpiryType.MONTHLY ? 
+    if (strikePrice <= 0) {
+        return '';
+    }
+    const contractTicker = expiryType === Typings.ExpiryType.MONTHLY ?
         `${ticker}${yearIdentifier}${monthIdentifier}${strikePrice}${option}` : //NIFTY23MAR11000CE
         `${ticker}${yearIdentifier}${monthIdentifier}${dateIdentifier}${strikePrice}${option}`; // NIFTY2350417800CE
     return contractTicker;
 }
 
-export function expectedPercentageMove (daysRemaining: number): number {
+export function expectedPercentageMove(daysRemaining: number): number {
     let percentage = 0;
-    if (1 <= daysRemaining && daysRemaining <=  10) {
+    if (1 <= daysRemaining && daysRemaining <= 10) {
         percentage = 1;
     }
-    if (11 <= daysRemaining && daysRemaining <=  15) {
+    if (11 <= daysRemaining && daysRemaining <= 15) {
         percentage = 1.5;
     }
-    if (16 <= daysRemaining && daysRemaining <=  20) {
+    if (16 <= daysRemaining && daysRemaining <= 20) {
         percentage = 2;
     }
     if (21 <= daysRemaining) {
         percentage = 2.5;
     }
-    return percentage/100;
+    return percentage / 100;
 }
 
 
-export function getTargetPrices (currentPrice: number, expectedPercentMove: number, transactionType: Typings.TransactionType ): Typings.TargetPrice {
-    const  expectedPrice =  transactionType ===  Typings.TransactionType.BUY ? 
-        Math.floor(currentPrice + (currentPrice*expectedPercentMove)) : 
-        Math.floor(currentPrice - (currentPrice*expectedPercentMove));
+export function getTargetPrices(currentPrice: number, expectedPercentMove: number, transactionType: Typings.TransactionType): Typings.TargetPrice {
+    const expectedPrice = transactionType === Typings.TransactionType.BUY ?
+        Math.floor(currentPrice + (currentPrice * expectedPercentMove)) :
+        Math.floor(currentPrice - (currentPrice * expectedPercentMove));
     const adjustment = expectedPrice % 100;
     const basePrice = expectedPrice - adjustment;
     return {
-        position: transactionType ===  Typings.TransactionType.BUY ? basePrice + 100 : basePrice - 100,
+        position: transactionType === Typings.TransactionType.BUY ? basePrice + 100 : basePrice - 100,
         hedge: basePrice
     };
 }

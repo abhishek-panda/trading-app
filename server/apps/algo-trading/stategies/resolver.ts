@@ -1,13 +1,13 @@
 import BaseStrategy from "./baseStrategy";
-import IntradayStrategy from "./intradayStrategy";
+import UltraIntradayStrategy from "./ultraIntradayStrategy";
 import KiteConnect from '../core/kite-connect';
 import Subscription from "../../../entities/Subscription";
 
 
-function strategyResolver( kiteConnect: KiteConnect, accessToken: string, subscription: Subscription): BaseStrategy | null {
+function strategyResolver(kiteConnect: KiteConnect, accessToken: string, subscription: Subscription): BaseStrategy | null {
        switch (subscription.strategyId) {
-              case "ITCS":
-                     return new IntradayStrategy(kiteConnect, accessToken, subscription);
+              case "ULTRA_INTRA":
+                     return new UltraIntradayStrategy(kiteConnect, accessToken, subscription);
               default:
                      return null;
        }

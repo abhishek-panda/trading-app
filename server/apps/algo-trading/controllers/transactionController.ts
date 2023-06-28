@@ -8,7 +8,15 @@ export default class TransactionController {
         this.transactionModel = new TransactionModel();
     }
 
-    save(transactionId: string, subscription: Subscription, order: Typings.BasketOrderItem, orderId: string ) {
-        this.transactionModel.save(transactionId, subscription, order, orderId );
+    save(orderId: string, transactionId: string, subscription: Subscription, order: Typings.BasketOrderItem) {
+        this.transactionModel.save(orderId, transactionId, subscription, order);
+    }
+
+    update(orderId: string, orderDetail: Record<string, any>) {
+        this.transactionModel.update(orderId, orderDetail);
+    }
+
+    async getActiveTransactions(subscription: Subscription) {
+        return this.transactionModel.activeTransactions(subscription);
     }
 }

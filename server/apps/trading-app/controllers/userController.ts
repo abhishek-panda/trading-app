@@ -5,21 +5,23 @@ import { User } from "../../../../libs/typings";
 
 
 export default class UserController {
-    
+
     private userModel: UserModel;
+    private isRegistrationOpen: boolean;
 
     constructor() {
         this.userModel = new UserModel();
+        this.isRegistrationOpen = false;
     }
 
-    routeGuard = async (req: Request, res: Response, next : NextFunction) => {
+    routeGuard = async (req: Request, res: Response, next: NextFunction) => {
         const cookies = req.cookies;
         const authorizationHeader = cookies['SN'];
         if (authorizationHeader) {
             const user = GlobalUtils.cache.get<User>(authorizationHeader);
             if (user?.name && user.email) {
                 next();
-            } else{
+            } else {
                 const result = {
                     error: {
                         user: "Unauthorized"
@@ -27,7 +29,7 @@ export default class UserController {
                 };
                 return res.status(401).send(result);
             }
-        } else{
+        } else {
             const result = {
                 error: {
                     user: "Unauthorized"
@@ -49,8 +51,18 @@ export default class UserController {
     // "this" is undefined because this is supposed to be route callback 
     registerUser = async (req: Request, res: Response) => {
         const userInputData = req.body;
-        const result = await this.userModel.register(userInputData);
-        const status = result.error ? 400 : 200;
+        let status, result;
+        if (this.isRegistrationOpen) {
+            result = await this.userModel.register(userInputData);
+            status = result.error ? 400 : 200;
+        } else {
+            result = {
+                error: {
+                    registration: "Closed for now. Invite only."
+                }
+            }
+            status = 400;
+        }
         res.status(status).send(result);
     }
 
@@ -59,10 +71,10 @@ export default class UserController {
         const result = await this.userModel.login(userInputData);
         const status = result.error ? 401 : 200;
         if (!result.error) {
-            const sessionId =  result.data.sessionId;
+            const sessionId = result.data.sessionId;
             delete result.data.sessionId;
             GlobalUtils.cache.set(sessionId, result.data);
-            res.cookie('SN', sessionId, { httpOnly: true, sameSite: 'strict', secure: true});
+            res.cookie('SN', sessionId, { httpOnly: true, sameSite: 'strict', secure: true });
         }
         return res.status(status).send(result);
     }
