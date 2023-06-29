@@ -6,7 +6,7 @@ import logger from "../logger";
 import { v4 as uuidv4 } from 'uuid';
 import { TRADE_STATUS } from "../../../../libs/typings";
 
-export default class UltraIntradayStrategy extends BaseStrategy {
+export default class UltraTradingStrategy extends BaseStrategy {
 
     async process(signal: Typings.Signal) {
         const quantity = 1;
