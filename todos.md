@@ -30,6 +30,7 @@ The list of items to be picked.
     - ~~Register Strategies (2)~~
     - ~~Virtual Trade with registered bot using available strategies~~
     - Fresh trades in next expiry if its thrusday 
+    - WS Connection drop in between (fix this)
     
 
 Apps
