@@ -8,7 +8,7 @@ export default class TradeController {
         this.tradeModel = new TradeModel();
     }
 
-    executeOrder(signal: Typings.Signal) {
-        this.tradeModel.executeOrder(signal);
+    executeOrder(signals: Typings.Signal[]) {
+        this.tradeModel.executeOrder(signals);
     }
 }

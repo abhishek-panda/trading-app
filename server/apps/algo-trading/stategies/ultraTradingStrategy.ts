@@ -120,28 +120,31 @@ export default class UltraTradingStrategy extends BaseStrategy {
                 if (signal.signalType === 'buyexit' || signal.signalType === 'sellexit') {
                     const basketOrders: Typings.BasketOrderItem[] = [];
                     const activeOrders = await this.getActiveOrders();
-                    let basketId = '';
-                    activeOrders.forEach(order => {
-                        const tradeTransactionType = order.transactionType === Typings.TransactionType.SELL ? Typings.TransactionType.BUY : Typings.TransactionType.SELL;
-                        const traderOrder: Typings.BasketOrderItem = {
-                            exchange: Typings.Exchange.NFO,
-                            tradingsymbol: order.ticker,
-                            transaction_type: tradeTransactionType,
-                            variety: "regular",
-                            product: Typings.ProductType.NRML,
-                            order_type: Typings.OderType.MARKET,
-                            quantity: order.quantity,
-                            price: 0,
-                            trigger_price: 0,
-                        };
-                        basketId = order.transactionId;
-                        basketOrders.push(traderOrder);
-                    });
-                    basketOrders.sort((order1, order2) => {
-                        return order1.transaction_type > order2.transaction_type ? 1 : -1;
-                    });
+                    if (activeOrders.length > 0) {
+                        let basketId = '';
+                        activeOrders.forEach(order => {
+                            const tradeTransactionType = order.transactionType === Typings.TransactionType.SELL ? Typings.TransactionType.BUY : Typings.TransactionType.SELL;
+                            const traderOrder: Typings.BasketOrderItem = {
+                                exchange: Typings.Exchange.NFO,
+                                tradingsymbol: order.ticker,
+                                transaction_type: tradeTransactionType,
+                                variety: "regular",
+                                product: Typings.ProductType.NRML,
+                                order_type: Typings.OderType.MARKET,
+                                quantity: order.quantity,
+                                price: 0,
+                                trigger_price: 0,
+                            };
+                            basketId = order.transactionId;
+                            basketOrders.push(traderOrder);
+                        });
+                        basketOrders.sort((order1, order2) => {
+                            return order1.transaction_type > order2.transaction_type ? 1 : -1;
+                        });
 
-                    this.placeOrder(TRADE_STATUS.EXIT, basketId, basketOrders);
+                        this.placeOrder(TRADE_STATUS.EXIT, basketId, basketOrders);
+                    }
+
                 }
             }
         }

@@ -25,7 +25,7 @@ export default class TransactionModel {
             subscription.testMode
         );
         const result = await this.dataSource.getRepository(Transaction).save(transaction);
-        return result;
+        return result.orderId;
     }
 
     async update(orderId: string, orderDetail: Record<string, any>) {

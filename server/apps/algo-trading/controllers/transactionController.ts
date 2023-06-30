@@ -9,7 +9,7 @@ export default class TransactionController {
     }
 
     save(orderId: string, transactionId: string, subscription: Subscription, order: Typings.BasketOrderItem) {
-        this.transactionModel.save(orderId, transactionId, subscription, order);
+        return this.transactionModel.save(orderId, transactionId, subscription, order);
     }
 
     update(orderId: string, orderDetail: Record<string, any>) {
