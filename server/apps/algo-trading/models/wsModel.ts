@@ -3,6 +3,7 @@ import KiteWSTicker from "../core/ws-ticker";
 import { cache } from '../../../utils';
 import TransactionController from "../controllers/transactionController";
 import { ORDER_STATUS } from "../../../../libs/typings";
+import logger from "../logger";
 
 export default class WSModel {
 
@@ -20,17 +21,13 @@ export default class WSModel {
         tickerInstance?.on('close', function () {
             cache.del(`WS_${api_key}`);
         });
-        tickerInstance?.on('order_update', function (orderDetail) {
-            const order_id = orderDetail.order_id;
-            if (order_id) {
-                const transactionData: Record<string, any> | undefined = cache.get(`OID_${order_id}`);
-                if (transactionData && transactionData.orderId === order_id && orderDetail.status !== ORDER_STATUS.OPEN) {
-                    console.log("orderDetail", orderDetail)
-                    const { transactionId, subscription, order } = transactionData;
-                    const tradeController = new TransactionController();
-                    tradeController.update(order_id, orderDetail);
-                    cache.del(`OID_${order_id}`);
-                }
+        tickerInstance?.on('order_update', function (orderDetail = {}) {
+            const { order_id = '', status = ORDER_STATUS.OPEN } = orderDetail;
+            if (order_id && status !== ORDER_STATUS.OPEN) {
+                // TODO: Verify if all orders are updating
+                logger.info(`Updating order status. ${JSON.stringify(orderDetail)}`);
+                const tradeController = new TransactionController();
+                tradeController.update(order_id, orderDetail);
             }
         });
         kiteTicker.connect();

@@ -32,18 +32,10 @@ export default abstract class BaseStrategy {
                 const order_id = await this.kiteConnect.placeOrder(this.accessToken, "regular", order);
                 if (!(order_id instanceof Error)) {
                     if (tradeStatus === TRADE_STATUS.ENTRY) {
-                        const transactionData = {
-                            basketId,
-                            subscription: this.subscription,
-                            order,
-                            orderId: order_id
-                        };
                         this.tradeController.save(order_id, basketId, this.getSubscription(), order);
-                        cache.set(`OID_${order_id}`, transactionData);
                     } else {
                         // TODO: Update transaction( to code during market hours)
                     }
-
                 }
             }
         }
