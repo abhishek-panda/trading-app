@@ -11,8 +11,18 @@ type alertMessage
     string id = "ULTRA_TRADE"
     string title = "Ultra Trading System"
     
-stringfyAlertMessage(alertMessage message) =>
-    '{'+'"id":"'+message.id+'", "title":"'+message.title+'", "signalType":"'+message.signalType+'", "ticker" : "'+message.ticker+'", "timeFrame" : "'+message.timeFrame+'"}'
+stringfyAlertMessage(alertMessage[] messages) =>
+    string alertText = "["
+    int messageSize = messages.size()
+    int i = 0
+    while i < messageSize
+        message = messages.get(i)
+        alertText += '{'+'"id":"'+message.id+'", "title":"'+message.title+'", "signalType":"'+message.signalType+'", "ticker" : "'+message.ticker+'", "timeFrame" : "'+message.timeFrame+'"}'
+        if messageSize - 1 != i
+            alertText +=','
+        i += 1
+    alertText += "]"
+    alertText
 
 
 len = input.int(9, minval=1, title="Length")
@@ -53,23 +63,17 @@ plotshape(sellexit, title = "SHAPE", style = shape.xcross, location = location.b
 bgcolor(buyzone ? color.rgb(33,145,36, 93) : na)
 bgcolor(sellzone ? color.rgb(196,28,29, 93) : na)
 
-// For sellexit
-if sellexit
-    var msg = alertMessage.new(syminfo.ticker, "sellexit", timeframe.period)
-    alert(stringfyAlertMessage(msg), alert.freq_once_per_bar_close)
+// For Bullish
+if sellexit and buyenter
+    exitmsg = alertMessage.new(syminfo.ticker, "sellexit", timeframe.period)
+    entermsg = alertMessage.new(syminfo.ticker, "buyenter", timeframe.period)
+    array<alertMessage> msgArray = array.from(exitmsg, entermsg)
+    alert(stringfyAlertMessage(msgArray), alert.freq_once_per_bar_close)
 
-// For buyenter
-if buyenter
-    var msg = alertMessage.new(syminfo.ticker, "buyenter", timeframe.period)
-    alert(stringfyAlertMessage(msg), alert.freq_once_per_bar_close)
 
-// For buyexit
-if buyexit
-    var msg = alertMessage.new(syminfo.ticker, "buyexit", timeframe.period)
-    alert(stringfyAlertMessage(msg), alert.freq_once_per_bar_close)
-
-// For sellenter
-if sellenter
-    var msg = alertMessage.new(syminfo.ticker, "sellenter", timeframe.period)
-    alert(stringfyAlertMessage(msg), alert.freq_once_per_bar_close)
-
+// For Bearish
+if buyexit and sellenter
+    exitmsg = alertMessage.new(syminfo.ticker, "buyexit", timeframe.period)
+    entermsg = alertMessage.new(syminfo.ticker, "sellenter", timeframe.period)
+    array<alertMessage> msgArray = array.from(exitmsg, entermsg)
+    alert(stringfyAlertMessage(msgArray), alert.freq_once_per_bar_close)
