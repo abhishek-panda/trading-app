@@ -29,7 +29,7 @@ The list of items to be picked.
     - ~~Make Client active only if state has enbaled.~~
     - ~~Register Strategies (2)~~
     - ~~Virtual Trade with registered bot using available strategies~~
-    - 
+    - Fresh trades in next expiry if its thrusday 
     
 
 Apps
