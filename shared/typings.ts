@@ -94,7 +94,6 @@ export interface ISubscriptionData extends ISubscription {
 }
 
 export enum TradingTimeFrame {
-	"1MIN" = "1",
 	"3MIN" = "3",
 	"5MIN" = "5",
 	"15MIN" = "15",

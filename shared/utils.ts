@@ -2,7 +2,7 @@ import * as Yup from "yup";
 import { TradingTimeFrame } from "./typings";
 
 
-export const validuuId =  /^[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/i;
+export const validuuId = /^[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/i;
 export const validAlphaNumericText = /^[A-Za-z0-9\s]{3,100}$/;
 /**
  * User
@@ -28,7 +28,7 @@ export const validBrokerClientSecret = /^[A-Za-z0-9]{3,100}$/;
 /**
  * Strategy
  */
-export const validStrategyId =  /^[A-Za-z0-9\s_]{3,100}$/;
+export const validStrategyId = /^[A-Za-z0-9\s_]{3,100}$/;
 export const validStrategyName = validAlphaNumericText;
 export const validStrategyDescription = /^[A-Za-z0-9\s._,]{20,200}$/;
 
@@ -64,13 +64,13 @@ export const validBrokerClientSchema = Yup.object({
 export const validStrategySchema = Yup.object({
   sid: Yup.string().required("Required").matches(validStrategyId, "Invalid Id"),
   name: Yup.string().required("Required").matches(validStrategyName, "Invalid Name"),
-  description : Yup.string().required("Required").matches(validStrategyDescription, "Invalid Description"),
+  description: Yup.string().required("Required").matches(validStrategyDescription, "Invalid Description"),
 });
 
 export const validSubscriptionSchema = Yup.object({
   name: Yup.string().required("Required").matches(validSubscriptionName, "Invalid Name"),
-  brokerClientId : Yup.string().required("Required").matches(validBrokerClientId, "Invalid Broker Client"),
-  strategyId : Yup.string().required("Required").matches(validStrategyId, "Invalid Strategy"),
+  brokerClientId: Yup.string().required("Required").matches(validBrokerClientId, "Invalid Broker Client"),
+  strategyId: Yup.string().required("Required").matches(validStrategyId, "Invalid Strategy"),
   timeframe: Yup.mixed().oneOf(Object.values(TradingTimeFrame)).defined().required("Required")
 });
 

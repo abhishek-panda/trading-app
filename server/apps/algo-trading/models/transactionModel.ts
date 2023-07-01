@@ -33,7 +33,14 @@ export default class TransactionModel {
             status = ORDER_STATUS.OPEN,
             average_price = 0,
         } = orderDetail;
-        const result = await this.dataSource.getRepository(Transaction).update({ orderId }, { orderStatus: status, entryprice: average_price });
+        const updateValues: Record<string, any> = {
+            orderStatus: status,
+            entryprice: average_price
+        };
+        if ([ORDER_STATUS.CANCELLED, ORDER_STATUS.REJECTED].includes(orderDetail.status)) {
+            updateValues.isActive = false;
+        }
+        const result = await this.dataSource.getRepository(Transaction).update({ orderId }, updateValues);
         return result;
     }
 
@@ -46,11 +53,13 @@ export default class TransactionModel {
             .andWhere("transaction.brokerClientId = :brokerClientId")
             .andWhere("transaction.strategyId = :strategyId")
             .andWhere("transaction.timeframe = :timeframe")
+            .andWhere("transaction.orderStatus = :orderStatus")
             .setParameters({
                 isActive: BOOLEAN.TRUE,
                 brokerClientId: subscription.brokerClientId,
                 strategyId: subscription.strategyId,
-                timeframe: subscription.timeframe
+                timeframe: subscription.timeframe,
+                orderStatus: ORDER_STATUS.COMPLETE
             })
             .getRawMany();
         return activeTransaction;

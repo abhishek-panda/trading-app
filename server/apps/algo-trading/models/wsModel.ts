@@ -22,13 +22,13 @@ export default class WSModel {
             cache.del(`WS_${api_key}`);
         });
         tickerInstance?.on('order_update', function (orderDetail = {}) {
-            const { order_id = '', status = ORDER_STATUS.OPEN } = orderDetail;
-            if (order_id && status !== ORDER_STATUS.OPEN) {
-                // TODO: Verify if all orders are updating
-                logger.info(`Updating order status. ${JSON.stringify(orderDetail)}`);
-                const tradeController = new TransactionController();
-                tradeController.update(order_id, orderDetail);
-            }
+            // const { order_id = '', status = ORDER_STATUS.OPEN } = orderDetail;
+            // if (order_id && status !== ORDER_STATUS.OPEN) {
+            //     // TODO: Verify if all orders are updating
+            //     logger.info(`Updating order status. ${JSON.stringify(orderDetail)}`);
+            //     const tradeController = new TransactionController();
+            //     tradeController.update(order_id, orderDetail);
+            // }
         });
         kiteTicker.connect();
     }

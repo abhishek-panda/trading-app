@@ -1,6 +1,7 @@
 const Kite = require('kiteconnect');
 import logger from '../logger';
 import { BasketOrderItem } from '../../../typings';
+import fetch from 'node-fetch';
 
 
 /**
@@ -9,12 +10,15 @@ import { BasketOrderItem } from '../../../typings';
 export default class KiteConnect {
 
     private kiteconnect: any;
+    private apiKey: string;
+    private connectionUrl: string = 'https://api.kite.trade';
 
     constructor(apiKey: string) {
         const options = {
             api_key: apiKey,
             debug: false
         }
+        this.apiKey = apiKey;
         this.kiteconnect = new Kite.KiteConnect(options)
     }
 
@@ -91,8 +95,7 @@ export default class KiteConnect {
     }
 
     /*
-    * TODO: To check if basket order can be placed instead of single order
-    *  To verify the parameters.
+    * Currently there is no way to place basket order. The only way is to loop through orders and place it.
     */
     placeOrder(accessToken: string, variety: string, order: BasketOrderItem): Promise<string | Error> {
         this.kiteconnect.setAccessToken(accessToken);
@@ -104,5 +107,30 @@ export default class KiteConnect {
             logger.error(errorDetails.message);
             return errorDetails;
         });
+    }
+
+    /**
+     * Own implementation
+     */
+    getOrderStatus(accessToken: string, orderId: string) {
+        const orderEnpoint = `${this.connectionUrl}/orders/${orderId}`
+        return fetch(orderEnpoint, {
+            method: 'GET',
+            headers: {
+                'Authorization': `token ${this.apiKey}:${accessToken}`
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response;
+                } else {
+                    throw new Error(`Failed to get order status. Order ID: ${orderId} . Error: ${JSON.stringify(response)}`);
+                }
+            })
+            .then(response => response.json() as any)
+            .catch(error => {
+                logger.error(error.message);
+                return error;
+            });
     }
 }

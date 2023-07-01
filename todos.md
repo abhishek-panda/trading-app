@@ -1,3 +1,7 @@
+**Note: Algotrading is possible only in highly liquid instruments.
+Avoid placing orders in rush hours(market opening i.e. 9:15).**
+So if any entry or exit signal is generated at 9:15 then it must be fulfilled after 5 min candle close.
+
 # List of Todo's
 The list of items to be picked.
 
