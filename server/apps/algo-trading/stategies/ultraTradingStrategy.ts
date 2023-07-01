@@ -35,6 +35,9 @@ export default class UltraTradingStrategy extends BaseStrategy {
                     const expiryDate = (daysToExpire === 0) ? monthlyExpiryDate : weeklyExpiryDate;
                     const expiryType = (daysToExpire === 0) ? Typings.ExpiryType.MONTHLY : Typings.ExpiryType.WEEKLY;
 
+                    // TODO: On thrusday moving to different expiry(P0)
+                    // TODO: To support other index trading once this is enough liquidity.
+
 
                     // Transaction Type
                     let hedgeOptionType: Typings.OPTION | undefined;
@@ -46,7 +49,7 @@ export default class UltraTradingStrategy extends BaseStrategy {
                     const tradeTransactionType = Typings.TransactionType.SELL;
 
                     if (signal.signalType === 'buyenter') {
-                        adjustmentPrice = (currentTickerLastPrice + 50) % 50;
+                        adjustmentPrice = (currentTickerLastPrice + 50) % 50; // TODO: Add 0.6% daily average move.(P0)
                         hedgeStrikePrice = (currentTickerLastPrice + 50) - adjustmentPrice;
                         tradeStrikePrice = (currentTickerLastPrice + 100) - adjustmentPrice;
                         hedgeOptionType = tradeOptionType = Typings.OPTION.PE;
@@ -75,7 +78,7 @@ export default class UltraTradingStrategy extends BaseStrategy {
                             transaction_type: hedgeTransactionType,
                             variety: "regular",
                             product: Typings.ProductType.NRML,
-                            order_type: Typings.OderType.MARKET,
+                            order_type: Typings.OderType.MARKET, // TODO: Avoid market orders, place limit orders true for illiquid instrument.
                             quantity: lotSize * quantity,
                             price: Math.ceil(hedgeTickerLastPrice),
                             trigger_price: 0,
@@ -110,6 +113,10 @@ export default class UltraTradingStrategy extends BaseStrategy {
                         }
 
                         if (userAvailableMargin > basketMarginRequired) {
+                            /**
+                             * TODO: If any open order revert the basket order, true for limit order, since we are placing market order with
+                             * current and next weekly contract which are highly liquild, so its not required.
+                            */
                             this.placeOrder(TRADE_STATUS.ENTRY, basketId, basketOrder);
                         } else {
                             logger.info("Insufficient margin available");
@@ -120,6 +127,7 @@ export default class UltraTradingStrategy extends BaseStrategy {
                 if (signal.signalType === 'buyexit' || signal.signalType === 'sellexit') {
                     const basketOrders: Typings.BasketOrderItem[] = [];
                     const activeOrders = await this.getActiveOrders();
+                    console.log("activeOrders", activeOrders);
                     if (activeOrders.length > 0) {
                         let basketId = '';
                         activeOrders.forEach(order => {
@@ -134,6 +142,7 @@ export default class UltraTradingStrategy extends BaseStrategy {
                                 quantity: order.quantity,
                                 price: 0,
                                 trigger_price: 0,
+                                order_id: order.orderId
                             };
                             basketId = order.transactionId;
                             basketOrders.push(traderOrder);

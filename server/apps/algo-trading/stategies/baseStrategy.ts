@@ -21,24 +21,30 @@ export default abstract class BaseStrategy {
     abstract process(signal: Typings.Signal): void;
     protected async placeOrder(tradeStatus: TRADE_STATUS, basketId: string, orders: Typings.BasketOrderItem[]) {
         for (const order of orders) {
+            const oldOrderId = order.order_id;
+
+            /**
+             * Removing extra parameter before sending to placing actual order
+             */
+            delete order.order_id;
+
             if (this.subscription.testMode === BOOLEAN.TRUE) {
-                const order_id = `${Math.ceil(Math.random() * Math.pow(10, 15))}`;
+                const newOrderId = `${Math.ceil(Math.random() * Math.pow(10, 15))}`;
                 if (tradeStatus === TRADE_STATUS.ENTRY) {
-                    this.tradeController.save(order_id, basketId, this.getSubscription(), order);
+                    this.tradeController.save(newOrderId, basketId, this.getSubscription(), order);
                 } else {
                     // TODO: Update transaction( to code during market hours)
                 }
             }
             else {
-                const order_id = await this.kiteConnect.placeOrder(this.accessToken, "regular", order);
-                if (!(order_id instanceof Error)) {
+                const newOrderId = await this.kiteConnect.placeOrder(this.accessToken, "regular", order);
+                if (!(newOrderId instanceof Error)) {
                     if (tradeStatus === TRADE_STATUS.ENTRY) {
-                        this.tradeController.save(order_id, basketId, this.getSubscription(), order);
-                        this.pollAndUpdateOrderStatus(order_id);
+                        this.tradeController.save(newOrderId, basketId, this.getSubscription(), order);
+                        this.pollAndUpdateOrderStatus(newOrderId);
                     } else {
-                        // TODO: Update transaction( to code during market hours)
+                        this.pollAndUpdateOrderStatus(newOrderId, oldOrderId);
                     }
-
                 }
             }
         }
@@ -49,7 +55,14 @@ export default abstract class BaseStrategy {
         const activeTransactions: Transaction[] = [];
         for (const transaction of activeCompletedTranscations) {
             const orderDetail = await this.kiteConnect.getOrderStatus(this.accessToken, transaction.orderId);
-            if (!(orderDetail instanceof Error)) {
+            if (orderDetail instanceof Error) {
+                /**
+                * Worst case
+                * TODO:
+                *  1. Notify user to check manually order status and exit all trades.
+                *  2. Pause all the alerts from TradingView until this is resovled.
+                */
+            } else {
                 if (orderDetail?.data && orderDetail?.data instanceof Array) {
                     const resultLength = orderDetail.data.length;
                     if (resultLength > 0) {
@@ -77,13 +90,13 @@ export default abstract class BaseStrategy {
         return this.subscription;
     }
 
-    private pollAndUpdateOrderStatus(orderId: string) {
+    private pollAndUpdateOrderStatus(orderId: string, oldOrderId?: string) {
         const intervalTimer = setInterval(async () => {
             const result = await this.kiteConnect.getOrderStatus(this.accessToken, orderId);
             logger.info(`Polling order status. Order Id: ${orderId}`);
             if (result instanceof Error) {
                 /**
-                 * Wrost case
+                 * Worst case
                  * TODO:
                  *  1. Notify user to check manually order status and exit all trades.
                  *  2. Pause all the alerts from TradingView until this is resovled.
@@ -106,7 +119,7 @@ export default abstract class BaseStrategy {
                     if (latestState?.status && closedState.includes(latestState.status)) {
                         // Update in the database
                         logger.info(`Updating order status. ${JSON.stringify(latestState)}`);
-                        this.tradeController.update(orderId, latestState);
+                        this.tradeController.update(orderId, latestState, oldOrderId);
                         clearInterval(intervalTimer);
                     }
                 }

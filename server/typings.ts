@@ -84,6 +84,7 @@ export interface BasketOrderItem {
     quantity: number;
     price: number;
     trigger_price: number;
+    order_id?: string;
 }
 
 export interface StrategyOrder {

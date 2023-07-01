@@ -28,7 +28,12 @@ export default class TransactionModel {
         return result.orderId;
     }
 
-    async update(orderId: string, orderDetail: Record<string, any>) {
+    async update(orderId: string, orderDetail: Record<string, any>, oldOrderId?: string) {
+        /**
+         * If oldOrderId then assume exiting the current postion so update "isActive" to false as well,
+         * else assume it's newer order
+         */
+        const validOrderId = oldOrderId ? oldOrderId : orderId;
         const {
             status = ORDER_STATUS.OPEN,
             average_price = 0,
@@ -37,10 +42,11 @@ export default class TransactionModel {
             orderStatus: status,
             entryprice: average_price
         };
-        if ([ORDER_STATUS.CANCELLED, ORDER_STATUS.REJECTED].includes(orderDetail.status)) {
+        if ([ORDER_STATUS.CANCELLED, ORDER_STATUS.REJECTED].includes(orderDetail.status) || oldOrderId) {
             updateValues.isActive = false;
         }
-        const result = await this.dataSource.getRepository(Transaction).update({ orderId }, updateValues);
+
+        const result = await this.dataSource.getRepository(Transaction).update({ orderId: validOrderId }, updateValues);
         return result;
     }
 
