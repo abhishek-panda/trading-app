@@ -1,7 +1,7 @@
 const Kite = require('kiteconnect');
+const fetch = require('node-fetch');
 import logger from '../logger';
 import { BasketOrderItem } from '../../../typings';
-import fetch from 'node-fetch';
 
 
 /**
@@ -120,15 +120,15 @@ export default class KiteConnect {
                 'Authorization': `token ${this.apiKey}:${accessToken}`
             }
         })
-            .then(response => {
+            .then((response: Response) => {
                 if (response.ok) {
                     return response;
                 } else {
                     throw new Error(`Failed to get order status. Order ID: ${orderId} . Error: ${JSON.stringify(response)}`);
                 }
             })
-            .then(response => response.json() as any)
-            .catch(error => {
+            .then((response: Response) => response.json() as any)
+            .catch((error: Error) => {
                 logger.error(error.message);
                 return error;
             });
