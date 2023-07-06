@@ -23,4 +23,13 @@ export default class TradingviewController {
         }
     }
 
+    // TODO: Route for testing purpose
+    // check256 = (req: Request, res: Response) => {
+    //     const stringifiedBody = JSON.stringify(req.body);
+    //     const message = `${stringifiedBody}`;
+    //     logger.info(`Trading signal recieved. ${message}`);
+    //     TradeEvent.emit('tradeExecutor', stringifiedBody);
+    //     return res.sendStatus(200);
+    // }
+
 }

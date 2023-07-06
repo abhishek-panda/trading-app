@@ -24,8 +24,14 @@ export default class UltraTradingStrategy extends BaseStrategy {
                     const basketId = uuidv4();
                     const today = GlobalUtils.getLocalDateTime();
 
+                    // TODO: This expiry is only for Nifty contracts
+                    /**
+                     * 4 => Thrusday
+                     */
+                    const isExpiryDay = today.getDay() === 4;
+
                     // Picking next of next expiry to minimize theta decay effect and good liquidity.
-                    let weeklyExpiryDate = Utils.getWeeklyExpiryDate(today);  // NIFTY2350417700CE
+                    let weeklyExpiryDate = Utils.getWeeklyExpiryDate(today, isExpiryDay ? 1 : 0);  // NIFTY2350417700CE
 
                     // NIFTY23MAY17700CE
                     const monthlyExpiryDate = Utils.getMonthlyLastExipryDate(today.getFullYear(), today.getMonth(), Typings.WEEKDAYS.THRUSDAY);
@@ -35,7 +41,6 @@ export default class UltraTradingStrategy extends BaseStrategy {
                     const expiryDate = (daysToExpire === 0) ? monthlyExpiryDate : weeklyExpiryDate;
                     const expiryType = (daysToExpire === 0) ? Typings.ExpiryType.MONTHLY : Typings.ExpiryType.WEEKLY;
 
-                    // TODO: On thrusday moving to different expiry(P0)
                     // TODO: To support other index trading once this is enough liquidity.
 
 

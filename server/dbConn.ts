@@ -19,7 +19,7 @@ export default class DBConn {
                 database: process.env.DB_NAME ?? 'algo_trading',
                 synchronize: true,
                 entities: Entites,
-                logging: true,
+                logging: false,
                 dropSchema: false,
             });
         }
