@@ -127,7 +127,6 @@ export default class UltraTradingStrategy extends BaseStrategy {
                 if (signal.signalType === 'buyexit' || signal.signalType === 'sellexit') {
                     const basketOrders: Typings.BasketOrderItem[] = [];
                     const activeOrders = await this.getActiveOrders();
-                    console.log("activeOrders", activeOrders);
                     if (activeOrders.length > 0) {
                         let basketId = '';
                         activeOrders.forEach(order => {

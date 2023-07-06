@@ -12,7 +12,6 @@ function intializeAlgoTradingRoutes() {
     const tradingviewController = new TradingviewController();
 
     AlgoTradingRoute.post('/signal', tradingviewController.recieveSignal);
-    // AlgoTradingRoute.post('/check256', tradingviewController.testCheck256);
     return AlgoTradingRoute;
 }
 

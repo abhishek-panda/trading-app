@@ -46,6 +46,10 @@ export default class TransactionModel {
             updateValues.isActive = false;
         }
 
+        if (oldOrderId) {
+            updateValues.exitprice = average_price;
+        }
+
         const result = await this.dataSource.getRepository(Transaction).update({ orderId: validOrderId }, updateValues);
         return result;
     }
@@ -53,7 +57,7 @@ export default class TransactionModel {
     async activeTransactions(subscription: Subscription): Promise<Transaction[]> {
         const activeTransaction: Transaction[] = await this.dataSource
             .createQueryBuilder()
-            .select(["orderId", "ticker", "transactionType", "quantity"])
+            .select(["orderId", "ticker", "transactionType", "quantity", "orderStatus"])
             .from(Transaction, "transaction")
             .where("transaction.isActive = :isActive")
             .andWhere("transaction.brokerClientId = :brokerClientId")
