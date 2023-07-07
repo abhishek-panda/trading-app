@@ -6,10 +6,10 @@ import logger from "../logger";
 import { v4 as uuidv4 } from 'uuid';
 import { TRADE_STATUS } from "../../../../libs/typings";
 
-export default class UltraTradingStrategy extends BaseStrategy {
+export default class TrendTradingStrategy extends BaseStrategy {
 
     async process(signal: Typings.Signal) {
-        const quantity = 2;
+        const quantity = 3;
         const lotSize = 50;
         const tickerName = Utils.TICKER[signal.ticker];
         const currentTicker = `${Typings.Exchange.NSE}:${tickerName}`; // "NSE:NIFTY 50"

@@ -1,13 +1,16 @@
 import BaseStrategy from "./baseStrategy";
-import UltraTradingStrategy from "./ultraTradingStrategy";
+import TrendTradingStrategy from "./trendTradingStrategy";
 import KiteConnect from '../core/kite-connect';
 import Subscription from "../../../entities/Subscription";
+import SnipperTradingStrategy from "./snipperTradingStrategy";
 
 
 function strategyResolver(kiteConnect: KiteConnect, accessToken: string, subscription: Subscription): BaseStrategy | null {
        switch (subscription.strategyId) {
-              case "ULTRA_TRADE":
-                     return new UltraTradingStrategy(kiteConnect, accessToken, subscription);
+              case "TREND_TRADE":
+                     return new TrendTradingStrategy(kiteConnect, accessToken, subscription);
+              case "SNIPPER_TRADE":
+                     return new SnipperTradingStrategy(kiteConnect, accessToken, subscription);
               default:
                      return null;
        }

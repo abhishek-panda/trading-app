@@ -2,14 +2,14 @@
 // © abhishek_panda
 
 //@version=5
-indicator(title="Ultra Trading System", shorttitle="ULTRA TRADE", overlay=true)
+indicator(title="Trend Trading System", shorttitle="TREND TRADE", overlay=true)
 
 type alertMessage
     string ticker
     string signalType
     string timeFrame
-    string id = "ULTRA_TRADE"
-    string title = "Ultra Trading System"
+    string id = "TREND_TRADE"
+    string title = "Trend Trading System"
     
 stringfyAlertMessage(alertMessage[] messages) =>
     string alertText = "["
