@@ -16,6 +16,19 @@ export const logFormat = printf(({ level, message, label, timestamp }) => {
 });
 
 
+export function getClosest(num: number, multiple: number = 100): number {
+    const remainder = num % multiple;
+    let closestMultiple;
+
+    if (remainder <= multiple / 2) {
+        closestMultiple = num - remainder;
+    } else {
+        closestMultiple = num - (remainder - multiple);
+    }
+    return closestMultiple;
+}
+
+
 // Get local date time
 export function getLocalDateTime(date: Date = new Date()): Date {
     const newDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60 * 1000));

@@ -49,19 +49,21 @@ export default class TrendTradingStrategy extends BaseStrategy {
                     let tradeOptionType: Typings.OPTION | undefined;
                     let hedgeStrikePrice: number | undefined;
                     let tradeStrikePrice: number | undefined;
-                    let adjustmentPrice: number | number;
+
                     const hedgeTransactionType = Typings.TransactionType.BUY;
                     const tradeTransactionType = Typings.TransactionType.SELL;
 
+                    tradeStrikePrice = Utils.getClosest(currentTickerLastPrice, 50);
+
+                    // TODO: Add 0.06% daily average move.(P0)
+                    const averageMove = 0.006; // Nifty average move from statistics
+                    const adjustment = Utils.getClosest(currentTickerLastPrice * averageMove, 50);
+
                     if (signal.signalType === 'buyenter') {
-                        adjustmentPrice = (currentTickerLastPrice + 50) % 50; // TODO: Add 0.6% daily average move.(P0)
-                        hedgeStrikePrice = (currentTickerLastPrice + 50) - adjustmentPrice;
-                        tradeStrikePrice = (currentTickerLastPrice + 100) - adjustmentPrice;
+                        hedgeStrikePrice = tradeStrikePrice - adjustment;
                         hedgeOptionType = tradeOptionType = Typings.OPTION.PE;
                     } else {
-                        adjustmentPrice = (currentTickerLastPrice - 50) % 50;
-                        hedgeStrikePrice = (currentTickerLastPrice - 50) - adjustmentPrice;
-                        tradeStrikePrice = (currentTickerLastPrice - 100) - adjustmentPrice;
+                        hedgeStrikePrice = tradeStrikePrice + adjustment;
                         hedgeOptionType = tradeOptionType = Typings.OPTION.CE;
                     }
 
