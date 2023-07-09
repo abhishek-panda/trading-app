@@ -10,7 +10,7 @@ import { TradingTimeFrame } from '../../libs/typings'
  */
 const rule = new Schedule.RecurrenceRule();
 rule.hour = 15;
-rule.minute = 15;
+rule.minute = 16;
 rule.tz = process.env.TZ ?? 'Asia/Kolkata';
 
 function intradayTradeCleanUpTaskCallback() {
