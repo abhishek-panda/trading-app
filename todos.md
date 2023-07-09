@@ -27,14 +27,20 @@ The list of items to be picked.
     - Subscription model
     - Add payment method
 
+* ### Transaction
+    - Exit active transaction from dashboard.
+
 * ### Algos
     - ~~Client registration~~
     - ~~Client status check~~
     - ~~Make Client active only if state has enbaled.~~
     - ~~Register Strategies (2)~~
     - ~~Virtual Trade with registered bot using available strategies~~
-    - Fresh trades in next expiry if its thrusday 
-    - WS Connection drop in between (fix this)
+    - ~~Fresh trades in next expiry if its thrusday~~ 
+    - ~~WS Connection drop in between (fix this)~~ Mpved away from WS instead pooling order status
+    - Update quantity from UI(P1)
+    - Adding new snipper option buying strategy(P0)
+
     
 
 Apps
