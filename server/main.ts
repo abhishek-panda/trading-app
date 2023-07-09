@@ -3,12 +3,11 @@ import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import helmetCsp from 'helmet-csp';
-import * as Schedule from 'node-schedule';
 import express, { Request, Response } from 'express';
 import intializeTradingAppRoutes from './apps/trading-app/router';
 import intializeAlgoTradingRoutes, { intializeAlgoWS } from './apps/algo-trading/router';
-
-import * as GlobalTypings from './typings';
+import tasks from './tasks';
+import appScheduler from "./scheduler";
 import * as GlobalUtils from './utils';
 import { csp } from './csp';
 import DBConn from './dbConn';
@@ -20,8 +19,8 @@ const app = express();
  * Settings
  */
 const { logger } = GlobalUtils;
-const rootPath = path.join(__dirname,'..');
-const envFilePath = path.join(rootPath,'.env');
+const rootPath = path.join(__dirname, '..');
+const envFilePath = path.join(rootPath, '.env');
 dotenv.config({ path: envFilePath });
 const PORT = parseInt(process.env.PORT ?? '2179');
 app.disable('x-powered-by');
@@ -57,16 +56,10 @@ function initializeApplicationWS() {
 /**
  * Schedulers
  */
-// Clearing old request token. Need to login everyday.
-// const rule = new Schedule.RecurrenceRule();
-// rule.hour = 8;
-// rule.minute = 0;
-// rule.tz = process.env.TZ ?? 'Asia/Kolkata';
-// Schedule.scheduleJob(rule, function() {
-//     delete process.env.ACCESS_TOKEN;
-//     GlobalUtils.addRemoveEnv(envFilePath, GlobalTypings.ENV_OPERATION.REMOVE, 'ACCESS_TOKEN');
-//     logger.info('Scheduler triggered. Removing access token');
-// });
+tasks.forEach(task => {
+    appScheduler.register(task);
+})
+appScheduler.run();
 
 
 /**
