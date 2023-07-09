@@ -132,7 +132,7 @@ export default class TrendTradingStrategy extends BaseStrategy {
                 }
 
                 if (signal.signalType === 'buyexit' || signal.signalType === 'sellexit') {
-                    const basketOrders: Typings.BasketOrderItem[] = [];
+                    const basketOrder: Typings.BasketOrderItem[] = [];
                     const activeOrders = await this.getActiveOrders();
                     if (activeOrders.length > 0) {
                         let basketId = '';
@@ -151,13 +151,13 @@ export default class TrendTradingStrategy extends BaseStrategy {
                                 order_id: order.orderId
                             };
                             basketId = order.transactionId;
-                            basketOrders.push(traderOrder);
+                            basketOrder.push(traderOrder);
                         });
-                        basketOrders.sort((order1, order2) => {
+                        basketOrder.sort((order1, order2) => {
                             return order1.transaction_type > order2.transaction_type ? 1 : -1;
                         });
 
-                        this.placeOrder(TRADE_STATUS.EXIT, basketId, basketOrders);
+                        this.placeOrder(TRADE_STATUS.EXIT, basketId, basketOrder);
                     }
 
                 }
