@@ -92,7 +92,7 @@ export default class SnipperTradingStrategy extends BaseStrategy {
                 }
 
                 if (signal.signalType === 'buyexit' || signal.signalType === 'sellexit') {
-                    const basketOrders: Typings.BasketOrderItem[] = [];
+                    const basketOrder: Typings.BasketOrderItem[] = [];
                     const activeOrders = await this.getActiveOrders();
                     if (activeOrders.length > 0) {
                         let basketId = '';
@@ -110,10 +110,9 @@ export default class SnipperTradingStrategy extends BaseStrategy {
                                 order_id: order.orderId
                             };
                             basketId = order.transactionId;
-                            basketOrders.push(traderOrder);
+                            basketOrder.push(traderOrder);
                         });
-
-                        this.placeOrder(TRADE_STATUS.EXIT, basketId, basketOrders);
+                        this.placeOrder(TRADE_STATUS.EXIT, basketId, basketOrder);
                     }
                 }
             }
