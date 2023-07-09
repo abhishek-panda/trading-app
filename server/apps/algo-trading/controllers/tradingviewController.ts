@@ -5,6 +5,10 @@ import TradeEvent from "../events/trade";
 export default class TradingviewController {
 
     recieveSignal = (req: Request, res: Response) => {
+        /**
+         * TradingView webhooks whitelisted ips
+         * https://www.tradingview.com/support/solutions/43000529348-about-webhooks/
+         */
         const whiteListedIps = [
             '52.89.214.238',
             '34.212.75.30',
