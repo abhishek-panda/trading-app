@@ -3,14 +3,16 @@ import WSController from '../../algo-trading/controllers/wsController';
 
 const WSEvent = new EventEmitter();
 
-
-WSEvent.on('register', registerWS);
-WSEvent.on('unregister', unregisterWS);
+/**
+ * Disabling WS
+ */
+// WSEvent.on('register', registerWS);
+// WSEvent.on('unregister', unregisterWS);
 
 function registerWS(inputs: string) {
     const payload = JSON.parse(inputs) as Record<string, string>;
     if (
-        (payload.apiKey && typeof payload.apiKey === 'string') && 
+        (payload.apiKey && typeof payload.apiKey === 'string') &&
         (payload.accessToken && typeof payload.accessToken === 'string')
     ) {
         const wsController = new WSController();

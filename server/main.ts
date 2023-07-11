@@ -48,6 +48,9 @@ function initializeApplicationsRouters() {
 // End Middleware
 
 
+/**
+ * Intializing Application Websocket
+ */
 function initializeApplicationWS() {
     intializeAlgoWS();
 }
@@ -63,23 +66,13 @@ appScheduler.run();
 
 
 /**
- * Websocket for get tickers and order status
- */
-// let wsTicker  = new KiteWSTicker({
-//     api_key: process.env.API_KEY ?? '',
-//     access_token: process.env.ACCESS_TOKEN ?? ''
-// });
-// wsTicker.connect();
-
-
-/**
  * Starting server after DB connection is successdul
  */
 
 DBConn.getInstance().initialize()
     .then(() => {
         initializeApplicationsRouters();
-        initializeApplicationWS();
+        // initializeApplicationWS();
         app.listen(PORT, () => {
             logger.info(`Server started. Listening on port : ${PORT}`);
         });
