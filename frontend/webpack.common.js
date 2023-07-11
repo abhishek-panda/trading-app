@@ -1,6 +1,7 @@
 const path = require("path");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
 const config = {
@@ -56,6 +57,14 @@ const config = {
 			template: path.resolve(__dirname, 'templates', 'index.hbs')
 		}),
 		new MiniCssExtractPlugin(),
+		new CopyPlugin({
+			patterns: [
+				{
+					from: path.resolve(__dirname, "robots.txt"),
+					to: path.resolve(__dirname, ".." ,"public")
+				},
+			],
+		}),
 		// new BundleAnalyzerPlugin()
 	]
 };
