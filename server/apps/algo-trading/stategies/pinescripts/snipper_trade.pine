@@ -45,7 +45,7 @@ smoothingLength = input.int(title = "Length", defval = 5, minval = 1, maxval = 1
 smoothingLine = ma(out, smoothingLength, typeMA)
 plot(smoothingLine, title="Smoothing Line", color=color.rgb(255,235,58), linewidth=2,offset=offset)
 
-tradingperiod = "0915-1515"
+tradingperiod = "0915-1510"
 tradingtime = time(timeframe.period, tradingperiod)
 tradingtimecondition = not na(tradingtime)
 buyenter = ta.crossover(out, smoothingLine) and tradingtimecondition
