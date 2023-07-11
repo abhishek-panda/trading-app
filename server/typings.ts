@@ -49,7 +49,8 @@ export enum SignalType {
     sellenter = "sellenter",
     sellexit = "sellexit",
     buyenter = "buyenter",
-    buyexit = "buyexit"
+    buyexit = "buyexit",
+    forceexit = "forceexit" // Forcing all positions to exit
 }
 
 /**

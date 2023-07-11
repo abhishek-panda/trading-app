@@ -5,8 +5,8 @@ import TradeEvent from "../apps/algo-trading/events/trade";
 import { TradingTimeFrame } from '../../libs/typings'
 
 /**
- * Intraday Clean Task
- * TODO: Force exit all naked option buying trade at 3:15PM
+ * Intraday Cleanup Task
+ * TODO: Force exit all naked option buying trade at 3:16PM
  */
 const rule = new Schedule.RecurrenceRule();
 rule.hour = 15;
@@ -14,29 +14,23 @@ rule.minute = 16;
 rule.tz = process.env.TZ ?? 'Asia/Kolkata';
 
 function intradayTradeCleanUpTaskCallback() {
-    logger.info('Force exiting intraday trades.');
-
+    logger.info(`Initiating intraday cleanup...`);
     const signals = [];
     for (const value in TradingTimeFrame) {
         //@ts-ignore
         const timeFrame: string = TradingTimeFrame[value];
-        const buyExitSignal = {
+        const forceExitSignal = {
             "id": "SNIPPER_TRADE",
             "title": "Snipper Trading System",
-            "signalType": "buyexit",
+            "signalType": "forceexit",
             "ticker": "NIFTY",
             "timeFrame": timeFrame
         };
-        const sellExitSignal = {
-            "id": "SNIPPER_TRADE",
-            "title": "Snipper Trading System",
-            "signalType": "sellexit",
-            "ticker": "NIFTY",
-            "timeFrame": timeFrame
-        }
-        signals.push(buyExitSignal, sellExitSignal);
+        signals.push(forceExitSignal);
     }
-    TradeEvent.emit('tradeExecutor', JSON.stringify(signals));
+    const stringifiedSignal = JSON.stringify(signals);
+    logger.info(`Force exit signal recieved. ${stringifiedSignal}`);
+    TradeEvent.emit('tradeExecutor', stringifiedSignal);
 }
 
 

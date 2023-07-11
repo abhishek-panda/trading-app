@@ -39,7 +39,10 @@ The list of items to be picked.
     - ~~Fresh trades in next expiry if its thrusday~~ 
     - ~~WS Connection drop in between (fix this)~~ Mpved away from WS instead pooling order status
     - Update quantity from UI(P1)
-    - Adding new snipper option buying strategy(P0)
+    - ~~Adding new snipper option buying strategy(P0)~~
+    - ~~Stopped crawler for hitting site~~
+    - Fix trend trading strategy currently we are checking previous day order status which isn't supported by zerodha api, pool the status and update
+      the database.
 
     
 

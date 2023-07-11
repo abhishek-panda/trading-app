@@ -9,7 +9,7 @@ import { TRADE_STATUS } from "../../../../libs/typings";
 export default class SnipperTradingStrategy extends BaseStrategy {
 
     async process(signal: Typings.Signal) {
-        const quantity = 4;
+        const quantity = 5;
         const lotSize = 50;
         const tickerName = Utils.TICKER[signal.ticker];
         const currentTicker = `${Typings.Exchange.NSE}:${tickerName}`; // "NSE:NIFTY 50"
@@ -91,7 +91,7 @@ export default class SnipperTradingStrategy extends BaseStrategy {
                     }
                 }
 
-                if (signal.signalType === 'buyexit' || signal.signalType === 'sellexit') {
+                if (signal.signalType === 'buyexit' || signal.signalType === 'sellexit' || signal.signalType === 'forceexit') {
                     const basketOrder: Typings.BasketOrderItem[] = [];
                     const activeOrders = await this.getActiveOrders();
                     if (activeOrders.length > 0) {
