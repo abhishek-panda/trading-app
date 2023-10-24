@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import UserModel from '../models/userModel';
 import * as GlobalUtils from '../../../utils';
-import { User } from "../../../../libs/typings";
+import { User, BOOLEAN } from "../../../../libs/typings";
 
 
 export default class UserController {
@@ -11,7 +11,7 @@ export default class UserController {
 
     constructor() {
         this.userModel = new UserModel();
-        this.isRegistrationOpen = false;
+        this.isRegistrationOpen = Boolean(process.env.ENABLE_REGISTRATION == BOOLEAN.TRUE);
     }
 
     routeGuard = async (req: Request, res: Response, next: NextFunction) => {

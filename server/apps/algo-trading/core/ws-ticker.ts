@@ -2,11 +2,13 @@ import logger from "../logger";
 const KiteTicker = require("kiteconnect").KiteTicker;
 
 
-interface WSTicker {
+export interface WSTicker {
     connect: () => void;
     disconnect: () => void;
     autoReconnect: (reconn: boolean, attempt: number, delay: number) => void;
     on: (key: string, fnArg: (_: any) => void) => void;
+    subscribe: (items: Number[]) => void;
+    setMode:(mode: 'full'| 'quote' | 'ltp', items: Number[]) => void;
 }
 
 interface WSTickerParams {

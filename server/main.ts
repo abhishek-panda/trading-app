@@ -36,7 +36,8 @@ app.use(cookieParser());
 app.use(express.static(GlobalUtils.publicDirPath));
 
 function initializeApplicationsRouters() {
-    app.use('/', intializeTradingAppRoutes());
+    // TODO: make /algotm to / when using nginx
+    app.use('/algotm', intializeTradingAppRoutes());
     app.use('/algo-api', intializeAlgoTradingRoutes());
 
     // Block all other unwanted routes
@@ -72,7 +73,7 @@ appScheduler.run();
 DBConn.getInstance().initialize()
     .then(() => {
         initializeApplicationsRouters();
-        // initializeApplicationWS();
+        initializeApplicationWS();
         app.listen(PORT, () => {
             logger.info(`Server started. Listening on port : ${PORT}`);
         });

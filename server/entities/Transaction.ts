@@ -23,6 +23,7 @@ export default class Transaction {
         onUpdate: 'CASCADE',
     })
     @JoinColumn([
+        { name: 'id', referencedColumnName: 'id' },
         { name: 'brokerClientId', referencedColumnName: 'brokerClientId' },
         { name: 'strategyId', referencedColumnName: 'strategyId' },
         { name: 'timeframe', referencedColumnName: 'timeframe' },
