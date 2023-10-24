@@ -3,14 +3,16 @@ import BaseController from "./baseController";
 import {parse} from 'papaparse';
 import fs from 'fs';
 
-export default class TradeSetupController extends BaseController{
+export default class InstrumentController extends BaseController {
 
     constructor() {
         super();
     }
 
-    preseedData = async (req: Request, res: Response) => {
+    subscribe = async (req: Request, res: Response) => {
         const uploadedFile = req.file;
+
+        console.log(uploadedFile?.filename);
 
         if (!uploadedFile) {
             return res.status(400).json({ error: 'No file uploaded' });
@@ -25,4 +27,20 @@ export default class TradeSetupController extends BaseController{
               }
         });
     }
+
+    getSubscription = async (req: Request, res: Response) => {
+
+
+    }
+
+    updateSubscription = async (req: Request, res: Response) => {
+
+
+    }
+    
+    deleteSubscription = async (req: Request, res: Response) => {
+
+
+    }
+    
 }

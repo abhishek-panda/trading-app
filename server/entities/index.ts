@@ -4,7 +4,7 @@ import BrokerClient from "./BrokerClient";
 import Strategy from './Strategy';
 import Subscription from './Subscription';
 import Transaction from './Transaction';
-import Trade from './Trade';
+import Instrument from './Instrument';
 
 
 export default [
@@ -14,5 +14,5 @@ export default [
     Strategy,
     Subscription,
     Transaction,
-    Trade,
+    Instrument,
 ]

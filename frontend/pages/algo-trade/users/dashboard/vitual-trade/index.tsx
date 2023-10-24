@@ -39,7 +39,7 @@ const VirtualTrade = () => {
 			formData.append('timeframe', selectedTimeframe);
 
 		
-			axios.post('/algotm/api/seed-data', formData, {
+			axios.post('/algotm/api/trade/setup', formData, {
 			headers: {
 				'Content-Type': 'multipart/form-data',
 			},

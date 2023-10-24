@@ -4,7 +4,7 @@ import UserController from './controllers/userController';
 import BrokerClientController from './controllers/brokerClientController';
 import ControlPanelController from './controllers/controlPanelController';
 import SubscriptionController from './controllers/subscriptionController';
-import TradeSetupController from './controllers/tradeSetupController';
+import InstrumentController from './controllers/instrumentController';
 import upload from '../../upload';
 
 function intializeTradingAppRoutes() {
@@ -14,7 +14,7 @@ function intializeTradingAppRoutes() {
     const brokerClientController = new BrokerClientController();
     const controlPanelController = new ControlPanelController();
     const subscriptionController = new SubscriptionController();
-    const tradeSetupController = new TradeSetupController();
+    const instrumentController = new InstrumentController();
     const { routeGuard } = userController;
 
     TradingAppRouter.get('/', homeController.default);
@@ -30,7 +30,10 @@ function intializeTradingAppRoutes() {
     TradingAppRouter.post('/api/subscription', routeGuard, subscriptionController.subscribe);
     TradingAppRouter.get('/api/subscription', routeGuard, subscriptionController.getSubscription);
     TradingAppRouter.put('/api/subscription', routeGuard, subscriptionController.updateSubscription);
-    TradingAppRouter.post('/api/seed-data', routeGuard, upload.single('file'), tradeSetupController.preseedData)
+    TradingAppRouter.post('/api/trade/setup', routeGuard, upload.single('file'), instrumentController.subscribe);
+    TradingAppRouter.get('/api/trade', routeGuard, instrumentController.getSubscription);
+    TradingAppRouter.put('/api/trade/:id', routeGuard, instrumentController.updateSubscription);
+    TradingAppRouter.delete('/api/trade/:id', routeGuard, instrumentController.deleteSubscription);
     return TradingAppRouter;
 }
 

@@ -1,9 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne, JoinColumn, PrimaryColumn } from "typeorm"
-import Subscription from "./Subscription";
+import { Entity, Column, PrimaryGeneratedColumn, PrimaryColumn } from "typeorm"
 import { TradingTimeFrame } from "../../libs/typings";
 
 @Entity()
-export default class Trade {
+export default class Instrument {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
@@ -13,7 +12,7 @@ export default class Trade {
     @PrimaryColumn()
     sid: string;
 
-    @Column()
+    @PrimaryColumn()
     name: string;
 
     @Column()
