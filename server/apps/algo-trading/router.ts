@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import TradingviewController from './controllers/tradingviewController';
 import WSController from './controllers/wsController';
 
 function intializeAlgoWS() {
@@ -10,7 +9,6 @@ function intializeAlgoWS() {
 function intializeAlgoTradingRoutes() {
     const AlgoTradingRoute = Router();
     // const tradingviewController = new TradingviewController();
-
     // AlgoTradingRoute.post('/signal', tradingviewController.recieveSignal);
     // AlgoTradingRoute.post('/check256', tradingviewController.check256);
     return AlgoTradingRoute;

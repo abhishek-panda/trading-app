@@ -10,6 +10,7 @@ import SubscriptionModel from "./subscriptionModel";
 import Instrument from "../../../entities/Instrument";
 import path from "node:path";
 import BrokerClient from "../../../entities/BrokerClient";
+import WSEvent from "../../algo-trading/events/ws";
 
 export default class InstrumentModel {
     private dataSource: DataSource
@@ -72,14 +73,14 @@ export default class InstrumentModel {
 
                     // TODO: Subscribe to ws
                     for(let item of results) {
-                        console.log(item);
                         const subscription = await this.dataSource.getRepository(Subscription).findOneBy({ id: item.sid });
                         if (subscription?.id) {
                             const brokerClient = await this.dataSource.getRepository(BrokerClient).findOneBy({ id: subscription?.brokerClientId });
                             if (brokerClient?.id) {
                                 // start and subscribe to ws and update db to connected
-                                
-                                console.log(brokerClient.apiKey);
+                                const { apiKey } = brokerClient;
+                                const eventpayload = { apiKey, instrument: [instrumentId] };
+                                WSEvent.emit('subscribe-instrument', JSON.stringify(eventpayload));
                             }
                         }
                     }

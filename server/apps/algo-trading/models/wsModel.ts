@@ -19,9 +19,9 @@ class WSModel {
         tickerInstance?.on('connect', function () {
             cache.set(`WS_${api_key}`, tickerInstance);
             console.log(`WS_${api_key}`);
-            const items = [17225730];
-            tickerInstance.subscribe(items);
-            tickerInstance.setMode("full", items);
+            // const items = [17225730];
+            // tickerInstance.subscribe(items);
+            // tickerInstance.setMode("full", items);
         });
         tickerInstance?.on('disconnect', function () {
             cache.del(`WS_${api_key}`);
@@ -59,12 +59,8 @@ class WSModel {
 
     }
 
-    getTicker(apiKey: string) {
+    getWS(apiKey: string) {
         return this.wsInstances.get(apiKey);
-    }
-
-    getAllTickers() {
-        return this.wsInstances;
     }
 
     uninitializeWS(api_key: string) {

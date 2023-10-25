@@ -22,6 +22,10 @@ export default class WSController {
         });
     }
 
+    getWS(apiKey: string) {
+        return this.wsModel.getWS(apiKey);
+    }
+
     //TODO: uninitialize WS
     uninitializeWS(apiKey: string) {
         this.wsModel.uninitializeWS(apiKey);

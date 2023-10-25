@@ -7,8 +7,9 @@ const WSEvent = new EventEmitter();
 /**
  * Disabling WS
  */
-// WSEvent.on('register', registerWS);
-// WSEvent.on('unregister', unregisterWS);
+WSEvent.on('register', registerWS);
+WSEvent.on('unregister', unregisterWS);
+WSEvent.on('subscribe-instrument', subscribeInstrument);
 
 function registerWS(inputs: string) {
     const payload = JSON.parse(inputs) as Record<string, string>;
@@ -28,11 +29,21 @@ function unregisterWS(apiKey: string) {
     }
 }
 
-function wsTickerSubscription(apiKey: string, instruments: string[]) {
-    
+function subscribeInstrument(inputs: string) {
+    const payload = JSON.parse(inputs) as Record<string, string>;
+    if (
+        (payload.apiKey && typeof payload.apiKey === 'string') && 
+        Array.isArray(payload.instrument) 
+    ) {
+        const wsController = new WSController();
+        const ws = wsController.getWS(payload.apiKey);
+        const instrument = payload.instrument.map(ins => parseInt(ins));
+        ws?.subscribe(instrument);
+        ws?.setMode("full", instrument);
+    }
 
 }
 
-WSEvent.on('subscribe', wsTickerSubscription);
+
 
 export default WSEvent;
