@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, PrimaryColumn } from "typeorm"
-import { TradingTimeFrame } from "../../libs/typings";
+import { BOOLEAN, TradingTimeFrame } from "../../libs/typings";
 
 @Entity()
 export default class Instrument {
@@ -18,10 +18,17 @@ export default class Instrument {
     @Column()
     file: string;
 
-    constructor(timeframe: TradingTimeFrame, sid: string, name: string, filePath: string) {
+    @Column()
+    iId: string;
+
+    @Column({ type: 'enum', enum: BOOLEAN, default:BOOLEAN.FALSE })
+    connected: BOOLEAN;
+
+    constructor(timeframe: TradingTimeFrame, sid: string, name: string, filePath: string, instrumentId: string) {
         this.timeframe = timeframe;
         this.sid = sid;
         this.name = name;
         this.file = filePath;
+        this.iId = instrumentId;
     }
 }

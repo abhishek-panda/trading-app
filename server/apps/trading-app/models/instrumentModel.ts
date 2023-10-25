@@ -9,6 +9,7 @@ import * as Typings from '../../../typings';
 import SubscriptionModel from "./subscriptionModel";
 import Instrument from "../../../entities/Instrument";
 import path from "node:path";
+import BrokerClient from "../../../entities/BrokerClient";
 
 export default class InstrumentModel {
     private dataSource: DataSource
@@ -27,6 +28,7 @@ export default class InstrumentModel {
             // TODO:  all input / schema validation to be done later
             const subscriptions = inputData.subscriptions as string;
             const timeframe = inputData.timeframe as string;
+            const instrumentId = inputData.instrumentId as string ?? '';
             // @ts-ignore
             const selectedTimeFrame = Object.keys(TradingTimeFrame).find(value => TradingTimeFrame[value] === timeframe);
             const allSids = subscriptions.split(',');
@@ -57,7 +59,7 @@ export default class InstrumentModel {
                     if (!instrumentExists && selectedTimeFrame) {
                     // @ts-ignore
                         const tf = TradingTimeFrame[selectedTimeFrame] as TradingTimeFrame;
-                        const instrument = new Instrument(tf, usls.id, filename, filePath);
+                        const instrument = new Instrument(tf, usls.id, filename, filePath, instrumentId);
                         const result = await this.dataSource.getRepository(Instrument).save(instrument);
                         results.push(result);
                     } else {
@@ -69,7 +71,18 @@ export default class InstrumentModel {
                 } else {
 
                     // TODO: Subscribe to ws
-
+                    for(let item of results) {
+                        console.log(item);
+                        const subscription = await this.dataSource.getRepository(Subscription).findOneBy({ id: item.sid });
+                        if (subscription?.id) {
+                            const brokerClient = await this.dataSource.getRepository(BrokerClient).findOneBy({ id: subscription?.brokerClientId });
+                            if (brokerClient?.id) {
+                                // start and subscribe to ws and update db to connected
+                                
+                                console.log(brokerClient.apiKey);
+                            }
+                        }
+                    }
 
                     return {
                         message: "Subscried successfully",

@@ -1,6 +1,7 @@
 import EventEmitter from 'events';
 import WSController from '../../algo-trading/controllers/wsController';
 
+
 const WSEvent = new EventEmitter();
 
 /**
@@ -26,5 +27,12 @@ function unregisterWS(apiKey: string) {
         wsController.uninitializeWS(apiKey);
     }
 }
+
+function wsTickerSubscription(apiKey: string, instruments: string[]) {
+    
+
+}
+
+WSEvent.on('subscribe', wsTickerSubscription);
 
 export default WSEvent;

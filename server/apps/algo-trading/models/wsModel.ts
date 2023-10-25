@@ -5,7 +5,7 @@ import TransactionController from "../controllers/transactionController";
 import { ORDER_STATUS } from "../../../../libs/typings";
 import logger from "../logger";
 
-export default class WSModel {
+class WSModel {
 
     private wsInstances: Map<string, WSTicker|undefined> = new Map();
 
@@ -59,7 +59,18 @@ export default class WSModel {
 
     }
 
+    getTicker(apiKey: string) {
+        return this.wsInstances.get(apiKey);
+    }
+
+    getAllTickers() {
+        return this.wsInstances;
+    }
+
     uninitializeWS(api_key: string) {
         cache.del(`WS_${api_key}`);
     }
 }
+
+
+export default new WSModel();
