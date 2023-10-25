@@ -16,12 +16,12 @@ export default class Instrument {
     name: string;
 
     @Column()
-    filename: string;
+    file: string;
 
-    constructor(timeframe: TradingTimeFrame, sid: string, name: string, filename: string) {
+    constructor(timeframe: TradingTimeFrame, sid: string, name: string, filePath: string) {
         this.timeframe = timeframe;
         this.sid = sid;
         this.name = name;
-        this.filename = filename;
+        this.file = filePath;
     }
 }

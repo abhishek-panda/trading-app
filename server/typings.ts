@@ -112,3 +112,13 @@ export enum ENV_OPERATION {
 export interface SBrokerClient extends IBrokerClient {
     accessToken: string;
 }
+
+
+export interface TickData {
+    Date: string
+    Open: string;
+    High: string;
+    Low: string;
+    Close: string;
+    Volume: string;
+};

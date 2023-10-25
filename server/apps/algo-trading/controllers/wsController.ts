@@ -1,11 +1,11 @@
-import WSModel from "../models/wsModel";
+import Model from "../../shared/models";
 
 export default class WSController {
     
-    private wsModel: WSModel;
+    private wsModel: typeof Model.wsModel;
 
     constructor() {
-        this.wsModel = new WSModel();
+        this.wsModel = Model.wsModel;
     }
     initialize(apiKey: string, accessToken: string) {
         this.wsModel.initializeWS(apiKey,accessToken);

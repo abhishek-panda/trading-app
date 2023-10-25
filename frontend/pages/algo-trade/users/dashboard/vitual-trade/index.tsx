@@ -9,6 +9,7 @@ import axios from 'axios';
 const VirtualTrade = () => {
 
 	const dispatch = useAppDispatcher();
+	const [instrumentId, setInstrumentId] = useState<string>('');
 	const [file, setFile] = useState<File>();
 	const [selectedSubscription, setSelectedSubscription] = useState<string[]>([]);
 	const [selectedTimeframe, setSelectedTimeframe] = useState<string>('');
@@ -27,6 +28,10 @@ const VirtualTrade = () => {
     	setSelectedSubscription(selectedOptions);
 	}
 
+	const handleInstrumentChange = (event: ChangeEvent<HTMLInputElement>) => {
+		setInstrumentId(event.target.value);
+	}
+
 	const handleTimeframeSeletion = (event: ChangeEvent<HTMLSelectElement>) => {
 		setSelectedTimeframe(event.target.value);
 	}
@@ -37,6 +42,7 @@ const VirtualTrade = () => {
 			formData.append('file', file);
 			formData.append('subscriptions', selectedSubscription.join(','));
 			formData.append('timeframe', selectedTimeframe);
+			formData.append('instrumentId', instrumentId);
 
 		
 			axios.post('/algotm/api/trade/setup', formData, {
@@ -79,6 +85,7 @@ const VirtualTrade = () => {
 					subscriptions.map(subscription => <option value={subscription.id} key={subscription.id}>{subscription.name} |  {subscription.strategyName}</option>)
 				}
 			</select>
+			<input type='text' value={instrumentId} onChange={handleInstrumentChange} placeholder='Instrument ID' name='instrument_id'></input>
 			<input type="file" onChange={handleFileChange} />
       		<button onClick={handleUpload}>Start Trading</button>
 		</>

@@ -6,7 +6,7 @@ export default class BaseController {
         let status: number, result: IResponse;
         let data = await callback();
         if (data) {
-            status = data.error ? 401 : 200;
+            status = data.error ? 400 : 200;
             result = data;
         } else {
             status = 401;

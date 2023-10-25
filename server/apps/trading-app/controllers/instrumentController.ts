@@ -1,31 +1,38 @@
+import path from 'path';
 import { Request, Response } from "express";
 import BaseController from "./baseController";
-import {parse} from 'papaparse';
-import fs from 'fs';
+import { User } from "../../../../libs/typings";
+import * as GlobalUtils from '../../../utils';
+import InstrumentModel from "../models/instrumentModel";
+
 
 export default class InstrumentController extends BaseController {
 
+    private instrumentModel: InstrumentModel;
+
     constructor() {
         super();
+        this.instrumentModel = new InstrumentModel();
     }
 
     subscribe = async (req: Request, res: Response) => {
         const uploadedFile = req.file;
-
-        console.log(uploadedFile?.filename);
+        let filename = uploadedFile?.filename ?? '';
+        const extension = path.extname(filename);
+        filename = path.basename(filename, extension);
+        const filePath = uploadedFile?.path ?? '';
 
         if (!uploadedFile) {
             return res.status(400).json({ error: 'No file uploaded' });
         }
 
-        fs.readFile(uploadedFile.path, 'utf8', (error, data) => {
-            if (!error) {
-                const results = parse(data, { header: true }).data;
-                res.json(results);
-              } else {
-                res.status(500).json({ error: 'Error parsing CSV file' });
-              }
+        const userInputData = req.body;
+        const userSessionId = req.cookies['SN'];
+        const user = GlobalUtils.cache.get<User>(userSessionId);
+        const [status, response] = await this.getStatusAndResponse(() => {
+           return user ? this.instrumentModel.subscribe(userInputData, user.id, filename, filePath) : undefined;
         });
+        return res.status(status).send(response);
     }
 
     getSubscription = async (req: Request, res: Response) => {

@@ -1,11 +1,15 @@
 import multer from 'multer';
-import path from 'path';
+import fs from 'fs';
 
 
 // Define the storage for uploaded files
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, 'temp/'); // Files will be stored in the 'uploads' directory
+      const tempDirectory = process.env.TEMP_DIRECTORY ?? 'temp/';
+      if (!fs.existsSync(tempDirectory)){
+        fs.mkdirSync(tempDirectory);
+      }
+      cb(null, tempDirectory); // Files will be stored in the 'uploads' directory
     },
     filename: (req, file, cb) => {
       cb(null, file.originalname);
