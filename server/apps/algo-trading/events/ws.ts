@@ -10,6 +10,7 @@ const WSEvent = new EventEmitter();
 WSEvent.on('register', registerWS);
 WSEvent.on('unregister', unregisterWS);
 WSEvent.on('subscribe-instrument', subscribeInstrument);
+WSEvent.on('stream-ticks', streamTickData)
 
 function registerWS(inputs: string) {
     const payload = JSON.parse(inputs) as Record<string, string>;
@@ -36,18 +37,16 @@ function subscribeInstrument(inputs: string) {
         Array.isArray(payload.instrument) 
     ) {
         const wsController = new WSController();
-        const ws = wsController.getWS(payload.apiKey);
-        ws?.on('ticks', function(ticks)  {
-            // TODO: Consume the streaming service
-            console.log(JSON.stringify(ticks));
-        });
         const instrument = payload.instrument.map(ins => parseInt(ins));
-        ws?.subscribe(instrument);
-        ws?.setMode("full", instrument);
+        wsController.subscribe(payload.apiKey, instrument);
     }
-
 }
 
+
+function streamTickData(data: string) {
+    // TODO: Stream data to compute engine
+    console.log(data)
+}
 
 
 export default WSEvent;

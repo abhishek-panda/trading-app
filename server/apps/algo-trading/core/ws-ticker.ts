@@ -20,6 +20,7 @@ class KiteWSTicker {
     private ticker?: WSTicker;
 
     constructor(params: WSTickerParams) {
+        const apiKey = params.api_key;
         this.ticker = new KiteTicker({
             api_key: params.api_key,
             access_token: params.access_token,
@@ -27,14 +28,19 @@ class KiteWSTicker {
 
         this.ticker.autoReconnect(true, 20, 5);
         this.ticker.on('connect', function () {
-            logger.info("KiteTicker WS connected");
+            logger.info(`KiteWS with apiKey: ${apiKey} connected`);
         });
         this.ticker.on('disconnect', (error: Error) => {
-            logger.error(`KiteTicker WS connection disconnected. ${error?.message ?? new Date()}.`);
+            logger.error(`KiteWS with apiKey: ${apiKey} disconnected. ${error?.message ?? new Date()}.`);
         });
         this.ticker.on('error',  (error: Error) => {
-            logger.error(`KiteTicker WS connection error. ${error?.message ?? ''}`);
+            logger.error(`KiteWS with apiKey: ${apiKey} has connection error. ${error?.message ?? ''}`);
         });
+        this.ticker.on('reconnect', () => {
+            logger.info(`KiteWS with apiKey: ${apiKey} reconnecting...`);
+        })
+
+        // TODO: Move to ws event emitter
         this.ticker.on('order_update', function(order: any) {
             logger.info(`Order status : ${JSON.stringify(order)}`);
         });

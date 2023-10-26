@@ -22,8 +22,8 @@ export default class WSController {
         });
     }
 
-    getWS(apiKey: string) {
-        return this.wsModel.getWS(apiKey);
+    subscribe(apiKey: string, instruments: number[]) {
+        return this.wsModel.subscribe(apiKey, instruments);
     }
 
     //TODO: uninitialize WS
