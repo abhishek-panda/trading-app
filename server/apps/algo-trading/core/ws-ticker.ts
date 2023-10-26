@@ -25,21 +25,15 @@ class KiteWSTicker {
             access_token: params.access_token,
         }) as WSTicker;
 
-        this.ticker.autoReconnect(false, 2, 30);
+        this.ticker.autoReconnect(true, 20, 5);
         this.ticker.on('connect', function () {
             logger.info("KiteTicker WS connected");
         });
         this.ticker.on('disconnect', (error: Error) => {
-            logger.error(`KiteTicker WS connection disconnected.${error?.message ?? new Date()}.`);
-            delete this.ticker;
+            logger.error(`KiteTicker WS connection disconnected. ${error?.message ?? new Date()}.`);
         });
         this.ticker.on('error',  (error: Error) => {
-            logger.error(`KiteTicker WS connection closed on error.${error?.message ?? ''}`);
-            delete this.ticker;
-        });
-        this.ticker.on('close', (error: Error) => {
-            logger.error(`KiteTicker WS connection closed.${error?.message ?? ''}`);
-            delete this.ticker;
+            logger.error(`KiteTicker WS connection error. ${error?.message ?? ''}`);
         });
         this.ticker.on('order_update', function(order: any) {
             logger.info(`Order status : ${JSON.stringify(order)}`);

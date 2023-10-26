@@ -22,12 +22,11 @@ class WSModel {
         });
         tickerInstance?.on('disconnect', function () {
             cache.del(`WS_${api_key}`);
-            logger.info(`WS Status: Client with apikey ${api_key} disconnected`);
+            logger.error(`WS Status: Client with apikey ${api_key} disconnected`);
         });
-        tickerInstance?.on('close', function () {
-            cache.del(`WS_${api_key}`);
-            logger.info(`WS Status: Client with apikey ${api_key} connected`);
-        });
+        tickerInstance?.on('reconnect', function () {
+            logger.info(`WS Status: Client with apikey ${api_key} reconnecting`);
+        })
         tickerInstance?.on('order_update', function (orderDetail = {}) {
             // const { order_id = '', status = ORDER_STATUS.OPEN } = orderDetail;
             // if (order_id && status !== ORDER_STATUS.OPEN) {
@@ -37,9 +36,6 @@ class WSModel {
             //     tradeController.update(order_id, orderDetail);
             // }
         });
-        // tickerInstance?.on('ticks', function(ticks)  {
-        //     logger.info(`Ticks :  ${JSON.stringify(ticks)}`)
-        // })
         kiteTicker.connect();
     }
 
