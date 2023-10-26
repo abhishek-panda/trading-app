@@ -18,16 +18,15 @@ class WSModel {
         
         tickerInstance?.on('connect', function () {
             cache.set(`WS_${api_key}`, tickerInstance);
-            console.log(`WS_${api_key}`);
-            // const items = [17225730];
-            // tickerInstance.subscribe(items);
-            // tickerInstance.setMode("full", items);
+            logger.info(`WS Status: Client with apikey ${api_key} connected`);
         });
         tickerInstance?.on('disconnect', function () {
             cache.del(`WS_${api_key}`);
+            logger.info(`WS Status: Client with apikey ${api_key} disconnected`);
         });
         tickerInstance?.on('close', function () {
             cache.del(`WS_${api_key}`);
+            logger.info(`WS Status: Client with apikey ${api_key} connected`);
         });
         tickerInstance?.on('order_update', function (orderDetail = {}) {
             // const { order_id = '', status = ORDER_STATUS.OPEN } = orderDetail;
@@ -38,21 +37,10 @@ class WSModel {
             //     tradeController.update(order_id, orderDetail);
             // }
         });
-        tickerInstance?.on('ticks', function(ticks)  {
-            logger.info(`Ticks :  ${JSON.stringify(ticks)}`)
-        })
+        // tickerInstance?.on('ticks', function(ticks)  {
+        //     logger.info(`Ticks :  ${JSON.stringify(ticks)}`)
+        // })
         kiteTicker.connect();
-    }
-
-    
-
-    async initializeAll() {
-        const brokerClientModel = new BrokerClientModel();
-        const clients = await brokerClientModel.getAllActiveClients();
-        clients.forEach(client => {
-            // TODO: Check if intializing WS is async
-            this.initializeWS(client.apiKey, client.accessToken);
-        });
     }
 
     subscribe() {

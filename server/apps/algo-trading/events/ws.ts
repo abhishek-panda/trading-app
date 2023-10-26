@@ -37,6 +37,10 @@ function subscribeInstrument(inputs: string) {
     ) {
         const wsController = new WSController();
         const ws = wsController.getWS(payload.apiKey);
+        ws?.on('ticks', function(ticks)  {
+            // TODO: Consume the streaming service
+            console.log(JSON.stringify(ticks));
+        });
         const instrument = payload.instrument.map(ins => parseInt(ins));
         ws?.subscribe(instrument);
         ws?.setMode("full", instrument);
