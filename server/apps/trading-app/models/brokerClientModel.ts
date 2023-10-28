@@ -8,7 +8,7 @@ import { validBrokerClientSchema} from '../../../../libs/utils';
 import BrokerClient from "../../../entities/BrokerClient";
 import User from "../../../entities/User";
 import KiteConnect from "../../algo-trading/core/kite-connect";
-import WSEvent from "../../algo-trading/events/ws";
+import WebSocketEvent, { WSEvents } from "../../algo-trading/events/ws";
 
 
 export default class BrokerClientModel {
@@ -133,7 +133,7 @@ export default class BrokerClientModel {
                     const kiteConnect = new KiteConnect(client.apiKey);
                     const accessToken = await kiteConnect.getAccessToken(validTokenRequest.request_token, client.secret);
                     if (accessToken instanceof Error) {
-                        WSEvent.emit('unregister', client.apiKey);
+                        WebSocketEvent.emit(WSEvents.UNREGISTER, client.apiKey);
                         throw new Yup.ValidationError(accessToken.message, '', 'token');
                     }
                     const result = await this.dataSource.getRepository(BrokerClient).update({ id: validTokenRequest.cid }, { accessToken });
@@ -141,7 +141,7 @@ export default class BrokerClientModel {
                         apiKey: client.apiKey,
                         accessToken
                     };
-                    WSEvent.emit('register', JSON.stringify(eventPayload));
+                    WebSocketEvent.emit(WSEvents.REGISTER, JSON.stringify(eventPayload));
                     if (result.affected) {
                         return {
                             message: "Client activated successfully"

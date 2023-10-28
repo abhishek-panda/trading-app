@@ -10,8 +10,9 @@ import SubscriptionModel from "./subscriptionModel";
 import Instrument from "../../../entities/Instrument";
 import path from "node:path";
 import BrokerClient from "../../../entities/BrokerClient";
-import WSEvent from "../../algo-trading/events/ws";
+import WebSocketEvent, { WSEvents } from "../../algo-trading/events/ws";
 import KiteConnect from "../../algo-trading/core/kite-connect";
+import RabbitMQEvent, { RBMQEvents } from "../../algo-trading/events/rabbit";
 
 export default class InstrumentModel {
     private dataSource: DataSource
@@ -93,8 +94,15 @@ export default class InstrumentModel {
                                     const updateResult = await this.dataSource.getRepository(Instrument).update({ sid: item.sid, name: instrumentName, timeframe: item.timeframe }, {iId: instrumentId});
                                     if (updateResult) {
                                         const eventpayload = { apiKey, instrument: [instrumentId] };
-                                        WSEvent.emit('subscribe-instrument', JSON.stringify(eventpayload));
-                                        // TODO here emit event to send data to mongo db
+                                        
+                                        // Adding instrument to previously parsed csv file content as instrument id wasn't available
+                                        const contents =    fs.readFileSync(filePath, 'utf8');
+                                        const parsedContents = JSON.parse(contents);
+                                        parsedContents['id'] = instrumentId;
+
+                                        RabbitMQEvent.emit(RBMQEvents.SINK_DATA, parsedContents);
+                                        WebSocketEvent.emit(WSEvents.SUBSCRIBE_INSTRUMENT, eventpayload);
+
                                     } else {
                                         throw new Error(`Failed to update instrument id`)
                                     }
@@ -128,7 +136,11 @@ export default class InstrumentModel {
             const contents = await fsPromise.readFile(filePath, { encoding: 'utf8'});
             const results = parse(contents, { header: true }).data;
             const offsetMinutes = 330; // 5 hours and 30 minutes offset for IST
-            const scripTickerData = [];
+            
+            const scripTickerData = {
+                name: filename,
+                ticks: [] as Record<string, unknown>[]
+            };
             for (let index = 0; index < results.length; index++) {
                 const tickData = results[index] as Typings.TickData;
 
@@ -142,8 +154,8 @@ export default class InstrumentModel {
                     low: parseFloat(tickData['Low']),
                     close: parseFloat(tickData['Close']),
                     volume: parseFloat(tickData['Volume'].replace(/,/g, ''))
-                }
-                scripTickerData.push(tick);
+                };
+                scripTickerData.ticks.push(tick);
             }
 
             const computeDirectory = process.env.COMPUTE_DIRECTORY ?? 'compute/';

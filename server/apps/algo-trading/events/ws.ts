@@ -1,17 +1,25 @@
 import EventEmitter from 'events';
 import WSController from '../../algo-trading/controllers/wsController';
-import RabbitMQEvent from './rabbit';
+import RabbitMQEvent, { RBMQEvents } from './rabbit';
 
 
-const WSEvent = new EventEmitter();
+export enum WSEvents {
+    REGISTER = 'REGISTER',
+    UNREGISTER = 'UNREGISTER',
+    SUBSCRIBE_INSTRUMENT = 'SUBSCRIBE_INSTRUMENT',
+    STREAM_TICKS = 'STREAM_TICKS',
+}
+
+
+const WebSocketEvent = new EventEmitter();
 
 /**
  * Disabling WS
  */
-WSEvent.on('register', registerWS);
-WSEvent.on('unregister', unregisterWS);
-WSEvent.on('subscribe-instrument', subscribeInstrument);
-WSEvent.on('stream-ticks', streamTickData)
+WebSocketEvent.on(WSEvents.REGISTER, registerWS);
+WebSocketEvent.on(WSEvents.UNREGISTER, unregisterWS);
+WebSocketEvent.on(WSEvents.SUBSCRIBE_INSTRUMENT, subscribeInstrument);
+WebSocketEvent.on(WSEvents.STREAM_TICKS, streamTickData)
 
 function registerWS(inputs: string) {
     const payload = JSON.parse(inputs) as Record<string, string>;
@@ -31,8 +39,7 @@ function unregisterWS(apiKey: string) {
     }
 }
 
-function subscribeInstrument(inputs: string) {
-    const payload = JSON.parse(inputs) as Record<string, string>;
+function subscribeInstrument(payload: Record<string, unknown>) {
     if (
         (payload.apiKey && typeof payload.apiKey === 'string') && 
         Array.isArray(payload.instrument) 
@@ -45,10 +52,8 @@ function subscribeInstrument(inputs: string) {
 
 
 function streamTickData(data: string) {
-    // TODO: Stream data to compute engine
-    console.log(data)
-    RabbitMQEvent.emit('stream-ws-ticks', data);
+    RabbitMQEvent.emit(RBMQEvents.STREAM_WS_TICKS, data);
 }
 
 
-export default WSEvent;
+export default WebSocketEvent;

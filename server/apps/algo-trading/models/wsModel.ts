@@ -2,7 +2,7 @@ import KiteWSTicker, {WSTicker} from "../core/ws-ticker";
 import { cache } from '../../../utils';
 import TransactionController from "../controllers/transactionController";
 import { ORDER_STATUS } from "../../../../libs/typings";
-import WSEvent from "../events/ws";
+import WebSocketEvent, { WSEvents } from "../events/ws";
 
 class WSModel {
 
@@ -34,7 +34,7 @@ class WSModel {
         const ws = this.getWS(apiKey);
         if (ws) {
             ws.on('ticks', function(ticks)  {
-                WSEvent.emit('stream-ticks', ticks);
+                WebSocketEvent.emit(WSEvents.STREAM_TICKS, ticks);
             });
             ws.subscribe(instrument);
             ws.setMode("full", instrument);
