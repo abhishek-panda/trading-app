@@ -1,5 +1,6 @@
 import EventEmitter from 'events';
 import WSController from '../../algo-trading/controllers/wsController';
+import RabbitMQEvent from './rabbit';
 
 
 const WSEvent = new EventEmitter();
@@ -46,6 +47,7 @@ function subscribeInstrument(inputs: string) {
 function streamTickData(data: string) {
     // TODO: Stream data to compute engine
     console.log(data)
+    RabbitMQEvent.emit('stream-ws-ticks', data);
 }
 
 

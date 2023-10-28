@@ -94,6 +94,7 @@ export default class InstrumentModel {
                                     if (updateResult) {
                                         const eventpayload = { apiKey, instrument: [instrumentId] };
                                         WSEvent.emit('subscribe-instrument', JSON.stringify(eventpayload));
+                                        // TODO here emit event to send data to mongo db
                                     } else {
                                         throw new Error(`Failed to update instrument id`)
                                     }
