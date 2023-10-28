@@ -33,6 +33,7 @@ export default class InstrumentModel {
             if (parsedData.error) {
                 throw new Error(parsedData.error.details);
             }
+            filePath = parsedData.data as string;
            
 
             // Fetch instrument id from zerodha
@@ -96,13 +97,18 @@ export default class InstrumentModel {
                                         const eventpayload = { apiKey, instrument: [instrumentId] };
                                         
                                         // Adding instrument to previously parsed csv file content as instrument id wasn't available
-                                        const contents =    fs.readFileSync(filePath, 'utf8');
-                                        const parsedContents = JSON.parse(contents);
-                                        parsedContents['id'] = instrumentId;
+                                        fs.readFile(filePath, 'utf8', function(readError, contents) {
+                                            if (readError) {
+                                                throw new Error("Unable to parse content")
+                                            }
+                                           
+                                            const parsedContents = JSON.parse(contents);
+                                            parsedContents['id'] = instrumentId;
 
-                                        RabbitMQEvent.emit(RBMQEvents.SINK_DATA, parsedContents);
-                                        WebSocketEvent.emit(WSEvents.SUBSCRIBE_INSTRUMENT, eventpayload);
-
+                                            RabbitMQEvent.emit(RBMQEvents.SINK_DATA, parsedContents);
+                                            WebSocketEvent.emit(WSEvents.SUBSCRIBE_INSTRUMENT, eventpayload);
+                                        });
+                                        
                                     } else {
                                         throw new Error(`Failed to update instrument id`)
                                     }
@@ -135,7 +141,7 @@ export default class InstrumentModel {
         try {
             const contents = await fsPromise.readFile(filePath, { encoding: 'utf8'});
             const results = parse(contents, { header: true }).data;
-            const offsetMinutes = 330; // 5 hours and 30 minutes offset for IST
+            const offsetMinutes = parseInt(process.env.TIMEZONE_MIN_OFFSET ?? '330');
             
             const scripTickerData = {
                 name: filename,
@@ -162,10 +168,11 @@ export default class InstrumentModel {
             if (!fs.existsSync(computeDirectory)){
               fs.mkdirSync(computeDirectory);
             }
-            await fsPromise.writeFile(path.join(computeDirectory, `${filename}.json`), JSON.stringify(scripTickerData, null, 2));
+            const newFilePath = path.join(computeDirectory, `${filename}.json`);
+            await fsPromise.writeFile(newFilePath, JSON.stringify(scripTickerData, null, 2));
             return {
-                message: "Subscried successfully",
-                data: [],
+                message: "File processed successfully",
+                data: newFilePath,
             };
         } catch(error: any) {
             const errorDetails = {
