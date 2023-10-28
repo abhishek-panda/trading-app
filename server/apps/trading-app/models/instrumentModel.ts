@@ -11,6 +11,7 @@ import Instrument from "../../../entities/Instrument";
 import path from "node:path";
 import BrokerClient from "../../../entities/BrokerClient";
 import WSEvent from "../../algo-trading/events/ws";
+import KiteConnect from "../../algo-trading/core/kite-connect";
 
 export default class InstrumentModel {
     private dataSource: DataSource
@@ -19,17 +20,23 @@ export default class InstrumentModel {
         this.dataSource = DBConn.getInstance();
     }
 
-    async subscribe(inputData: Record<string, any>, userId: string, filename: string, filePath: string ): Promise<IResponse> {
+    async subscribe(inputData: Record<string, any>, userId: string, filePath: string ): Promise<IResponse> {
 
         try {
-            const parsedData =  await this.parseUploadedFile(filePath, filename);
-            if (parsedData.error) {
-                throw new Error(parsedData.error.details);
-            }
             // TODO:  all input / schema validation to be done later
             const subscriptions = inputData.subscriptions as string;
             const timeframe = inputData.timeframe as string;
-            const instrumentId = inputData.instrumentId as string ?? '';
+            const instrumentName = inputData.instrumentName as string ?? '';
+
+            const parsedData =  await this.parseUploadedFile(filePath, instrumentName);
+            if (parsedData.error) {
+                throw new Error(parsedData.error.details);
+            }
+           
+
+            // Fetch instrument id from zerodha
+
+            let instrumentId = ''; // Update instrument id later
             // @ts-ignore
             const selectedTimeFrame = Object.keys(TradingTimeFrame).find(value => TradingTimeFrame[value] === timeframe);
             const allSids = subscriptions.split(',');
@@ -55,12 +62,12 @@ export default class InstrumentModel {
                     const instrumentExists = await this.dataSource.getRepository(Instrument).findOneBy({ 
                         sid: usls.id,
                         timeframe: usls.timeframe,
-                        name: filename
+                        name: instrumentName
                     });
                     if (!instrumentExists && selectedTimeFrame) {
                     // @ts-ignore
                         const tf = TradingTimeFrame[selectedTimeFrame] as TradingTimeFrame;
-                        const instrument = new Instrument(tf, usls.id, filename, filePath, instrumentId);
+                        const instrument = new Instrument(tf, usls.id, instrumentName, filePath, instrumentId);
                         const result = await this.dataSource.getRepository(Instrument).save(instrument);
                         results.push(result);
                     } else {
@@ -78,9 +85,21 @@ export default class InstrumentModel {
                             const brokerClient = await this.dataSource.getRepository(BrokerClient).findOneBy({ id: subscription?.brokerClientId });
                             if (brokerClient?.id) {
                                 // start and subscribe to ws and update db to connected
-                                const { apiKey } = brokerClient;
-                                const eventpayload = { apiKey, instrument: [instrumentId] };
-                                WSEvent.emit('subscribe-instrument', JSON.stringify(eventpayload));
+                                const { apiKey, accessToken } = brokerClient;
+                                const kiteConnect = new KiteConnect(apiKey);
+                                const currentTickerQuote = await kiteConnect.getQuote(accessToken, [instrumentName]);
+                                if (!(currentTickerQuote instanceof Error) && currentTickerQuote[instrumentName]) {
+                                    instrumentId = currentTickerQuote[instrumentName].instrument_token;
+                                    const updateResult = await this.dataSource.getRepository(Instrument).update({ sid: item.sid, name: instrumentName, timeframe: item.timeframe }, {iId: instrumentId});
+                                    if (updateResult) {
+                                        const eventpayload = { apiKey, instrument: [instrumentId] };
+                                        WSEvent.emit('subscribe-instrument', JSON.stringify(eventpayload));
+                                    } else {
+                                        throw new Error(`Failed to update instrument id`)
+                                    }
+                                } else {
+                                    throw new Error(currentTickerQuote.message);
+                                } 
                             }
                         }
                     }
@@ -107,13 +126,16 @@ export default class InstrumentModel {
         try {
             const contents = await fsPromise.readFile(filePath, { encoding: 'utf8'});
             const results = parse(contents, { header: true }).data;
-
+            const offsetMinutes = 330; // 5 hours and 30 minutes offset for IST
             const scripTickerData = [];
             for (let index = 0; index < results.length; index++) {
                 const tickData = results[index] as Typings.TickData;
 
+                const tickDataDateObj = new Date(tickData['Date']);
+                tickDataDateObj.setMinutes(tickDataDateObj.getMinutes() + offsetMinutes);
+
                 const tick= {
-                    timestamp:tickData['Date'],
+                    timestamp:`${tickDataDateObj.toISOString().split('.')[0]}.000`,
                     open: parseFloat(tickData['Open']),
                     high: parseFloat(tickData['High']),
                     low: parseFloat(tickData['Low']),

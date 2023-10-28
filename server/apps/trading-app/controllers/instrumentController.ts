@@ -17,9 +17,6 @@ export default class InstrumentController extends BaseController {
 
     subscribe = async (req: Request, res: Response) => {
         const uploadedFile = req.file;
-        let filename = uploadedFile?.filename ?? '';
-        const extension = path.extname(filename);
-        filename = path.basename(filename, extension);
         const filePath = uploadedFile?.path ?? '';
 
         if (!uploadedFile) {
@@ -30,7 +27,7 @@ export default class InstrumentController extends BaseController {
         const userSessionId = req.cookies['SN'];
         const user = GlobalUtils.cache.get<User>(userSessionId);
         const [status, response] = await this.getStatusAndResponse(() => {
-           return user ? this.instrumentModel.subscribe(userInputData, user.id, filename, filePath) : undefined;
+           return user ? this.instrumentModel.subscribe(userInputData, user.id, filePath) : undefined;
         });
         return res.status(status).send(response);
     }

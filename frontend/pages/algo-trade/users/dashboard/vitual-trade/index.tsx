@@ -9,7 +9,7 @@ import axios from 'axios';
 const VirtualTrade = () => {
 
 	const dispatch = useAppDispatcher();
-	const [instrumentId, setInstrumentId] = useState<string>('');
+	const [instrumentName, setInstrumentName] = useState<string>('');
 	const [file, setFile] = useState<File>();
 	const [selectedSubscription, setSelectedSubscription] = useState<string[]>([]);
 	const [selectedTimeframe, setSelectedTimeframe] = useState<string>('');
@@ -29,7 +29,7 @@ const VirtualTrade = () => {
 	}
 
 	const handleInstrumentChange = (event: ChangeEvent<HTMLInputElement>) => {
-		setInstrumentId(event.target.value);
+		setInstrumentName(event.target.value);
 	}
 
 	const handleTimeframeSeletion = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -42,7 +42,7 @@ const VirtualTrade = () => {
 			formData.append('file', file);
 			formData.append('subscriptions', selectedSubscription.join(','));
 			formData.append('timeframe', selectedTimeframe);
-			formData.append('instrumentId', instrumentId);
+			formData.append('instrumentName', instrumentName);
 
 		
 			axios.post('/algotm/api/trade/setup', formData, {
@@ -85,7 +85,7 @@ const VirtualTrade = () => {
 					subscriptions.map(subscription => <option value={subscription.id} key={subscription.id}>{subscription.name} |  {subscription.strategyName}</option>)
 				}
 			</select>
-			<input type='text' value={instrumentId} onChange={handleInstrumentChange} placeholder='Instrument ID' name='instrument_id'></input>
+			<input type='text' value={instrumentName} onChange={handleInstrumentChange} placeholder='Get Instrument Name from Zerodha url. And NFO:<insrtumentname> for fno and NSE:<instrumentname> for postional trade' name='instrument_name'></input>
 			<input type="file" onChange={handleFileChange} />
       		<button onClick={handleUpload}>Start Trading</button>
 		</>
