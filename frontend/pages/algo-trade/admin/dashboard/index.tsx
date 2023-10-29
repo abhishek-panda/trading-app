@@ -44,6 +44,9 @@ const Dashboard = () => {
 					<MenuOption onClick={_ => navigate('controls')}>
 						<NavLink to="controls" className={({ isActive }) => isActive ? 'active-menu' : ''}>Controls</NavLink>
 					</MenuOption>
+					<MenuOption onClick={_ => navigate('algo-bots')}>
+						<NavLink to="algo-bots" className={({ isActive }) => isActive ? 'active-menu' : ''}>Bots</NavLink>
+					</MenuOption>
 					<MenuOption onClick={_ => navigate('strategy-setup')}>
 						<NavLink to="strategy-setup" className={({ isActive }) => isActive ? 'active-menu' : ''}>Strategy Setup</NavLink>
 					</MenuOption>

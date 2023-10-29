@@ -36,7 +36,7 @@ const AppRouter = () => {
 						<Route index element={<Login />} />
 						<Route path='login' element={<Login />} />
 						<Route path='register' element={<Register />} />
-						<Route element={<RequiredAuth allowedRoles={[UserRole.USER]} />}>
+						<Route element={<RequiredAuth allowedRoles={[UserRole.USER, UserRole.ADMIN]} />}>
 							<Route path='dashboard' element={<Dashboard />}>
 								<Route index element={<Home />} />
 								<Route path='home' element={<Home />} />
@@ -56,8 +56,10 @@ const AppRouter = () => {
 							<Route path='admin' element={<AdminDashboard />}>
 								<Route index element={<Controls />} />
 								<Route path='controls' element={<Controls />} />
+								<Route path='algo-bots' element={<AlgoBots />} />
 								<Route path='strategy-setup' element={<StrategySetup />} />
 							</Route>
+							<Route path='validate' element={<ValidateClient />}/>
 						</Route>
 					</Route>
 				</Route>
