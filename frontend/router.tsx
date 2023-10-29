@@ -18,7 +18,8 @@ import AlgoBots from './pages/algo-trade/users/dashboard/algo-bots';
 import AlgoStrategies from './pages/algo-trade/users/dashboard/algo-strategies';
 import AccountSettings from './pages/algo-trade/users/dashboard/account-settings';
 import VirtualTrade from './pages/algo-trade/users/dashboard/vitual-trade';
-import Controls from './pages/algo-trade/admin/dashboard/controls'
+import Controls from './pages/algo-trade/admin/dashboard/controls';
+import StrategySetup from './pages/algo-trade/admin/dashboard/strategy-setup';
 import RequiredAuth from './utils/RequiredAuth';
 import { AuthProvider } from './utils/contexts/auth';
 import { UserRole } from '../libs/typings';
@@ -55,6 +56,7 @@ const AppRouter = () => {
 							<Route path='admin' element={<AdminDashboard />}>
 								<Route index element={<Controls />} />
 								<Route path='controls' element={<Controls />} />
+								<Route path='strategy-setup' element={<StrategySetup />} />
 							</Route>
 						</Route>
 					</Route>

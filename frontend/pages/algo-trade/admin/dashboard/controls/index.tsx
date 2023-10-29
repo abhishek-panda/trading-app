@@ -103,8 +103,12 @@ const Controls = () => {
 				<hr/>
 				{controls.strategies.map(strategy => {
 					return (
-						<div style={{ display: 'flex', justifyContent: "flex-start" }}>
-							<span>{strategy.name}</span>
+						<div style={{ display: 'flex', justifyContent: 'space-between' }} >
+							<div style={{ display: 'flex', justifyContent: "flex-start" }}>
+								<span>{strategy.name}</span>
+							</div>
+							<div><span>{strategy.timeframe}</span></div>
+							<div><span>{strategy.description}</span></div>
 						</div>
 					)
 				})}
