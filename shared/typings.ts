@@ -77,13 +77,13 @@ export interface IStrategy {
 	sid: string;
 	name: string;
 	description: string;
+	timeframe: string;
 }
 
 export interface ISubscription {
 	name: string;
 	brokerClientId: string;
 	strategyId: string;
-	timeframe: string;
 }
 
 export interface ISubscriptionData extends ISubscription {

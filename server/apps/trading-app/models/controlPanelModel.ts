@@ -1,7 +1,7 @@
 import { DataSource } from "typeorm";
 import DBConn from "../../../dbConn";
 import * as Yup from 'yup';
-import { IResponse, IStrategy } from '../../../../libs/typings';
+import { IResponse, IStrategy, TradingTimeFrame } from '../../../../libs/typings';
 import { validStrategySchema } from '../../../../libs/utils';
 import Strategy from "../../../entities/Strategy";
 
@@ -18,10 +18,13 @@ export default class ControlPanelModel {
    async registerStrategy(registrationData: IStrategy): Promise<IResponse> {
         try {
             const validStrategy = await validStrategySchema.validate(registrationData);
+            // @ts-ignore
+            const selectedTimeFrame = Object.keys(TradingTimeFrame).find(value => TradingTimeFrame[value] === validStrategy.timeframe);
             const strategyRepository = this.dataSource.getRepository(Strategy);
             const strategyExists = await strategyRepository.findOneBy({ sid: validStrategy.sid});
-            if (!strategyExists) {
-                const strategy = new Strategy(validStrategy.sid, validStrategy.name, validStrategy.description);
+            if (selectedTimeFrame && !strategyExists) {
+                // @ts-ignore
+                const strategy = new Strategy(validStrategy.sid, validStrategy.name,  TradingTimeFrame[selectedTimeFrame],  validStrategy.description);
                 const savedStrategy = await strategyRepository.save(strategy);
                 const { sid, name, description } = savedStrategy;
                 return {
@@ -46,7 +49,7 @@ export default class ControlPanelModel {
    async getStrategies(): Promise<IResponse> {
         const brokerClients: IStrategy[] = await this.dataSource
             .createQueryBuilder()
-            .select(["sid", "name", "description"])
+            .select(["sid", "name", "description", "timeframe"])
             .from(Strategy, "stategy")
             .getRawMany();
         return {

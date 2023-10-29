@@ -101,8 +101,7 @@ const algoSettingsSlice = createSlice({
             state.subscriptions = state.subscriptions.map(subscrition => {
                 return (
                     subscrition.brokerClientId === action.payload.data.brokerClientId &&
-                    subscrition.strategyId === action.payload.data.strategyId &&
-                    subscrition.timeframe === action.payload.data.timeframe
+                    subscrition.strategyId === action.payload.data.strategyId
                 ) ? action.payload.data : subscrition;
             });
         });

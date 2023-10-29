@@ -68,7 +68,6 @@ export default class TransactionModel {
                 isActive: BOOLEAN.TRUE,
                 brokerClientId: subscription.brokerClientId,
                 strategyId: subscription.strategyId,
-                timeframe: subscription.timeframe,
                 orderStatus: ORDER_STATUS.COMPLETE
             })
             .getRawMany();

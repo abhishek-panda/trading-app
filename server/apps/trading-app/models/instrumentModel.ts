@@ -46,7 +46,7 @@ export default class InstrumentModel {
             const userAllSubscriptions = await subscriptionModel.fetchSubscription(userId);
             let userAllLiveSubscriptions: Subscription[] = [];
             if(userAllSubscriptions.data && userAllSubscriptions.data.length > 0) {
-                userAllLiveSubscriptions = userAllSubscriptions.data.filter((subscription: Subscription) => subscription.isActive == BOOLEAN.TRUE && subscription.timeframe == timeframe);
+                userAllLiveSubscriptions = userAllSubscriptions.data.filter((subscription: Subscription) => subscription.isActive == BOOLEAN.TRUE);
             } else {
                 throw new Error(`Strategy Subscription doesn't exits`);
             }
@@ -63,7 +63,6 @@ export default class InstrumentModel {
                 for (let usls of userSelectedLiveSubscription) {
                     const instrumentExists = await this.dataSource.getRepository(Instrument).findOneBy({ 
                         sid: usls.id,
-                        timeframe: usls.timeframe,
                         name: instrumentName
                     });
                     if (!instrumentExists && selectedTimeFrame) {
@@ -86,7 +85,7 @@ export default class InstrumentModel {
                         if (subscription?.id) {
                             const brokerClient = await this.dataSource.getRepository(BrokerClient).findOneBy({ id: subscription?.brokerClientId });
                             if (brokerClient?.id) {
-                                // start and subscribe to ws and update db to connected
+                                // TODO: update ws status to db
                                 const { apiKey, accessToken } = brokerClient;
                                 const kiteConnect = new KiteConnect(apiKey);
                                 const currentTickerQuote = await kiteConnect.getQuote(accessToken, [instrumentName]);

@@ -19,22 +19,17 @@ export default class SubscriptionModel {
     async subscribe(inputData: Record<string, any>, userId: string) : Promise<IResponse> {
         try {
             const validSubscription = await validSubscriptionSchema.validate(inputData);
-            // @ts-ignore
-            const selectedTimeFrame = Object.keys(TradingTimeFrame).find(value => TradingTimeFrame[value] === validSubscription.timeframe);
             const clientExists = await this.dataSource.getRepository(BrokerClient).findOneBy({ id:  validSubscription.brokerClientId, userId });
             const strategyExists = await this.dataSource.getRepository(Strategy).findOneBy({ sid: validSubscription.strategyId });
-            if (selectedTimeFrame && clientExists && strategyExists) {
-                const subscriptionRepository = await this.dataSource.getRepository(Subscription);
+            if (clientExists && strategyExists) {
+                const subscriptionRepository = this.dataSource.getRepository(Subscription);
                 // check if subscription exists
                 const subscriptionExists =  await subscriptionRepository.findOneBy({
                     brokerClientId: validSubscription.brokerClientId,
-                    strategyId:  validSubscription.strategyId,
-                    // @ts-ignore
-                    timeframe: validSubscription.timeframe
+                    strategyId:  validSubscription.strategyId
                 });
                 if (!subscriptionExists) {
-                    // @ts-ignore
-                    const subscription = new Subscription(validSubscription.brokerClientId, validSubscription.strategyId, TradingTimeFrame[selectedTimeFrame], validSubscription.name, getLocalDateTime());
+                    const subscription = new Subscription(validSubscription.brokerClientId, validSubscription.strategyId, validSubscription.name, getLocalDateTime());
                     const result = await this.dataSource.getRepository(Subscription).save(subscription);
                     return {
                         message: "Subscried successfully",
@@ -60,7 +55,7 @@ export default class SubscriptionModel {
     }
 
     async fetchSubscription(userId: string): Promise<IResponse> {
-        const brokerClientRepository = await this.dataSource.getRepository(BrokerClient);
+        const brokerClientRepository = this.dataSource.getRepository(BrokerClient);
         const brokerClients = await brokerClientRepository.find({ where: { userId } });
         if (brokerClients.length > 0) {
             const brokerClientIds = brokerClients.map(client => client.id);
@@ -109,18 +104,17 @@ export default class SubscriptionModel {
         // TODO: Logic for update
         const validBrokerClient = await Yup.string().matches(validBrokerClientId).isValid(userInput.brokerClientId as string ?? "");
         const validStrategy = await Yup.string().matches(validStrategyId).isValid(userInput.strategyId as string ?? "");
-        const validTimeframe = await Yup.mixed().oneOf(Object.values(TradingTimeFrame)).isValid(userInput.timeframe);
         const validTestMode = await Yup.mixed().oneOf(Object.values(BOOLEAN)).isValid(userInput.testMode as BOOLEAN ?? BOOLEAN.FALSE);
         const validIsActive = await Yup.mixed().oneOf(Object.values(BOOLEAN)).isValid(userInput.isActive as BOOLEAN ?? BOOLEAN.FALSE);
 
-       if (validBrokerClient && validStrategy && validTimeframe && validTestMode && validIsActive) {
+       if (validBrokerClient && validStrategy && validTestMode && validIsActive) {
             const subscriptionRespository = this.dataSource.getRepository(Subscription);
             const result = await subscriptionRespository
                 .update(
-                    { brokerClientId : userInput.brokerClientId, strategyId: userInput.strategyId, timeframe: userInput.timeframe},
+                    { brokerClientId : userInput.brokerClientId, strategyId: userInput.strategyId },
                     { testMode: userInput.testMode, isActive: userInput.isActive }
                 );
-            const subscription = await subscriptionRespository.findOneBy({ brokerClientId : userInput.brokerClientId, strategyId: userInput.strategyId, timeframe: userInput.timeframe });
+            const subscription = await subscriptionRespository.findOneBy({ brokerClientId : userInput.brokerClientId, strategyId: userInput.strategyId });
             if (result.affected) {
                 return {
                     data: subscription,

@@ -2,11 +2,11 @@ import React, { useEffect} from "react";
 import styled from 'styled-components';
 import { useFormik } from 'formik';
 import { useAppSelector, useAppDispatcher } from "../../../../../store/hooks";
-import { IStrategy } from '../../../../../../libs/typings'
+import { IStrategy, TradingTimeFrame } from '../../../../../../libs/typings'
 import { Card, Button, Input } from "../../../../../components";
 import { validStrategySchema } from '../../../../../../libs/utils';
 import { registerStrategy, fetchStrategy } from "../../../../../reducers/adminSlice";
-
+import { validSubscriptionSchema, getEnumKeys } from '../../../../../../libs/utils';
 
 export const InputWrapper = styled.div`
 	margin: 8px 0;
@@ -17,6 +17,7 @@ const initialValues: IStrategy = {
 	sid: "",
 	name: "",
 	description: "",
+	timeframe: ""
 };
 
 const Controls = () => {
@@ -32,6 +33,8 @@ const Controls = () => {
 			resetForm();
 		},
 	});
+
+	let timeFrames = getEnumKeys(TradingTimeFrame);
 
 	useEffect(() => {
 		dispatch(fetchStrategy());
@@ -66,6 +69,18 @@ const Controls = () => {
 				</InputWrapper>
 
 				<InputWrapper>
+					<label htmlFor='timeframe'>Timeframe</label>
+					<select id="timeframe" name='timeframe' onChange={formik.handleChange} value={formik.values.timeframe} onBlur={formik.handleBlur}>
+						<option value="">Select</option>
+						{
+							//@ts-ignore
+							timeFrames.map(tFrame => <option value={TradingTimeFrame[tFrame]} key={TradingTimeFrame[tFrame]}>{tFrame}</option>)
+						}
+					</select>
+					{formik.touched.timeframe ? <span>{formik.errors.timeframe}</span> : undefined}
+				</InputWrapper>
+
+				<InputWrapper>
 					<Input
 						label="Description"
 						name="description"
@@ -76,7 +91,6 @@ const Controls = () => {
 						error={formik.touched.description ? formik.errors.description : ""}
 					/>
 				</InputWrapper>
-
 				<InputWrapper>
 					<Button buttonColor="rgb(103, 58, 183)" hasBorder={false}>
 						<span>Add</span>

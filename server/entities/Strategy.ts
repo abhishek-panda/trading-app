@@ -1,6 +1,6 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from "typeorm"
 import Subscription from "./Subscription";
-
+import { TradingTimeFrame } from "../../libs/typings";
 
 @Entity()
 export default class Strategy {
@@ -13,12 +13,16 @@ export default class Strategy {
     @Column()
     description: string;
 
+    @Column({ type: 'enum', enum: TradingTimeFrame })
+    timeframe: TradingTimeFrame;
+
     @OneToMany(() => Subscription, (subscription) => subscription.strategy)
     subscription: Subscription[];
 
-    constructor(sid: string, name: string, description: string) {
+    constructor(sid: string, name: string, timeframe: TradingTimeFrame ,description: string) {
         this.sid = sid;
         this.name = name;
+        this.timeframe = timeframe;
         this.description = description;
     }
 }

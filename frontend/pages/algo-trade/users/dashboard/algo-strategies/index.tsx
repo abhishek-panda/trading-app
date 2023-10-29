@@ -19,7 +19,6 @@ const initialValues: ISubscription = {
 	name: "",
 	brokerClientId: "",
 	strategyId: "",
-	timeframe: ""
 };
 
 
@@ -38,8 +37,6 @@ const AlgoStrategies = () => {
 			resetForm();
 		},
 	});
-
-	let timeFrames = getEnumKeys(TradingTimeFrame);
 
 	useEffect(() => {
 		dispatch(fetchBrokerClient());
@@ -68,7 +65,6 @@ const AlgoStrategies = () => {
 		const payload = {
 			brokerClientId: subscription.brokerClientId,
 			strategyId: subscription.strategyId,
-			timeframe: subscription.timeframe,
 			isActive: toUpdate === 'status' ? (!isActive).toString() : subscription.isActive,
 			testMode: toUpdate === 'mode' ? (!testMode).toString() : subscription.testMode
 		}
@@ -124,18 +120,6 @@ const AlgoStrategies = () => {
 						</select>
 						{formik.touched.strategyId ? <span>{formik.errors.strategyId}</span> : undefined}
 					</InputWrapper>
-					
-					<InputWrapper>
-						<label htmlFor='timeframe'>Timeframe</label>
-						<select id="timeframe" name='timeframe' onChange={formik.handleChange} value={formik.values.timeframe} onBlur={formik.handleBlur}>
-							<option value="">Select</option>
-							{
-								//@ts-ignore
-								timeFrames.map(tFrame => <option value={TradingTimeFrame[tFrame]} key={TradingTimeFrame[tFrame]}>{tFrame}</option>)
-							}
-						</select>
-						{formik.touched.timeframe ? <span>{formik.errors.timeframe}</span> : undefined}
-					</InputWrapper>
 
 					<Button buttonColor="rgb(103, 58, 183)" hasBorder={false}>
 						<span>Subscribe</span>
@@ -156,7 +140,6 @@ const AlgoStrategies = () => {
 								<span>{subscription.name}</span>
 								<span>{subscription.brokerClientName}</span>
 								<span>{subscription.strategyName}</span>
-								<span>{subscription.timeframe}+</span>
 								<div>
 									<label htmlFor={`${subscription.brokerClientId}_${subscription.strategyId}`}>Enable</label>
 									<Switch id={`${subscription.brokerClientId}_${subscription.strategyId}`} checked={isActive} onChange={ () => toggleSubscription(subscription, 'status')} color='secondary'/>

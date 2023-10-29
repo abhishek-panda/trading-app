@@ -65,13 +65,13 @@ export const validStrategySchema = Yup.object({
   sid: Yup.string().required("Required").matches(validStrategyId, "Invalid Id"),
   name: Yup.string().required("Required").matches(validStrategyName, "Invalid Name"),
   description: Yup.string().required("Required").matches(validStrategyDescription, "Invalid Description"),
+  timeframe: Yup.mixed().oneOf(Object.values(TradingTimeFrame)).defined().required("Required")
 });
 
 export const validSubscriptionSchema = Yup.object({
   name: Yup.string().required("Required").matches(validSubscriptionName, "Invalid Name"),
   brokerClientId: Yup.string().required("Required").matches(validBrokerClientId, "Invalid Broker Client"),
   strategyId: Yup.string().required("Required").matches(validStrategyId, "Invalid Strategy"),
-  timeframe: Yup.mixed().oneOf(Object.values(TradingTimeFrame)).defined().required("Required")
 });
 
 

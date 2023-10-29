@@ -16,9 +16,6 @@ export default class Subscription {
     @PrimaryColumn()
     strategyId: string;
 
-    @PrimaryColumn({ type: 'enum', enum: TradingTimeFrame })
-    timeframe: TradingTimeFrame;
-
     @ManyToOne(() => BrokerClient, (brokerClient) => brokerClient.subscription)
     @JoinColumn({ name: 'brokerClientId' })
     brokerClient: BrokerClient;
@@ -39,10 +36,9 @@ export default class Subscription {
     @Column({ type: 'enum', enum: BOOLEAN, default: BOOLEAN.TRUE })
     testMode: BOOLEAN;
 
-    constructor(brokerClientId: string, strategyId: string, timeframe: TradingTimeFrame, name: string, subscribedOn: Date) {
+    constructor(brokerClientId: string, strategyId: string, name: string, subscribedOn: Date) {
         this.brokerClientId = brokerClientId;
         this.strategyId = strategyId;
-        this.timeframe = timeframe;
         this.name = name;
         this.subscribedOn = subscribedOn;
     }
