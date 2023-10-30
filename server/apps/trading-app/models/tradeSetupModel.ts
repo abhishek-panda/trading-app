@@ -12,6 +12,7 @@ import WebSocketEvent, { WSEvents } from "../../algo-trading/events/ws";
 import Strategy from "../../../entities/Strategy";
 import User from "../../../entities/User";
 import BrokerClient from "../../../entities/BrokerClient";
+import KiteConnect from "../../algo-trading/core/kite-connect";
 
 export default class TradeSetupModel {
     private dataSource: DataSource
@@ -42,46 +43,54 @@ export default class TradeSetupModel {
             const strategy = await this.dataSource.getRepository(Strategy).findOneBy({sid: strategyId});
             const tradeSetupExists =  await this.dataSource.getRepository(TradeSetup).findOneBy({sid: strategyId});
             if(!tradeSetupExists && strategy) {
-                const tradeSetup = new TradeSetup(strategyId, callInstrumentName, callInstrumentId, callfilePath, putInstrumentName, putInstrumentId, putfilePath);
-                const result = await this.dataSource.getRepository(TradeSetup).save(tradeSetup);
                 const admin = await this.dataSource.getRepository(User).findOneBy({role: UserRole.ADMIN });
-                const brokerClient = await this.dataSource.getRepository(BrokerClient).findOneBy({ id: admin?.id });
-                if (result && admin && brokerClient) {
-                    const filesToSink = [
-                        {
-                            id: callInstrumentId,
-                            path: callfilePath
-                        }, 
-                        { 
-                            id: putInstrumentId,
-                            path: putfilePath
-                        }
-                    ];
-                    // Find admin client and strategy
-                    
-                    filesToSink.forEach(function(fileObj) {
-                        fs.readFile(fileObj.path, 'utf8', function(readError, contents) {
-                            if (readError) {
-                                throw new Error("Unable to parse content")
+                const brokerClient = await this.dataSource.getRepository(BrokerClient).findOneBy({ userId: admin?.id });
+                if (admin && brokerClient) {
+                    const { apiKey, accessToken } = brokerClient;
+                    const kiteConnect = new KiteConnect(apiKey);
+                    const instrumenQuotes = await kiteConnect.getQuote(accessToken, [callInstrumentName, putInstrumentName]);
+                    if (instrumenQuotes && instrumenQuotes[callInstrumentName] && instrumenQuotes[putInstrumentName]) {
+                        const callInstrumentId = instrumenQuotes[callInstrumentName].instrument_token;
+                        const putInstrumentId = instrumenQuotes[putInstrumentName].instrument_token;
+                        const filesToSink = [
+                            {
+                                id: callInstrumentId,
+                                path: callfilePath
+                            }, 
+                            { 
+                                id: putInstrumentId,
+                                path: putfilePath
                             }
-                           
-                            const parsedContents = {
-                                ...JSON.parse(contents),
-                                id: fileObj.id,
-                                timeframe: strategy.timeframe,
-                            };
-
-                            const eventpayload = { apiKey: brokerClient.apiKey , instrument: [fileObj.id] };
-                            
-                            RabbitMQEvent.emit(RBMQEvents.SINK_DATA, parsedContents);
+                        ];
+                        const tradeSetup = new TradeSetup(strategyId, callInstrumentName, callInstrumentId, callfilePath, putInstrumentName, putInstrumentId, putfilePath);
+                        const result = await this.dataSource.getRepository(TradeSetup).save(tradeSetup);
+                        if (result) {
+                            filesToSink.forEach(function(fileObj) {
+                                fs.readFile(fileObj.path, 'utf8', function(readError, contents) {
+                                    if (readError) {
+                                        throw new Error("Unable to parse content")
+                                    }    
+                                    const parsedContents = {
+                                        ...JSON.parse(contents),
+                                        id: fileObj.id,
+                                        timeframe: strategy.timeframe,
+                                    };
+                                    
+                                    RabbitMQEvent.emit(RBMQEvents.SINK_DATA, parsedContents);
+                                });
+                            });
+                            const eventpayload = { apiKey , instrument: filesToSink.map(instrument => instrument.id)};
                             WebSocketEvent.emit(WSEvents.SUBSCRIBE_INSTRUMENT, eventpayload);
-                        });
-                    })
-                    return {
-                        message: "Subscried successfully",
-                        data: result,
-                    };
-
+                            return {
+                                message: "Subscried successfully",
+                                data: result,
+                            };
+                        } else {
+                            throw new Error("Failed to create trade setup");
+                        }
+                    } else {
+                        throw new Error("Failed to get instrument quotes");
+                    }
                 } else {
                     throw new Error('Failed to create a new trade setup');
                 }

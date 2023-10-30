@@ -26,7 +26,7 @@ class KiteWSTicker {
             access_token: params.access_token,
         }) as WSTicker;
 
-        this.ticker.autoReconnect(true, 20, 5);
+        this.ticker.autoReconnect(false, 3, 10); // Enable reconnect will kill the process as the library has process.exit(1) after n retries
         this.ticker.on('connect', function () {
             logger.info(`KiteWS with apiKey: ${apiKey} connected`);
         });

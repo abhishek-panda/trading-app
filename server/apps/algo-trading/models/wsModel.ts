@@ -11,6 +11,10 @@ class WSModel {
     constructor() { }
 
     initializeWS(api_key: string, access_token: string) {
+        const existingWS = this.getWS(api_key);
+        if (existingWS) {
+            existingWS.disconnect();
+        }
         const kiteTicker = new KiteWSTicker({ api_key, access_token });
         const tickerInstance = kiteTicker.getInstance();
         this.wsInstances.set(api_key, tickerInstance);
