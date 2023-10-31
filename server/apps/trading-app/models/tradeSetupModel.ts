@@ -14,10 +14,12 @@ import User from "../../../entities/User";
 import BrokerClient from "../../../entities/BrokerClient";
 import KiteConnect from "../../algo-trading/core/kite-connect";
 
+
+// TODO: Their is an issue with emas other than 5 ema unable read from CSV file
 interface MATickData extends Typings.TickData {
     'MA ‌ma‌ (5,ema,0)': string;
-    'MA ‌ma‌ (9,ema,0)': string; 
-    'MA ‌ma‌ (20,ema,0)': string;
+    'MA ‌ma‌ (9,ema,0)'?: string; 
+    'MA ‌ma‌ (20,ema,0)'?: string;
     'MA ‌ma‌ (50,ema,0)' ?: string;
 };
 
@@ -142,8 +144,6 @@ export default class TradeSetupModel {
                     "close": parseFloat(tickData['Close']),
                     "volume": parseFloat(tickData['Volume'].replace(/,/g, '')),
                     "5ema": parseFloat(tickData['MA ‌ma‌ (5,ema,0)']),
-                    "9ema": parseFloat(tickData['MA ‌ma‌ (9,ema,0)']),
-                    "20ema": parseFloat(tickData['MA ‌ma‌ (20,ema,0)']),
                 };
                 scripTickerData.ticks.push(tick);
             }
