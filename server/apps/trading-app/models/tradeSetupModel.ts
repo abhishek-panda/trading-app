@@ -14,6 +14,13 @@ import User from "../../../entities/User";
 import BrokerClient from "../../../entities/BrokerClient";
 import KiteConnect from "../../algo-trading/core/kite-connect";
 
+interface MATickData extends Typings.TickData {
+    'MA ‌ma‌ (5,ema,0)': string;
+    'MA ‌ma‌ (9,ema,0)': string; 
+    'MA ‌ma‌ (20,ema,0)': string;
+    'MA ‌ma‌ (50,ema,0)' ?: string;
+};
+
 export default class TradeSetupModel {
     private dataSource: DataSource
 
@@ -118,19 +125,25 @@ export default class TradeSetupModel {
                 name: filename,
                 ticks: [] as Record<string, unknown>[]
             };
-            for (let index = 0; index < results.length; index++) {
-                const tickData = results[index] as Typings.TickData;
+            const totalRecords = results.length;
+            const preprocessedRecordCount = parseInt(process.env.PREPROCESSED_RECORD ?? '0');
+            const startsAt = totalRecords <=  preprocessedRecordCount ? 0 : totalRecords - preprocessedRecordCount;
+            for (let index = startsAt; index < totalRecords; index++) {
+                const tickData = results[index] as MATickData;
 
                 const tickDataDateObj = new Date(tickData['Date']);
                 tickDataDateObj.setMinutes(tickDataDateObj.getMinutes() + offsetMinutes);
 
                 const tick= {
-                    timestamp:`${tickDataDateObj.toISOString().split('.')[0]}.000`,
-                    open: parseFloat(tickData['Open']),
-                    high: parseFloat(tickData['High']),
-                    low: parseFloat(tickData['Low']),
-                    close: parseFloat(tickData['Close']),
-                    volume: parseFloat(tickData['Volume'].replace(/,/g, ''))
+                    "timestamp":`${tickDataDateObj.toISOString().split('.')[0]}.000`,
+                    "open": parseFloat(tickData['Open']),
+                    "high": parseFloat(tickData['High']),
+                    "low": parseFloat(tickData['Low']),
+                    "close": parseFloat(tickData['Close']),
+                    "volume": parseFloat(tickData['Volume'].replace(/,/g, '')),
+                    "5ema": parseFloat(tickData['MA ‌ma‌ (5,ema,0)']),
+                    "9ema": parseFloat(tickData['MA ‌ma‌ (9,ema,0)']),
+                    "20ema": parseFloat(tickData['MA ‌ma‌ (20,ema,0)']),
                 };
                 scripTickerData.ticks.push(tick);
             }
