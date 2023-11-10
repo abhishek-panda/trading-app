@@ -39,7 +39,8 @@ export default class TradeSetupModel {
             
             const parsedCallData = await this.parseUploadedFile(callfilePath, callInstrumentName);
             const parsedPutData = await this.parseUploadedFile(putfilePath, putInstrumentName);
-            
+            console.log(parsedCallData.error)
+            console.log(parsedPutData.error)
             if (parsedCallData.error || parsedPutData.error) {
                 throw new Error("Failed to parse file data")
             }
@@ -142,8 +143,6 @@ export default class TradeSetupModel {
                     "high": parseFloat(tickData['High']),
                     "low": parseFloat(tickData['Low']),
                     "close": parseFloat(tickData['Close']),
-                    "volume": parseFloat(tickData['Volume'].replace(/,/g, '')),
-                    "5ema": parseFloat(tickData['MA ‌ma‌ (5,ema,0)']),
                 };
                 scripTickerData.ticks.push(tick);
             }

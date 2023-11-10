@@ -1,7 +1,7 @@
 import ampq, {Connection} from 'amqplib';
 
 
-class RabbitMQConn {
+export default class RabbitMQConn {
     private static instance: Promise<Connection>;
   
 
@@ -24,5 +24,3 @@ class RabbitMQConn {
         return RabbitMQConn.instance;
     }
 }
-
-export default RabbitMQConn.getInstance();

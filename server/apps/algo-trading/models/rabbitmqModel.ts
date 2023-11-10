@@ -1,21 +1,32 @@
-import { Channel } from "amqplib";
+import { Channel, ConsumeMessage, Connection } from "amqplib";
 import rabbitMQConn from "../core/rabbitmqConn";
+import { QUEUE } from "../events/rabbit";
 
 class RabbitMQModel {
-
+    private connetion: Promise<Connection>
     private channel: Channel;
+    private subscribers: Map<QUEUE, Array<(msg: ConsumeMessage | null) => void>> = new Map();
 
     constructor() {
-        this.init();
+        this.connetion = rabbitMQConn.getInstance();
     }
 
-    private async init() {
-        this.channel = await (await rabbitMQConn).createChannel();
+    private async getChannel() {
+        if (!this.channel) {
+            this.channel = await (await this.connetion).createChannel();
+        }
+        return this.channel;
     }
 
-    async sendToQueue (name: string, data: NonNullable<any>) {
-        await this.channel.assertQueue(name);
-        return this.channel.sendToQueue(name, Buffer.from(JSON.stringify(data)))
+    async sendToQueue (name: QUEUE, data: NonNullable<any>) {
+        const channel = await this.getChannel();
+        await channel.assertQueue(name);
+        return channel.sendToQueue(name, Buffer.from(JSON.stringify(data)))
+    }
+
+    async subscribe(queueName: QUEUE,onMessage: (msg: ConsumeMessage | null) => void) {
+        const channel = await this.getChannel();
+        channel.consume(queueName, onMessage);
     }
 
 }
