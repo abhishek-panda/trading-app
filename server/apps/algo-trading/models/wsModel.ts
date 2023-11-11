@@ -45,6 +45,13 @@ class WSModel {
         }
     }
 
+    unsubscribe(apiKey: string, instrument: number[]) {
+        const ws = this.getWS(apiKey);
+        if (ws) {
+            ws.unsubscribe(instrument);
+        }
+    }
+
     uninitializeWS(api_key: string) {
         cache.del(`WS_${api_key}`);
     }

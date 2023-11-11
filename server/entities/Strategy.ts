@@ -1,6 +1,7 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from "typeorm"
 import Subscription from "./Subscription";
 import { TradingTimeFrame } from "../../libs/typings";
+import StrategyLeg from "./StrategyLeg";
 
 @Entity()
 export default class Strategy {
@@ -18,6 +19,9 @@ export default class Strategy {
 
     @OneToMany(() => Subscription, (subscription) => subscription.strategy)
     subscription: Subscription[];
+
+    @OneToMany(() => StrategyLeg, (strategyLeg) => strategyLeg.strategy)
+    strategyLeg: StrategyLeg[];
 
     constructor(sid: string, name: string, timeframe: TradingTimeFrame ,description: string) {
         this.sid = sid;

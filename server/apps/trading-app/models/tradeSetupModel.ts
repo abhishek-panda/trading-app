@@ -16,12 +16,6 @@ import KiteConnect from "../../algo-trading/core/kite-connect";
 
 
 // TODO: Their is an issue with emas other than 5 ema unable read from CSV file
-interface MATickData extends Typings.TickData {
-    'MA ‌ma‌ (5,ema,0)': string;
-    'MA ‌ma‌ (9,ema,0)'?: string; 
-    'MA ‌ma‌ (20,ema,0)'?: string;
-    'MA ‌ma‌ (50,ema,0)' ?: string;
-};
 
 export default class TradeSetupModel {
     private dataSource: DataSource
@@ -132,7 +126,7 @@ export default class TradeSetupModel {
             const preprocessedRecordCount = parseInt(process.env.PREPROCESSED_RECORD ?? '0');
             const startsAt = totalRecords <=  preprocessedRecordCount ? 0 : totalRecords - preprocessedRecordCount;
             for (let index = startsAt; index < totalRecords; index++) {
-                const tickData = results[index] as MATickData;
+                const tickData = results[index] as Typings.TickData;
 
                 const tickDataDateObj = new Date(tickData['Date']);
                 tickDataDateObj.setMinutes(tickDataDateObj.getMinutes() + offsetMinutes);

@@ -8,6 +8,7 @@ export interface WSTicker {
     autoReconnect: (reconn: boolean, attempt: number, delay: number) => void;
     on: (key: string, fnArg: (_: any) => void) => void;
     subscribe: (items: Number[]) => void;
+    unsubscribe: (items: Number[]) => void;
     setMode:(mode: 'full'| 'quote' | 'ltp', items: Number[]) => void;
 }
 
