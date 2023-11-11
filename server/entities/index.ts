@@ -5,8 +5,6 @@ import Strategy from './Strategy';
 import StrategyLeg from './StrategyLeg';
 import Subscription from './Subscription';
 import Transaction from './Transaction';
-// import Instrument from './Instrument';
-// import TradeSetup from './TradeSetup';
 
 
 export default [
@@ -17,6 +15,4 @@ export default [
     StrategyLeg,
     Subscription,
     Transaction,
-    // Instrument,
-    // TradeSetup,
 ]
