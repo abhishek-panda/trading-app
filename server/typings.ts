@@ -120,5 +120,4 @@ export interface TickData {
     High: string;
     Low: string;
     Close: string;
-    Volume: string;
 };

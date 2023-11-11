@@ -11,16 +11,22 @@ function request(
     url: string,
     method: REQUEST_METHOD = REQUEST_METHOD.GET,
     headers: Record<string, string> = {},
-    body: Record<string, any> = {},
-    notifyStatus: boolean = true
+    body: Record<string, any> | FormData = {},
+    notifyStatus: boolean = true,
 ) {
+    let contentType = {};
+    if (!(body instanceof FormData)) {
+        contentType = {
+            'Content-Type': 'application/json'
+        };
+    }
     return fetch(url, {
         method: method,
         headers: {
              ...headers,
-            'Content-Type': 'application/json',
+            ...contentType,
         },
-        body: method !== REQUEST_METHOD.GET ? JSON.stringify(body) : undefined
+        body: method !== REQUEST_METHOD.GET ? (body instanceof FormData) ? body : JSON.stringify(body) : undefined
     })
     .then(async response => {
         /**

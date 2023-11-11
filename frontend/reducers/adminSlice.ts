@@ -16,9 +16,9 @@ const initialState: AdminInitialState = {
 };
 
 
-const registerStrategy = createAsyncThunk('strategy/register', (data: IStrategy) => {
-    return request('/algotm/api/strategy', REQUEST_METHOD.POST, {}, data)
-        .then(response => response.json());
+const registerStrategy = createAsyncThunk('strategy/register', async (data: FormData) => {
+    const response = await request('/algotm/api/strategy', REQUEST_METHOD.POST, {}, data);
+    return await response.json();
 });
 
 const fetchStrategy = createAsyncThunk('strategy/fetch', _ => {

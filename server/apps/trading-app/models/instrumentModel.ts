@@ -158,7 +158,6 @@ export default class InstrumentModel {
                     high: parseFloat(tickData['High']),
                     low: parseFloat(tickData['Low']),
                     close: parseFloat(tickData['Close']),
-                    volume: parseFloat(tickData['Volume'].replace(/,/g, ''))
                 };
                 scripTickerData.ticks.push(tick);
             }

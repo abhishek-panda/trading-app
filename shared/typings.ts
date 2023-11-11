@@ -78,6 +78,8 @@ export interface IStrategy {
 	name: string;
 	description: string;
 	timeframe: string;
+	callInstrumentName: string;
+    putInstrumentName: string;
 }
 
 export interface ISubscription {
