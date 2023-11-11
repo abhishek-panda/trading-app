@@ -179,13 +179,14 @@ export default class ControlPanelModel {
 }
 
    async getStrategies(): Promise<IResponse> {
-        const brokerClients: IStrategy[] = await this.dataSource
-            .createQueryBuilder()
-            .select(["sid", "name", "description", "timeframe"])
-            .from(Strategy, "stategy")
-            .getRawMany();
+
+    const result = await this.dataSource
+            .getRepository(Strategy)
+            .createQueryBuilder("strategy")
+            .innerJoinAndSelect("strategy.strategyLeg", "strategyLeg")
+            .getMany();
         return {
-            data: brokerClients
+            data: result
         };
     }
 }
