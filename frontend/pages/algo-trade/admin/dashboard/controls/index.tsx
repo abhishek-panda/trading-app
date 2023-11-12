@@ -206,7 +206,7 @@ const Controls = () => {
 							<div>
 								{
 									// @ts-ignore
-									strategy.strategyLeg.map(leg => {
+									strategy?.strategyLeg?.map(leg => {
 										return (
 											<div className="leg">{leg.name}</div>
 										)
