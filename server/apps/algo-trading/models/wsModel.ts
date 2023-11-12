@@ -3,21 +3,35 @@ import { cache } from '../../../utils';
 import TransactionController from "../controllers/transactionController";
 import { ORDER_STATUS } from "../../../../libs/typings";
 import WebSocketEvent, { WSEvents } from "../events/ws";
+import logger from "../logger";
+
+interface WSInstanceDetails {
+    instance: WSTicker;
+    subscribedInstruments: number[];
+}
 
 class WSModel {
 
-    private wsInstances: Map<string, WSTicker|undefined> = new Map();
+    private wsInstances: Map<string, WSInstanceDetails> = new Map();
 
     constructor() { }
 
     initializeWS(api_key: string, access_token: string) {
-        const existingWS = this.getWS(api_key);
+        const existingWS = this.getWSInstanceDetails(api_key);
         if (existingWS) {
-            existingWS.disconnect();
+            logger.info("Socket already exists. Clearing...");
+            existingWS.instance.disconnect();
+            existingWS.subscribedInstruments = [];
         }
         const kiteTicker = new KiteWSTicker({ api_key, access_token });
         const tickerInstance = kiteTicker.getInstance();
-        this.wsInstances.set(api_key, tickerInstance);
+        if (tickerInstance) {
+            this.wsInstances.set(api_key, {instance: tickerInstance, subscribedInstruments : []});
+            tickerInstance.on('ticks', function(ticks)  {
+                WebSocketEvent.emit(WSEvents.STREAM_TICKS, ticks);
+            });
+        }
+        
         // tickerInstance?.on('order_update', function (orderDetail = {}) {
         //     const { order_id = '', status = ORDER_STATUS.OPEN } = orderDetail;
         //     if (order_id && status !== ORDER_STATUS.OPEN) {
@@ -30,25 +44,39 @@ class WSModel {
         kiteTicker.connect();
     }
 
-    private getWS(apiKey: string) {
+    private getWSInstanceDetails(apiKey: string) {
         return this.wsInstances.get(apiKey);
     }
 
     subscribe(apiKey: string, instrument: number[]) {
-        const ws = this.getWS(apiKey);
+        const wsInstanceDetails = this.getWSInstanceDetails(apiKey);
+        const ws = wsInstanceDetails?.instance;
         if (ws) {
-            ws.on('ticks', function(ticks)  {
-                WebSocketEvent.emit(WSEvents.STREAM_TICKS, ticks);
-            });
-            ws.subscribe(instrument);
-            ws.setMode("full", instrument);
+            const tempSubscribedInstruments = [... wsInstanceDetails.subscribedInstruments];
+            this.unsubscribeAll(apiKey);
+            wsInstanceDetails.subscribedInstruments =  Array.from(new Set(tempSubscribedInstruments.concat(instrument)));
+            ws.subscribe(wsInstanceDetails.subscribedInstruments);
+            ws.setMode("full",  wsInstanceDetails.subscribedInstruments);
         }
     }
 
     unsubscribe(apiKey: string, instrument: number[]) {
-        const ws = this.getWS(apiKey);
+        const wsInstanceDetails = this.getWSInstanceDetails(apiKey);
+        const ws = wsInstanceDetails?.instance;
         if (ws) {
+            wsInstanceDetails.subscribedInstruments = wsInstanceDetails.subscribedInstruments.filter(function (ins) {
+                return !instrument.includes(ins);
+            });
             ws.unsubscribe(instrument);
+        }
+    }
+
+    unsubscribeAll(apiKey: string) {
+        const wsInstanceDetails = this.getWSInstanceDetails(apiKey);
+        const ws = wsInstanceDetails?.instance;
+        if (ws) {
+            ws.unsubscribe(wsInstanceDetails.subscribedInstruments);
+            wsInstanceDetails.subscribedInstruments = [];
         }
     }
 

@@ -22,16 +22,19 @@ RabbitMQEvent.on(RBMQEvents.STREAM_WS_TICKS, streamTick)
 
 
 function sinkData(data: any) {
+    logger.info(`Sink data: ${JSON.stringify(data)}`);
     rabbitmqModel.sendToQueue(QUEUE.SINK_DATA, data);
 }
 
 
 function streamTick(data: any) {
+    logger.info(`Tick data: ${JSON.stringify(data)}`);
     rabbitmqModel.sendToQueue(QUEUE.TICK_STREAM, data);
 }
 
 rabbitmqModel.subscribe(QUEUE.TA_STREAM, function(data) {
-    logger.info(data?.content.toString());
+    const content = data?.content.toString();
+    logger.info(`TA Candle: ${content}`);
 })
 
 
