@@ -183,7 +183,7 @@ export default class ControlPanelModel {
                                 const callStrategyLeg = new StrategyLeg(strategy, callInstrumentName, callInstrumentId, callfilePath);
                                 const putStrategyLeg = new StrategyLeg(strategy,putInstrumentName, putInstrumentId, putfilePath);
                                 await entitymanager.delete(StrategyLeg, { strategyId: strategy.sid });
-                                const callResult = await entitymanager.save([callStrategyLeg);
+                                const callResult = await entitymanager.save(callStrategyLeg);
                                 const putResult = await entitymanager.save(putStrategyLeg);
                                 if (callResult && putResult) {
                                     filesToSink.forEach(function(fileObj) {
