@@ -24,7 +24,8 @@ function intializeTradingAppRoutes() {
     TradingAppRouter.post('/api/broker-client', routeGuard, brokerClientController.registerClient);
     TradingAppRouter.get('/api/broker-client', routeGuard, brokerClientController.getClients);
     TradingAppRouter.put('/api/broker-client', routeGuard, brokerClientController.updateClient);
-    TradingAppRouter.post('/api/strategy', routeGuard, upload.fields([{name: 'callfile', maxCount: 1}, {name: 'putfile', maxCount: 1}]), controlPanelController.registerStrategy);
+    TradingAppRouter.post('/api/strategy', routeGuard, upload.fields([{name: 'callfile', maxCount: 1}, {name: 'putfile', maxCount: 1}]), controlPanelController.registerOrUpdateStrategy);
+    TradingAppRouter.put('/api/strategy', routeGuard, upload.fields([{name: 'callfile', maxCount: 1}, {name: 'putfile', maxCount: 1}]), controlPanelController.registerOrUpdateStrategy);
     TradingAppRouter.get('/api/strategy', routeGuard, controlPanelController.getStrategy);
     TradingAppRouter.post('/api/subscription', routeGuard, subscriptionController.subscribe);
     TradingAppRouter.get('/api/subscription', routeGuard, subscriptionController.getSubscription);

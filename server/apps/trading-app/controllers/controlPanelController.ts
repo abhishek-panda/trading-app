@@ -14,7 +14,7 @@ export default class ControlPanelController extends BaseController {
         this.controlPanelModel = new ControlPanelModel();
     }
 
-    registerStrategy = async (req: Request, res: Response) => {
+    registerOrUpdateStrategy = async (req: Request, res: Response) => {
         const uploadedFiles = req.files;
         //@ts-ignore
         const callfileDetails = uploadedFiles?.callfile?.[0] as Express.Multer.File | undefined;
@@ -25,11 +25,18 @@ export default class ControlPanelController extends BaseController {
         } else {
             const userInputData = req.body;
             const userSessionId = req.cookies['SN'];
+            const isUpdateFlow = req.method === 'PUT';
             const user = GlobalUtils.cache.get<User>(userSessionId);
             const callfilePath = callfileDetails.path;
             const putfilePath = putfileDetails.path;
             const [status, response] = await this.getStatusAndResponse(() => {
-                return (user && user.role === UserRole.ADMIN) ? this.controlPanelModel.registerStrategy(userInputData, user.id, callfilePath, putfilePath) : undefined;
+
+                return (user && user.role === UserRole.ADMIN) ? 
+                    (isUpdateFlow ? 
+                        this.controlPanelModel.updateStrategy(userInputData, user.id, callfilePath, putfilePath):
+                        this.controlPanelModel.registerStrategy(userInputData, user.id, callfilePath, putfilePath)
+                    ):
+                    undefined;
             });
             return res.status(status).send(response);
         }
