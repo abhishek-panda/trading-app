@@ -21,6 +21,11 @@ const registerStrategy = createAsyncThunk('strategy/register', async (data: Form
     return await response.json();
 });
 
+const updateStrategy = createAsyncThunk('strategy/update', async (data: FormData) => {
+    const response = await request('/algotm/api/strategy', REQUEST_METHOD.PUT, {}, data);
+    return await response.json();
+});
+
 const fetchStrategy = createAsyncThunk('strategy/fetch', _ => {
     return request('/algotm/api/strategy', REQUEST_METHOD.GET, {}, {})
         .then(response => response.json());
@@ -50,4 +55,5 @@ export const adminActions = adminSlice.actions;
 export {
     registerStrategy,
     fetchStrategy,
+    updateStrategy,
 };

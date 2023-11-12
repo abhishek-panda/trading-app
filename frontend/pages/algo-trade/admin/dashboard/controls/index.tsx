@@ -5,9 +5,8 @@ import { useAppSelector, useAppDispatcher } from "../../../../../store/hooks";
 import { IStrategy, TradingTimeFrame } from '../../../../../../libs/typings'
 import { Card, Button, Input } from "../../../../../components";
 import { validStrategySchema } from '../../../../../../libs/utils';
-import { registerStrategy, fetchStrategy } from "../../../../../reducers/adminSlice";
-import { validSubscriptionSchema, getEnumKeys } from '../../../../../../libs/utils';
-import axios from 'axios';
+import { registerStrategy, fetchStrategy, updateStrategy } from "../../../../../reducers/adminSlice";
+import { getEnumKeys } from '../../../../../../libs/utils';
 
 
 export const InputWrapper = styled.div`
@@ -29,7 +28,9 @@ const Controls = () => {
 	const controls = useAppSelector(state => state.adminData.controls);
 	const [callfile, setCallfile] = useState<File>();
 	const [putfile, setPutfile] = useState<File>();
+	const [isUpdate, setUpdating] = useState(false);
 	const dispatch = useAppDispatcher();
+	
 
 	const formik = useFormik({
 		initialValues,
@@ -44,11 +45,34 @@ const Controls = () => {
 				}
 				fd.append('callfile', callfile);
 				fd.append('putfile', putfile);
-				dispatch(registerStrategy(fd));
+				if (isUpdate) {
+					setUpdating(false);
+					dispatch(updateStrategy(fd));
+				}else {
+					dispatch(registerStrategy(fd));
+				}
 				resetForm();
+				
 			}
 		},
 	});
+
+	const handleEditClick = (strategy: IStrategy) => {
+		// Assume you have some data to populate the form fields
+		setUpdating(true);
+		const { sid, name, description, timeframe} = strategy;
+		const newData = {
+			sid,
+			name,
+			description,
+			timeframe,
+			callInstrumentName: "",
+			putInstrumentName: ""
+		};
+		setCallfile(undefined);
+		setPutfile(undefined);
+		formik.setValues(newData);
+	};
 
 	let timeFrames = getEnumKeys(TradingTimeFrame);
 
@@ -69,6 +93,7 @@ const Controls = () => {
 						onChange={formik.handleChange}
 						onBlur={formik.handleBlur}
 						error={formik.touched.sid ? formik.errors.sid : ""}
+						readOnly={isUpdate}
 					/>
 				</InputWrapper>
 
@@ -164,7 +189,7 @@ const Controls = () => {
 				</InputWrapper>
 				<InputWrapper>
 					<Button buttonColor="rgb(103, 58, 183)" hasBorder={false}>
-						<span>Add</span>
+						<span>{isUpdate ? 'Update' : 'Add'}</span>
 					</Button>
 				</InputWrapper>
 			</form>
@@ -178,8 +203,19 @@ const Controls = () => {
 							<div style={{ display: 'flex', justifyContent: "flex-start" }}>
 								<span>{strategy.name}</span>
 							</div>
+							<div>
+								{
+									// @ts-ignore
+									strategy.strategyLeg.map(leg => {
+										return (
+											<div className="leg">{leg.name}</div>
+										)
+									})
+								}
+							</div>
 							<div><span>{strategy.timeframe}</span></div>
 							<div><span>{strategy.description}</span></div>
+							<div><Button onClick={() => handleEditClick(strategy)}>Edit</Button></div>
 						</div>
 					)
 				})}
