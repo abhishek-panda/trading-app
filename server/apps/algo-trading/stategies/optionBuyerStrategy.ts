@@ -10,6 +10,12 @@ export default class OptionBuyerStrategy extends BaseStrategy {
         this.init(STRATEGY.OPTION_BUYER);
     }
 
+
+    protected getStopLossTriggerPrice(price: number): number {
+        const triggerPrice = Math.floor(price - (price * this.getStopLossPercentage()))
+        return triggerPrice;
+    }
+
     
     watchAndExecute (instrumentData: InstrumentTA) {
         const { instrument, candles } = instrumentData;
@@ -20,15 +26,22 @@ export default class OptionBuyerStrategy extends BaseStrategy {
             const isBetweenTradingHours = this.isBetweenTradingHours(timestamp);
             if (isBetweenTradingHours) {
 
-                    // Upside Move
-                    if (ema5 > ema20 && ema9 > ema20) {
+                // Upside Move
+                if (ema5 > ema20 && ema9 > ema20) {
                         
                     // Buy CE or PE if nothing is bought yet  
                     if(status === POSITION_STATUS.NONE) {
                         wsTickLogger.info(`Trade: ${instrumentName} buy at ${close}`);
                         instrumentDetails.status = POSITION_STATUS.HOLD;
+                        instrumentDetails.anchorPrice = close;
+                        wsTickLogger.info(`Trade: StopLoss set at ${this.getStopLossTriggerPrice(close)}`) 
                     }
                     
+                }
+
+                if (status === POSITION_STATUS.HOLD && close > (instrumentDetails.anchorPrice ?? close)) {
+                    instrumentDetails.anchorPrice = close;
+                    wsTickLogger.info(`Trade: StopLoss updated to ${this.getStopLossTriggerPrice(close)}`);
                 }
                 
                 // Downside move
@@ -38,6 +51,7 @@ export default class OptionBuyerStrategy extends BaseStrategy {
                     if (status === POSITION_STATUS.HOLD) {
                         wsTickLogger.info(`Trade: ${instrumentName} sell at ${close}`);
                         instrumentDetails.status = POSITION_STATUS.NONE;
+                        instrumentDetails.anchorPrice = undefined;
                     }
                 }
             }

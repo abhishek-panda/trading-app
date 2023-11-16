@@ -8,6 +8,5 @@ export default function priceWatcher(subscribedTick: InstrumentTA) {
         optionBuyerStrategy = new OptionBuyerStrategy();
     }
     optionBuyerStrategy.watchAndExecute(subscribedTick);
-
 }
 
