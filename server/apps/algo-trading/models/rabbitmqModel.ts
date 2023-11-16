@@ -5,7 +5,6 @@ import { QUEUE } from "../events/rabbit";
 class RabbitMQModel {
     private connetion: Promise<Connection>
     private channel: Channel;
-    private subscribers: Map<QUEUE, Array<(msg: ConsumeMessage | null) => void>> = new Map();
 
     constructor() {
         this.connetion = rabbitMQConn.getInstance();
@@ -24,9 +23,15 @@ class RabbitMQModel {
         return channel.sendToQueue(name, Buffer.from(JSON.stringify(data)))
     }
 
-    async subscribe(queueName: QUEUE,onMessage: (msg: ConsumeMessage | null) => void) {
+    async subscribe(queueName: QUEUE,onMessage: (data: string) => void) {
         const channel = await this.getChannel();
-        channel.consume(queueName, onMessage);
+        channel.consume(queueName, function(msg) {
+            if(msg) {
+                const data = `${msg.content.toString()}`;
+                channel.ack(msg);
+                onMessage(data);
+            }
+        });
     }
 
 }

@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 import rabbitmqModel from '../models/rabbitmqModel';
-import logger from '../logger';
-
+import logger, {wsTickLogger} from '../logger';
+import priceWatcher from '../price-watcher';
 
 export enum QUEUE {
     SINK_DATA = 'SINK_DATA',
@@ -22,19 +22,26 @@ RabbitMQEvent.on(RBMQEvents.STREAM_WS_TICKS, streamTick)
 
 
 function sinkData(data: any) {
-    logger.info(`Sink data: ${JSON.stringify(data)}`);
+    wsTickLogger.info(`Sink data: ${JSON.stringify(data)}`);
     rabbitmqModel.sendToQueue(QUEUE.SINK_DATA, data);
 }
 
 
 function streamTick(data: any) {
-    logger.info(`Tick data: ${JSON.stringify(data)}`);
+    wsTickLogger.info(`${JSON.stringify(data)}`);
     rabbitmqModel.sendToQueue(QUEUE.TICK_STREAM, data);
 }
 
 rabbitmqModel.subscribe(QUEUE.TA_STREAM, function(data) {
-    const content = data?.content.toString();
-    logger.info(`TA Candle: ${content}`);
+    try {
+        wsTickLogger.info(`Candle: ${data}`);
+        if (data) {
+            const parsedContent = JSON.parse(data);
+            priceWatcher(parsedContent);
+        }
+    } catch(error: any) {
+        logger.error(error.message);
+    }
 })
 
 

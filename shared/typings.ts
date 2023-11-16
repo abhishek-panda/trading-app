@@ -108,3 +108,28 @@ export enum TradingTimeFrame {
 	"1D" = "D",
 	"1W" = "W"
 }
+
+export interface IOHLC {
+    "open": number;
+    "high": number;
+    "low": number;
+    "close": number;
+    "ema5": number;
+    "ema9": number;
+    "ema20": number;
+	"ema50"?: number;
+    "timestamp": string;
+}
+
+
+export interface InstrumentTA {
+	"instrument": number;
+	"timeframe": TradingTimeFrame;
+	"candles": IOHLC[];
+}
+
+
+export enum STRATEGY {
+    OPTION_BUYER = 'OPTION_BUYER',
+	OPTION_SELLER = 'OPTION_SELLER',
+}

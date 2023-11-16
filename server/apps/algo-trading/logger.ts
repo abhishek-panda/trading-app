@@ -28,4 +28,20 @@ const logger = winston.createLogger({
     ]
 });
 
+
+
+export const wsTickLogger = winston.createLogger({
+    levels: winston.config.npm.levels,
+    transports:[
+        new winston.transports.File({
+            dirname: 'logs',
+            filename: 'wstick.log',
+            level: 'info',
+            format: winston.format.combine(winston.format.label({ label: 'WSTICK' }), winston.format.timestamp({ format : function() {
+                return GlobalUtils.getLocalDateTime().toISOString();
+                }}), GlobalUtils.logFormat)
+        })
+    ]
+});
+
 export default logger;
