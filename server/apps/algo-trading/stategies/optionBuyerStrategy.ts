@@ -1,4 +1,5 @@
 import { InstrumentTA, STRATEGY } from '../../../../libs/typings';
+import * as Typings from '../../../typings';
 import { wsTickLogger } from '../logger';
 import BaseStrategy, { POSITION_STATUS } from './strategy'; //TODO: Rename the file to basestrategy
 
@@ -17,7 +18,7 @@ export default class OptionBuyerStrategy extends BaseStrategy {
     }
 
     
-    watchAndExecute (instrumentData: InstrumentTA) {
+    async watchAndExecute (instrumentData: InstrumentTA) {
         const { instrument, candles } = instrumentData;
         const instrumentDetails = this.subscribedInstruments.get(instrument);
         if (instrumentDetails && candles.length > 0) {
@@ -31,6 +32,8 @@ export default class OptionBuyerStrategy extends BaseStrategy {
                         
                     // Buy CE or PE if nothing is bought yet  
                     if(status === POSITION_STATUS.NONE) {
+                        const buy = Typings.TransactionType.BUY;
+                        await this.placeOrder(instrumentName, buy, close);
                         wsTickLogger.info(`Trade: ${instrumentName} buy at ${close}`);
                         instrumentDetails.status = POSITION_STATUS.HOLD;
                         instrumentDetails.anchorPrice = close;

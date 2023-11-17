@@ -109,6 +109,30 @@ export default class KiteConnect {
         });
     }
 
+    getOrders(accessToken: string): Promise<any[] | Error> {
+        this.kiteconnect.setAccessToken(accessToken);
+        return this.kiteconnect.getOrders().then(function (response: any[]) {
+            return response;
+        }).catch(function (error: any) {
+            const errorDetails = new Error(`Failed to get order details. Error: ${JSON.stringify(error)}`);
+            logger.error(errorDetails.message);
+            return errorDetails;
+        });
+    }
+
+    cancelOrder(accessToken: string, variety: string, order_id: string): Promise<boolean | Error> {
+        this.kiteconnect.setAccessToken(accessToken);
+        return this.kiteconnect.cancelOrder(variety, order_id).then(function(response: any) {
+            return response.order_id === order_id;
+        }).catch(function(error: any) {
+            const errorDetails = new Error(`Failed to cancel order. Error: ${JSON.stringify(error)}`);
+            logger.error(errorDetails.message);
+            return errorDetails;
+        });
+    }
+
+   
+
     /**
      * Own implementation
      */
@@ -133,4 +157,6 @@ export default class KiteConnect {
                 return error;
             });
     }
+
+
 }
