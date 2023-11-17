@@ -32,19 +32,24 @@ export default class OptionBuyerStrategy extends BaseStrategy {
                         
                     // Buy CE or PE if nothing is bought yet  
                     if(status === POSITION_STATUS.NONE) {
-                        const buy = Typings.TransactionType.BUY;
-                        await this.placeOrder(instrumentName, buy, close);
-                        wsTickLogger.info(`Trade: ${instrumentName} buy at ${close}`);
                         instrumentDetails.status = POSITION_STATUS.HOLD;
                         instrumentDetails.anchorPrice = close;
-                        wsTickLogger.info(`Trade: StopLoss set at ${this.getStopLossTriggerPrice(close)}`) 
+                        const buyOrder = await this.placeOrder(instrumentName, Typings.TransactionType.BUY, close, "enter");
+                        wsTickLogger.info(`Trade: ${instrumentName} buy at ${close}`);
+                        
+                        const stopLossPrice = this.getStopLossTriggerPrice(instrumentDetails.anchorPrice);
+                        const stopLossOrder = await this.placeOrder(instrumentName, Typings.TransactionType.SELL, stopLossPrice, "enter");
+                        wsTickLogger.info(`Trade: StopLoss set at ${stopLossPrice}`) 
                     }
                     
                 }
 
                 if (status === POSITION_STATUS.HOLD && close > (instrumentDetails.anchorPrice ?? close)) {
                     instrumentDetails.anchorPrice = close;
+                    const stopLossPrice = this.getStopLossTriggerPrice(instrumentDetails.anchorPrice);
+                    const updateStopLossOrder = await this.placeOrder(instrumentName, Typings.TransactionType.SELL, stopLossPrice, "update");
                     wsTickLogger.info(`Trade: StopLoss updated to ${this.getStopLossTriggerPrice(close)}`);
+                    
                 }
                 
                 // Downside move
@@ -52,9 +57,10 @@ export default class OptionBuyerStrategy extends BaseStrategy {
                     
                     // Exit if holding any CE or PE postion
                     if (status === POSITION_STATUS.HOLD) {
-                        wsTickLogger.info(`Trade: ${instrumentName} sell at ${close}`);
                         instrumentDetails.status = POSITION_STATUS.NONE;
                         instrumentDetails.anchorPrice = undefined;
+                        const exitOrder = await this.placeOrder(instrumentName,  Typings.TransactionType.SELL, close, "exit");
+                        wsTickLogger.info(`Trade: ${instrumentName} sell at ${close}`);
                     }
                 }
             }

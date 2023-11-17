@@ -1,5 +1,3 @@
-import { DataSource } from "typeorm";
-import DBConn from "../../../dbConn";
 import StrategyLeg from "../../../entities/StrategyLeg";
 import { STRATEGY, InstrumentTA, ORDER_STATUS } from "../../../../libs/typings";
 import BrokerClient from "../../../entities/BrokerClient";
@@ -12,8 +10,11 @@ import logger, {wsTickLogger} from "../logger";
 
 export enum POSITION_STATUS {
     NONE = "NONE",
-    HOLD = "HOLD"
+    HOLD = "HOLD",
 }
+
+type ExecutionType = "enter" | "update" | "exit";
+
 
 interface StrategyLegDetail {
     status: POSITION_STATUS,
@@ -24,11 +25,10 @@ interface StrategyLegDetail {
 interface ClientDetail {
     brokerClient: BrokerClient;
     kiteConnect: KiteConnect;
-    trades: Record<string, number>;
+    trades: Record<string, string | undefined>;// instrumentName(without NFO) ,  order_id | undefined to check order status if opened cancel order 
 }
 
 export default abstract class BaseStrategy {
-    private dataSource: DataSource;
     private tradeStartTime: number;
     private tradeCloseTime: number;
     protected subscribedInstruments: Map<number, StrategyLegDetail> = new Map();
@@ -38,7 +38,6 @@ export default abstract class BaseStrategy {
 
     constructor() {
         this.stopLossPercent = 0.09; // 9% 
-        this.dataSource = DBConn.getInstance();
         this.tradeStartTime = parseInt((process.env.TRADE_START_HR ?? '') + (process.env.TRADE_START_MIN ?? ''));
         this.tradeCloseTime = parseInt((process.env.TRADE_CLOSE_HR ?? '') + (process.env.TRADE_CLOSE_MIN ?? ''));
     }
@@ -64,7 +63,7 @@ export default abstract class BaseStrategy {
             if ((profile instanceof Error)) {
                 wsTickLogger.info(`Client: ${client.apiKey} is not active`);
             } else {
-                let trades = await this.clearOpenOrders(kiteConnect, client);
+                let trades = await this.clearOpenOrder(kiteConnect, client.accessToken);
                 const clientDetail: ClientDetail = {
                     brokerClient: client,
                     kiteConnect,
@@ -88,60 +87,71 @@ export default abstract class BaseStrategy {
         return this.stopLossPercent;
     }
 
-    async placeOrder(tradingsymbol: string, transaction_type: Typings.TransactionType, price: number) {
-        const quantity = 5;
-        const lotSize = 50;
-        const tradeOrder: Typings.BasketOrderItem = {
-            exchange: Typings.Exchange.NFO,
-            tradingsymbol: tradingsymbol,
-            transaction_type: transaction_type,
-            variety: "regular",
-            product: Typings.ProductType.MIS,
-            order_type: Typings.OderType.MARKET,
-            quantity: lotSize * quantity,
-            price: Math.ceil(price),
-            trigger_price: 0,
-        };
+    async placeOrder(tradingsymbol: string, transaction_type: Typings.TransactionType, price: number, executionType: ExecutionType) {
+        if (executionType === "enter") {
+            const quantity = 5;
+            const lotSize = 50;
+            const tradeOrder: Typings.BasketOrderItem = {
+                exchange: Typings.Exchange.NFO,
+                tradingsymbol: tradingsymbol,
+                transaction_type: transaction_type,
+                variety: "regular",
+                product: Typings.ProductType.MIS,
+                order_type: Typings.OderType.MARKET,
+                quantity: lotSize * quantity,
+                price: Math.ceil(price),
+                trigger_price: 0,
+            };
 
-        const basketOrder = [tradeOrder];
-        let userAvailableMargin = 0;
-        let basketMarginRequired = 0;
+            const basketOrder = [tradeOrder];
+            let userAvailableMargin = 0;
+            let basketMarginRequired = 0;
 
-        for (let client of this.clientDetails) {
-            const {kiteConnect, brokerClient} = client;
-            const { accessToken } = brokerClient;
-            const [userMargin, basketMargin] = await Promise.all([
-                kiteConnect.getMargin(accessToken),
-                kiteConnect.getBasketMargin(accessToken, basketOrder)
-            ]);
+            for (let client of this.clientDetails) {
+                const {kiteConnect, brokerClient, trades} = client;
+                const { accessToken } = brokerClient;
+                const [userMargin, basketMargin] = await Promise.all([
+                    kiteConnect.getMargin(accessToken),
+                    kiteConnect.getBasketMargin(accessToken, basketOrder)
+                ]);
 
-            if (!(userMargin instanceof Error) && userMargin?.available) {
-                userAvailableMargin = userMargin?.available?.live_balance ?? 0;
-            }
-            if (!(basketMargin instanceof Error) && basketMargin?.initial) {
-                basketMarginRequired = basketMargin?.initial?.total ?? 0;
-            }
-
-            if (userAvailableMargin > basketMarginRequired) {
-                /**
-                 * TODO: If any open order revert the basket order, true for limit order, since we are placing market order with
-                 * current and next weekly contract which are highly liquild, so its not required. But their is a change of 
-                 * Freak trade and Slippage
-                */
-                for (const order of basketOrder) {
-                    // First check if there are any existing order either pending of fullfiled
-                    const newOrderId = await kiteConnect.placeOrder(accessToken, "regular", tradeOrder);
+                if (!(userMargin instanceof Error) && userMargin?.available) {
+                    userAvailableMargin = userMargin?.available?.live_balance ?? 0;
                 }
-            } else {
-                wsTickLogger.info(`Trade: ${brokerClient.apiKey} has insufficient margin available`);
+                if (!(basketMargin instanceof Error) && basketMargin?.initial) {
+                    basketMarginRequired = basketMargin?.initial?.total ?? 0;
+                }
+
+                if (userAvailableMargin > basketMarginRequired) {
+                    /**
+                     * TODO: If any open order revert the basket order, true for limit order, since we are placing market order with
+                     * current and next weekly contract which are highly liquild, so its not required. But their is a change of 
+                     * Freak trade and Slippage
+                    */
+                    for (const order of basketOrder) {
+                        // First check if there are any existing order either pending of fullfiled
+                        await this.clearOpenOrder(kiteConnect, accessToken, trades);
+                        const newOrderId = await kiteConnect.placeOrder(accessToken, "regular", order);
+                        if (!(newOrderId instanceof Error)) {
+                            trades[tradingsymbol] = newOrderId;
+                        }
+                    }
+                } else {
+                    wsTickLogger.info(`Trade: ${brokerClient.apiKey} has insufficient margin available`);
+                }
             }
+        }
+        else if (executionType === "update") {
+
+        }
+        else if (executionType === "exit") {
+            
         }
     }
 
 
-    private async clearOpenOrders(kiteConnect: KiteConnect, client: BrokerClient) {
-        const allOrders = await kiteConnect.getOrders(client.accessToken);
-        let trades = {};
+    private async clearOpenOrder(kiteConnect: KiteConnect, accessToken: string, trades: Record<string, string|undefined> = {}) {
+        const allOrders = await kiteConnect.getOrders(accessToken);
         if (!(allOrders instanceof Error) && allOrders.length > 0) {
             // Get all pending orders
             for(const order of allOrders) {
@@ -151,7 +161,8 @@ export default abstract class BaseStrategy {
                     status === ORDER_STATUS.OPEN &&
                     product ===  Typings.ProductType.MIS
                 ) {
-                    const isOrderCancelled = await kiteConnect.cancelOrder(client.accessToken,"regular", order_id);
+                    trades[tradingsymbol] = undefined;
+                    const isOrderCancelled = await kiteConnect.cancelOrder(accessToken,"regular", order_id);
                     if (isOrderCancelled) {
                         wsTickLogger.info(`Trade: ${tradingsymbol} opened orders cancelled`);
                     }
