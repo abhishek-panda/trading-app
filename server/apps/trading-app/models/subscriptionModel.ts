@@ -128,4 +128,13 @@ export default class SubscriptionModel {
             }
         };
     }
+
+    async getBrokerClients(strategyId: string) {
+        return await this.dataSource
+            .getRepository(BrokerClient)
+            .createQueryBuilder("brokerclient")
+            .innerJoin("brokerclient.subscription", "subscription")
+            .where("subscription.strategyId = :strategyId", { strategyId: strategyId })
+            .getMany();
+    }
 }

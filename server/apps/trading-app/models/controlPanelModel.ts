@@ -284,7 +284,7 @@ export default class ControlPanelModel {
 
    async getStrategies(): Promise<IResponse> {
 
-    const result = await this.dataSource
+        const result = await this.dataSource
             .getRepository(Strategy)
             .createQueryBuilder("strategy")
             .innerJoinAndSelect("strategy.strategyLeg", "strategyLeg")
@@ -292,5 +292,9 @@ export default class ControlPanelModel {
         return {
             data: result
         };
+    }
+
+    async getStrategyLegs(strategyId: string) {
+        return await this.dataSource.getRepository(StrategyLeg).findBy({ strategyId });
     }
 }

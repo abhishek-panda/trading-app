@@ -38,7 +38,7 @@ const AppRouter = () => {
 						<Route path='register' element={<Register />} />
 						<Route element={<RequiredAuth allowedRoles={[UserRole.USER, UserRole.ADMIN]} />}>
 							<Route path='dashboard' element={<Dashboard />}>
-								<Route index element={<Home />} />
+								<Route index element={<AlgoBots />} />
 								<Route path='home' element={<Home />} />
 								<Route path='active-orders' element={<ActiveOrders />} />
 								<Route path='past-orders' element={<PastOrders />} />
@@ -54,7 +54,7 @@ const AppRouter = () => {
 
 						<Route element={<RequiredAuth allowedRoles={[UserRole.ADMIN]} />}>
 							<Route path='admin' element={<AdminDashboard />}>
-								<Route index element={<Controls />} />
+								<Route index element={<AlgoBots />} />
 								<Route path='controls' element={<Controls />} />
 								<Route path='algo-bots' element={<AlgoBots />} />
 								<Route path='strategy-setup' element={<StrategySetup />} />

@@ -42,9 +42,9 @@ const Login = () => {
 
   if (auth?.user) {
     return auth.user.role === UserRole.ADMIN ? (
-      <Navigate to="/algotm/admin/controls" />
+      <Navigate to="/algotm/admin/algo-bots" />
     ) : (
-      <Navigate to="/algotm/dashboard/home" />
+      <Navigate to="/algotm/dashboard/algo-bots" />
     );
   }
 
