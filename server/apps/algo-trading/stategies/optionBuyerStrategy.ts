@@ -3,7 +3,7 @@ import * as Typings from '../../../typings';
 import { wsTickLogger } from '../logger';
 import BaseStrategy, { POSITION_STATUS } from './strategy'; //TODO: Rename the file to basestrategy
 
-
+// Currently this is a intraday strategy
 export default class OptionBuyerStrategy extends BaseStrategy {
 
     constructor() {
@@ -13,7 +13,8 @@ export default class OptionBuyerStrategy extends BaseStrategy {
 
 
     protected getStopLossTriggerPrice(price: number): number {
-        const triggerPrice = Math.min(Math.floor(price - (price * this.STOPLOSS_PERCENT)), this.MAX_STOPLOSS_PRICE);
+        const stopLossPrice = Math.min((price * this.STOPLOSS_PERCENT), this.MAX_STOPLOSS_PRICE);
+        const triggerPrice = Math.floor(price - stopLossPrice);
         return triggerPrice;
     }
 
@@ -39,7 +40,7 @@ export default class OptionBuyerStrategy extends BaseStrategy {
                         
                         const stopLossPrice = this.getStopLossTriggerPrice(instrumentDetails.anchorPrice);
                         const stopLossOrder = await this.placeOrder(instrumentName, Typings.TransactionType.SELL, stopLossPrice, "enter", true);
-                        wsTickLogger.info(`Trade: StopLoss set at ${stopLossPrice}`) 
+                        wsTickLogger.info(`Trade: StopLoss set at ${stopLossPrice}`);
                     }
                     
                 }
