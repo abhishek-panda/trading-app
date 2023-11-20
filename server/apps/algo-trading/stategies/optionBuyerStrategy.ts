@@ -13,7 +13,7 @@ export default class OptionBuyerStrategy extends BaseStrategy {
 
 
     protected getStopLossTriggerPrice(price: number): number {
-        const triggerPrice = Math.floor(price - (price * this.getStopLossPercentage()))
+        const triggerPrice = Math.min(Math.floor(price - (price * this.STOPLOSS_PERCENT)), this.MAX_STOPLOSS_PRICE);
         return triggerPrice;
     }
 
@@ -38,7 +38,7 @@ export default class OptionBuyerStrategy extends BaseStrategy {
                         wsTickLogger.info(`Trade: ${instrumentName} buy at ${close}`);
                         
                         const stopLossPrice = this.getStopLossTriggerPrice(instrumentDetails.anchorPrice);
-                        const stopLossOrder = await this.placeOrder(instrumentName, Typings.TransactionType.SELL, stopLossPrice, "enter");
+                        const stopLossOrder = await this.placeOrder(instrumentName, Typings.TransactionType.SELL, stopLossPrice, "enter", true);
                         wsTickLogger.info(`Trade: StopLoss set at ${stopLossPrice}`) 
                     }
                     
@@ -47,7 +47,7 @@ export default class OptionBuyerStrategy extends BaseStrategy {
                 if (status === POSITION_STATUS.HOLD && close > (instrumentDetails.anchorPrice ?? close)) {
                     instrumentDetails.anchorPrice = close;
                     const stopLossPrice = this.getStopLossTriggerPrice(instrumentDetails.anchorPrice);
-                    const updateStopLossOrder = await this.placeOrder(instrumentName, Typings.TransactionType.SELL, stopLossPrice, "update");
+                    const updateStopLossOrder = await this.placeOrder(instrumentName, Typings.TransactionType.SELL, stopLossPrice, "update", true);
                     wsTickLogger.info(`Trade: StopLoss updated to ${this.getStopLossTriggerPrice(close)}`);
                     
                 }
