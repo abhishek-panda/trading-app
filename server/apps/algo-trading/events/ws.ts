@@ -8,6 +8,7 @@ export enum WSEvents {
     UNREGISTER = 'UNREGISTER',
     SUBSCRIBE_INSTRUMENT = 'SUBSCRIBE_INSTRUMENT',
     STREAM_TICKS = 'STREAM_TICKS',
+    ORDER_UPDATE = 'ORDER_UPDATE',
 }
 
 
@@ -19,7 +20,8 @@ const WebSocketEvent = new EventEmitter();
 WebSocketEvent.on(WSEvents.REGISTER, registerWS);
 WebSocketEvent.on(WSEvents.UNREGISTER, unregisterWS);
 WebSocketEvent.on(WSEvents.SUBSCRIBE_INSTRUMENT, subscribeInstrument);
-WebSocketEvent.on(WSEvents.STREAM_TICKS, streamTickData)
+WebSocketEvent.on(WSEvents.STREAM_TICKS, streamTickData);
+WebSocketEvent.on(WSEvents.ORDER_UPDATE, orderUpdate);
 
 function registerWS(inputs: string) {
     const payload = JSON.parse(inputs) as Record<string, string>;
@@ -53,6 +55,11 @@ function subscribeInstrument(payload: Record<string, unknown>) {
 
 function streamTickData(data: string) {
     RabbitMQEvent.emit(RBMQEvents.STREAM_WS_TICKS, data);
+}
+
+
+function orderUpdate(data: unknown) {
+    
 }
 
 

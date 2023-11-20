@@ -39,11 +39,6 @@ class KiteWSTicker {
         });
         this.ticker.on('reconnect', () => {
             logger.info(`KiteWS with apiKey: ${apiKey} reconnecting...`);
-        })
-
-        // TODO: Move to ws event emitter
-        this.ticker.on('order_update', function(order: any) {
-            logger.info(`Order status : ${JSON.stringify(order)}`);
         });
     }
 
