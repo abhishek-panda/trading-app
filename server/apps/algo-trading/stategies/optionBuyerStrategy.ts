@@ -26,14 +26,14 @@ export default class OptionBuyerStrategy extends BaseStrategy {
                         
                     // Buy CE or PE if nothing is bought yet  
                     if(status === POSITION_STATUS.NONE) {
-                        tradeLogger.info(`Signal: ${instrumentName} buy at ${close}`);
+                        tradeLogger.info(`Signal: Buy ${instrumentName} at ${close}`);
                         await this.placeOrder(instrument, Typings.TransactionType.BUY, close, "enter");
                     }
                     
                 }
 
-                if (status === POSITION_STATUS.HOLD && close > (instrumentDetails.anchorPrice ?? close)) {
-                    tradeLogger.info(`Signal: ${instrumentName} stoploss updated to ${close} and anchorPrice is ${instrumentDetails.anchorPrice}`);
+                if (status === POSITION_STATUS.HOLD) {
+                    tradeLogger.info(`Signal: Update order ${instrumentName} at ${close}`);
                     await this.placeOrder(instrument, Typings.TransactionType.SELL, close, "update");
                 }
                 

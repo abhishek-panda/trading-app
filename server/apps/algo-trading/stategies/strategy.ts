@@ -243,35 +243,43 @@ export default abstract class BaseStrategy {
 
                 if (executionType === "update") {
                     const trade = trades.get(instrumentSymbol);
-                    
                     if (trade) {
                         const pendingOrderId = trade.pendingOrder;
                         if (pendingOrderId) {
                             const orderDetailStatus = await kiteConnect.getOrderStatus(accessToken, pendingOrderId);
-                            tradeLogger.info(`Update call orderStatus : ${JSON.stringify(orderDetailStatus)}`);
+                            tradeLogger.info(`Latest state of order ${pendingOrderId} : ${JSON.stringify(orderDetailStatus)}`);
                             if (!(orderDetailStatus instanceof Error) && Array.isArray(orderDetailStatus)) {
                                 const completedStates = [ORDER_STATUS.CANCELLED, ORDER_STATUS.COMPLETE, ORDER_STATUS.REJECTED];
                                 if (orderDetailStatus.length > 0) {
                                     const { status, average_price } = orderDetailStatus[0];
                                     if (completedStates.includes(status)) {
                                         // Update state and mark it as completed
-                                        tradeLogger.info(`Resetting order states`);
+                                        if (status === ORDER_STATUS.COMPLETE) {
+                                            tradeLogger.info(`Stoploss has been trigged. So invalidating pendingOrderId ${pendingOrderId}`);
+                                        } else {
+                                            tradeLogger.info(`PendingOrderId ${pendingOrderId} has been cancelled/rejected so invalidating it`);
+                                        }
                                         const tradeDetail = { pendingOrder: undefined , completedOrder: trade?.completedOrder};
                                         trades.set(instrumentSymbol, tradeDetail);
                                         instrumentDetails.anchorPrice = average_price; // Added this price for re-entry if price goes above this
                                         instrumentDetails.status = POSITION_STATUS.NONE;
                                         
                                     } else {
-                                        // Update stoploss order price
-                                        const stopLossPrice = this.getStopLossTriggerPrice(price);
-                                        tradeLogger.info(`Update order`);
-                                        const isOrderUpdated = await kiteConnect.updateOrder(accessToken, "regular", pendingOrderId, { 
-                                            price: stopLossPrice - 1,
-                                            trigger_price: stopLossPrice
-                                        });
-                                        if (!(isOrderUpdated instanceof Error) && isOrderUpdated) {
-                                            instrumentDetails.anchorPrice = price;
-                                            instrumentDetails.status = POSITION_STATUS.HOLD;
+                                        if (price > (instrumentDetails.anchorPrice ?? price)) {
+                                            // Place update order
+                                            const stopLossPrice = this.getStopLossTriggerPrice(price);
+                                            tradeLogger.info(`Updating stoploss order`);
+                                            const isOrderUpdated = await kiteConnect.updateOrder(accessToken, "regular", pendingOrderId, { 
+                                                price: stopLossPrice - 1,
+                                                trigger_price: stopLossPrice
+                                            });
+                                            if (!(isOrderUpdated instanceof Error) && isOrderUpdated) {
+                                                instrumentDetails.anchorPrice = price;
+                                                instrumentDetails.status = POSITION_STATUS.HOLD;
+                                            }
+                                        } else {
+                                            // Log cannot update order as price is less than anchor price.
+                                            tradeLogger.info(`Curent price ${price} is less than last max price ${instrumentDetails.anchorPrice}. So not updating stoploss order`);
                                         }
                                     }
                                 }
