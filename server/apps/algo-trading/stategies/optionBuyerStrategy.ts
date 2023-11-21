@@ -1,21 +1,14 @@
 import { InstrumentTA, STRATEGY } from '../../../../libs/typings';
 import * as Typings from '../../../typings';
-import { wsTickLogger } from '../logger';
+import { tradeLogger } from '../logger';
 import BaseStrategy, { POSITION_STATUS } from './strategy'; //TODO: Rename the file to basestrategy
 
 // Currently this is a intraday strategy
 export default class OptionBuyerStrategy extends BaseStrategy {
 
     constructor() {
-        super();
-        this.init(STRATEGY.OPTION_BUYER);
-    }
-
-
-    protected getStopLossTriggerPrice(price: number): number {
-        const stopLossPrice = Math.min((price * this.STOPLOSS_PERCENT), this.MAX_STOPLOSS_PRICE);
-        const triggerPrice = Math.floor(price - stopLossPrice);
-        return triggerPrice;
+        super(STRATEGY.OPTION_BUYER);
+        this.init();
     }
 
     
@@ -33,37 +26,28 @@ export default class OptionBuyerStrategy extends BaseStrategy {
                         
                     // Buy CE or PE if nothing is bought yet  
                     if(status === POSITION_STATUS.NONE) {
-                        instrumentDetails.status = POSITION_STATUS.HOLD;
-                        instrumentDetails.anchorPrice = close;
-                        const buyOrder = await this.placeOrder(instrumentName, Typings.TransactionType.BUY, close, "enter");
-                        wsTickLogger.info(`Trade: ${instrumentName} buy at ${close}`);
-                        
-                        const stopLossPrice = this.getStopLossTriggerPrice(instrumentDetails.anchorPrice);
-                        const stopLossOrder = await this.placeOrder(instrumentName, Typings.TransactionType.SELL, stopLossPrice, "enter", true);
-                        wsTickLogger.info(`Trade: StopLoss set at ${stopLossPrice}`);
+                        tradeLogger.info(`Signal: ${instrumentName} buy at ${close}`);
+                        await this.placeOrder(instrument, Typings.TransactionType.BUY, close, "enter");
                     }
                     
                 }
 
                 if (status === POSITION_STATUS.HOLD && close > (instrumentDetails.anchorPrice ?? close)) {
-                    instrumentDetails.anchorPrice = close;
-                    const stopLossPrice = this.getStopLossTriggerPrice(instrumentDetails.anchorPrice);
-                    const updateStopLossOrder = await this.placeOrder(instrumentName, Typings.TransactionType.SELL, stopLossPrice, "update", true);
-                    wsTickLogger.info(`Trade: StopLoss updated to ${this.getStopLossTriggerPrice(close)}`);
-                    
+                    tradeLogger.info(`Signal: ${instrumentName} stoploss updated to ${close} and anchorPrice is ${instrumentDetails.anchorPrice}`);
+                    await this.placeOrder(instrument, Typings.TransactionType.SELL, close, "update");
                 }
                 
-                // Downside move
-                if (ema5 < ema9 && ema9 < ema20) {
+                // // Downside move
+                // if (ema5 < ema9 && ema9 < ema20) {
                     
-                    // Exit if holding any CE or PE postion
-                    if (status === POSITION_STATUS.HOLD) {
-                        instrumentDetails.status = POSITION_STATUS.NONE;
-                        instrumentDetails.anchorPrice = undefined;
-                        const exitOrder = await this.placeOrder(instrumentName,  Typings.TransactionType.SELL, close, "exit");
-                        wsTickLogger.info(`Trade: ${instrumentName} sell at ${close}`);
-                    }
-                }
+                //     // Exit if holding any CE or PE postion
+                //     if (status === POSITION_STATUS.HOLD) {
+                //         instrumentDetails.status = POSITION_STATUS.NONE;
+                //         instrumentDetails.anchorPrice = undefined;
+                //         const exitOrder = await this.placeOrder(instrumentName,  Typings.TransactionType.SELL, close, "exit");
+                //         wsTickLogger.info(`Trade: ${instrumentName} sell at ${close}`);
+                //     }
+                // }
             }
         }
     }

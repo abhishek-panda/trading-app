@@ -120,6 +120,22 @@ export default class KiteConnect {
         });
     }
 
+
+
+    
+
+    updateOrder(accessToken: string, variety: string, order_id: string, data: { quantity?: number, trigger_price?: number, price?: number  }): Promise<boolean | Error> {
+        this.kiteconnect.setAccessToken(accessToken);
+        logger.info(`Placing order update. ${JSON.stringify(data)}`);
+        return this.kiteconnect.modifyOrder(variety, order_id, data).then(function(resp : any) {
+            return resp.order_id === order_id;
+        }).catch(function(error: any) {
+            const errorDetails = new Error(`Failed to update order. Error: ${JSON.stringify(error)}`);
+            logger.error(errorDetails.message);
+            return errorDetails;
+        });
+    }
+
     cancelOrder(accessToken: string, variety: string, order_id: string): Promise<boolean | Error> {
         this.kiteconnect.setAccessToken(accessToken);
         return this.kiteconnect.cancelOrder(variety, order_id).then(function(response: any) {
@@ -152,6 +168,17 @@ export default class KiteConnect {
                 }
             })
             .then((response: Response) => response.json() as any)
+            .then((result: any) => {
+                logger.info(`OrderId Status : ${JSON.stringify(result)}`);
+                const {status, data} = result;
+                let latestState = [];
+                if (status === 'success' && data.length > 1) {
+                    const totalOrderPhases = data.length;
+                    const lastState = data[totalOrderPhases - 1];
+                    latestState.push(lastState);
+                }
+                return latestState;
+            })
             .catch((error: Error) => {
                 logger.error(error.message);
                 return error;

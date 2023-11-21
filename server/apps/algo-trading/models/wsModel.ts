@@ -31,7 +31,6 @@ class WSModel {
                 WebSocketEvent.emit(WSEvents.STREAM_TICKS, ticks);
             });
             tickerInstance?.on('order_update', function (orderDetail) {
-                logger.info(`Order status : ${JSON.stringify(orderDetail)}`);
                 WebSocketEvent.emit(WSEvents.ORDER_UPDATE, orderDetail);
             });
         }
