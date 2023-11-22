@@ -106,6 +106,8 @@ export default abstract class BaseStrategy {
 
         const instrumentDetails = this.subscribedInstruments.get(intrumentId);
         if (instrumentDetails) {
+            const quantity = 1;
+            const lotSize = 50;
             const {strategyLeg: {name: instrumentName}} = instrumentDetails;
             const instrumentSymbol = instrumentName.split(":")[1];
             for(let client of this.clientDetails) {
@@ -114,8 +116,6 @@ export default abstract class BaseStrategy {
                 
                 if (executionType === "enter") {
                     let basketOrder = [];
-                    const quantity = 1;
-                    const lotSize = 50;
                     let shouldPlaceOrder = false;
 
                     if (this.strategyType === STRATEGY.OPTION_SELLER) {
@@ -189,7 +189,6 @@ export default abstract class BaseStrategy {
                                 tradeLogger.info(`New Order ${JSON.stringify(tradeDetail)}`);
 
                                 await (new Promise((resolve) => {
-                                    const tradeCache = trades.get(instrumentSymbol);
                                     const interval = setInterval(async () => {
                                         const orderStatusDetail = await kiteConnect.getOrderStatus(accessToken, newOrderId);
                                         if (!(orderStatusDetail instanceof Error) && Array.isArray(orderStatusDetail)) {
@@ -197,7 +196,7 @@ export default abstract class BaseStrategy {
                                                 const { status: orderStatus, average_price: executedPrice } = orderStatusDetail[0];
                                                 if (this.COMPLETED_STATES.includes(orderStatus)) {
                                                     if (orderStatus === ORDER_STATUS.CANCELLED || orderStatus === ORDER_STATUS.REJECTED) {
-                                                        const tempTradeDetail = { pendingOrder: undefined , completedOrder: tradeCache?.completedOrder};
+                                                        const tempTradeDetail = { pendingOrder: undefined , completedOrder: undefined };
                                                         trades.set(instrumentSymbol, tempTradeDetail);
                                                         tradeLogger.info(`${brokerClient.apiKey} failed to executed ${instrumentSymbol}`);
                                                     }
@@ -273,13 +272,13 @@ export default abstract class BaseStrategy {
                                         if (status === ORDER_STATUS.COMPLETE) {
                                             tradeLogger.info(`Stoploss has been trigged. So invalidating pendingOrderId ${pendingOrderId}`);
                                             instrumentDetails.anchorPrice = average_price; // Added this price for re-entry if price goes above
+                                            instrumentDetails.status = POSITION_STATUS.NONE;
+                                            const tempTradeDetail = { pendingOrder: undefined, completedOrder: undefined };
+                                            trades.set(instrumentSymbol, tempTradeDetail);
                                         } else {
-                                            tradeLogger.info(`PendingOrderId ${pendingOrderId} has been cancelled/rejected so invalidating it`);
-                                            instrumentDetails.anchorPrice = undefined;
+                                            tradeLogger.info(`PendingOrderId ${pendingOrderId} has been cancelled/rejected so waiting for exit signal`);
+                                            // TODO: Or can place a new stoploss order
                                         }
-                                        const tempTradeDetail = { pendingOrder: undefined , completedOrder: trade?.completedOrder};
-                                        trades.set(instrumentSymbol, tempTradeDetail);
-                                        instrumentDetails.status = POSITION_STATUS.NONE;
                                     } else {
                                         if (price > (instrumentDetails.anchorPrice ?? 0)) {
                                             // Place update order
@@ -300,6 +299,36 @@ export default abstract class BaseStrategy {
                                     }
                                 }
                                 
+                            }
+                        }
+                    }
+                }
+
+                if (executionType === 'exit') {
+                    const trade = trades.get(instrumentSymbol);
+                    if (trade) {
+                        await this.clearOpenOrder(kiteConnect, accessToken, trades);
+                        const completedOrderId = trade.completedOrder;
+                        if (completedOrderId) {
+                            const tradeOrder: Typings.BasketOrderItem = {
+                                exchange: Typings.Exchange.NFO,
+                                tradingsymbol: instrumentSymbol,
+                                transaction_type: transaction_type,
+                                variety: "regular",
+                                product: Typings.ProductType.MIS,
+                                order_type: Typings.OderType.MARKET,
+                                quantity: lotSize * quantity,
+                                price: 0,
+                                trigger_price: 0,
+                            };
+
+                            const exitOrderId = await kiteConnect.placeOrder(accessToken, "regular", tradeOrder);
+
+                            if (!(exitOrderId instanceof Error)) {
+                                const tempTradeDetail = { pendingOrder: undefined, completedOrder: undefined };
+                                trades.set(instrumentSymbol, tempTradeDetail);
+                                instrumentDetails.status = POSITION_STATUS.NONE;
+                                tradeLogger.info(`Exit Order ${JSON.stringify(tempTradeDetail)}`);
                             }
                         }
                     }
@@ -332,7 +361,7 @@ export default abstract class BaseStrategy {
 
                 if (
                     this.subscribedInstruments.get(instrument_token) &&
-                    status === ORDER_STATUS.OPEN &&
+                    (status === ORDER_STATUS.OPEN || status === ORDER_STATUS.TRIGGER_PENDING) &&
                     product ===  Typings.ProductType.MIS
                 ) {
                     const isOrderCancelled = await kiteConnect.cancelOrder(accessToken,"regular", order_id);

@@ -38,16 +38,14 @@ export default class OptionBuyerStrategy extends BaseStrategy {
                 }
                 
                 // // Downside move
-                // if (ema5 < ema9 && ema9 < ema20) {
+                if (ema5 < ema9 && ema9 < ema20) {
                     
-                //     // Exit if holding any CE or PE postion
-                //     if (status === POSITION_STATUS.HOLD) {
-                //         instrumentDetails.status = POSITION_STATUS.NONE;
-                //         instrumentDetails.anchorPrice = undefined;
-                //         const exitOrder = await this.placeOrder(instrumentName,  Typings.TransactionType.SELL, close, "exit");
-                //         wsTickLogger.info(`Trade: ${instrumentName} sell at ${close}`);
-                //     }
-                // }
+                    // Exit if holding any CE or PE postion
+                    if (status === POSITION_STATUS.HOLD) {
+                        tradeLogger.info(`Signal: Exit buy ${instrumentName} at ${close}`);
+                        await this.placeOrder(instrument,  Typings.TransactionType.SELL, close, "exit");
+                    }
+                }
             }
         }
     }
