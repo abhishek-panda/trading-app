@@ -39,9 +39,11 @@ export default abstract class BaseStrategy {
     private tradeStartTime: number;
     private tradeCloseTime: number;
     private strategyType: STRATEGY;
+    private readonly COMPLETED_STATES = [ORDER_STATUS.CANCELLED, ORDER_STATUS.COMPLETE, ORDER_STATUS.REJECTED];
     protected subscribedInstruments: Map<number, StrategyLegDetail> = new Map();
     protected readonly STOPLOSS_PERCENT: number = 0.07; // 7%
-    protected readonly MAX_STOPLOSS_PRICE = 10;
+    protected readonly MAX_STOPLOSS_PRICE = 10; // in Rs
+    protected readonly RE_ENTRY_ABOVE_PERCENT = 0.05;
     // Note: Make sure all the clients are active before starting algo
     protected clientDetails: ClientDetail[] = [];
 
@@ -109,14 +111,33 @@ export default abstract class BaseStrategy {
             for(let client of this.clientDetails) {
                 const {kiteConnect, brokerClient, trades} = client;
                 const { accessToken } = brokerClient;
+                
                 if (executionType === "enter") {
                     let basketOrder = [];
                     const quantity = 1;
                     const lotSize = 50;
+                    let shouldPlaceOrder = false;
+                    
                     if (this.strategyType === STRATEGY.OPTION_SELLER) {
+                        // If anchor price is undefined then its fresh entry else its a re-entry
+                        const { anchorPrice = Number.MAX_SAFE_INTEGER } = instrumentDetails;
+                        const thresholdEntry = anchorPrice - (anchorPrice * this.RE_ENTRY_ABOVE_PERCENT);
+                        shouldPlaceOrder = price < thresholdEntry;
+
                         // Add hedge order to basket order
                         // hedgeOrder = ..
                         // basketOrder.push(hedgeOrder);
+                    } 
+                    
+                    if (this.strategyType === STRATEGY.OPTION_BUYER) {
+                        // If anchor price is undefined then its fresh entry else its a re-entry
+                        const { anchorPrice = 0 } = instrumentDetails;
+                        const thresholdEntry = anchorPrice + (anchorPrice * this.RE_ENTRY_ABOVE_PERCENT);
+                        shouldPlaceOrder = price > thresholdEntry;
+                    }
+
+                    if (shouldPlaceOrder === false) {
+                        return;
                     }
 
 
@@ -162,32 +183,27 @@ export default abstract class BaseStrategy {
                             const newOrderId = await kiteConnect.placeOrder(accessToken, "regular", order);
                             
                             if (!(newOrderId instanceof Error)) {
-                                if (trades.get(instrumentSymbol)) {
-                                    tradeLogger.info("Update order")
-                                } else {
-                                    const tradeDetail = { pendingOrder: newOrderId , completedOrder: undefined};
-                                    trades.set(instrumentSymbol, tradeDetail);
-                                    tradeLogger.info(`New Order ${JSON.stringify(tradeDetail)}`);
-                                }
+                                const tradeDetail = { pendingOrder: newOrderId , completedOrder: undefined};
+                                trades.set(instrumentSymbol, tradeDetail);
+                                tradeLogger.info(`New Order ${JSON.stringify(tradeDetail)}`);
 
                                 await (new Promise((resolve) => {
-                                    const completedStates = [ORDER_STATUS.CANCELLED, ORDER_STATUS.COMPLETE, ORDER_STATUS.REJECTED];
                                     const tradeCache = trades.get(instrumentSymbol);
                                     const interval = setInterval(async () => {
                                         const orderStatusDetail = await kiteConnect.getOrderStatus(accessToken, newOrderId);
                                         if (!(orderStatusDetail instanceof Error) && Array.isArray(orderStatusDetail)) {
                                             if (orderStatusDetail.length > 0) {
                                                 const { status: orderStatus, average_price: executedPrice } = orderStatusDetail[0];
-                                                if (completedStates.includes(orderStatus)) {
+                                                if (this.COMPLETED_STATES.includes(orderStatus)) {
                                                     if (orderStatus === ORDER_STATUS.CANCELLED || orderStatus === ORDER_STATUS.REJECTED) {
-                                                        const tradeDetail = { pendingOrder: undefined , completedOrder: tradeCache?.completedOrder};
-                                                        trades.set(instrumentSymbol, tradeDetail);
+                                                        const tempTradeDetail = { pendingOrder: undefined , completedOrder: tradeCache?.completedOrder};
+                                                        trades.set(instrumentSymbol, tempTradeDetail);
                                                         tradeLogger.info(`${brokerClient.apiKey} failed to executed ${instrumentSymbol}`);
                                                     }
 
                                                     if (orderStatus === ORDER_STATUS.COMPLETE) {
-                                                        const tradeDetail = { pendingOrder: undefined , completedOrder: newOrderId};
-                                                        trades.set(instrumentSymbol, tradeDetail);
+                                                        const tempTradeDetail = { pendingOrder: undefined , completedOrder: newOrderId};
+                                                        trades.set(instrumentSymbol, tempTradeDetail);
                                                         instrumentDetails.anchorPrice = executedPrice;
                                                         instrumentDetails.status = POSITION_STATUS.HOLD;
                                                         tradeLogger.info(`${brokerClient.apiKey} executed ${instrumentSymbol} at ${executedPrice}`);
@@ -203,35 +219,35 @@ export default abstract class BaseStrategy {
 
                                 // Place a stop loss order
                                 if (instrumentDetails.status === POSITION_STATUS.HOLD && (instrumentDetails.anchorPrice ?? 0) > 0) {
-                                    const stopLossPrice = this.getStopLossTriggerPrice(instrumentDetails.anchorPrice ?? 0);
-                                    const stopLossOrder: Typings.BasketOrderItem = {
-                                        exchange: Typings.Exchange.NFO,
-                                        tradingsymbol: instrumentSymbol,
-                                        transaction_type: transaction_type === Typings.TransactionType.BUY ? Typings.TransactionType.SELL : Typings.TransactionType.BUY,
-                                        variety: "regular",
-                                        product: Typings.ProductType.MIS,
-                                        order_type: Typings.OderType.SL,
-                                        quantity: lotSize * quantity,
-                                        price: stopLossPrice - 1,
-                                        trigger_price: stopLossPrice,
-                                    };
-                                    
-                                    /**
-                                     * Assuming the first order is hedge order for option seller
-                                     * Place stoploss order for everything execept hedge trade.
-                                     */
                                     if (!(this.strategyType === STRATEGY.OPTION_SELLER && index === 0)) {
+                                        const stopLossPrice = this.getStopLossTriggerPrice(instrumentDetails.anchorPrice ?? 0);
+                                        const stopLossOrder: Typings.BasketOrderItem = {
+                                            exchange: Typings.Exchange.NFO,
+                                            tradingsymbol: instrumentSymbol,
+                                            transaction_type: transaction_type === Typings.TransactionType.BUY ? Typings.TransactionType.SELL : Typings.TransactionType.BUY,
+                                            variety: "regular",
+                                            product: Typings.ProductType.MIS,
+                                            order_type: Typings.OderType.SL,
+                                            quantity: lotSize * quantity,
+                                            price: stopLossPrice - 1,
+                                            trigger_price: stopLossPrice,
+                                        };
+                                    
+                                        /**
+                                         * Assuming the first order is hedge order for option seller
+                                         * Place stoploss order for everything execept hedge trade.
+                                         */
+                                    
                                         await this.clearOpenOrder(kiteConnect, accessToken, trades);
                                         const stopLossOrderId = await kiteConnect.placeOrder(accessToken, "regular", stopLossOrder);
                                         if (!(stopLossOrderId instanceof Error)) {
                                             tradeLogger.info(`${brokerClient.apiKey} placed stoploss order for ${instrumentSymbol} at ${stopLossPrice}`);
                                             const tradeCache = trades.get(instrumentSymbol);
-                                            const tradeDetail = { pendingOrder: stopLossOrderId , completedOrder: tradeCache?.completedOrder};
-                                            trades.set(instrumentSymbol, tradeDetail);
-                                            tradeLogger.info(`Current trade Detail: ${JSON.stringify(tradeDetail)}`);
+                                            const tempTradeDetail = { pendingOrder: stopLossOrderId , completedOrder: tradeCache?.completedOrder};
+                                            trades.set(instrumentSymbol, tempTradeDetail);
+                                            tradeLogger.info(`Current trade Detail: ${JSON.stringify(tempTradeDetail)}`);
                                         }
                                     }
-                                    
                                 }
                             }
                         }
@@ -259,13 +275,13 @@ export default abstract class BaseStrategy {
                                         } else {
                                             tradeLogger.info(`PendingOrderId ${pendingOrderId} has been cancelled/rejected so invalidating it`);
                                         }
-                                        const tradeDetail = { pendingOrder: undefined , completedOrder: trade?.completedOrder};
-                                        trades.set(instrumentSymbol, tradeDetail);
+                                        const tempTradeDetail = { pendingOrder: undefined , completedOrder: trade?.completedOrder};
+                                        trades.set(instrumentSymbol, tempTradeDetail);
                                         instrumentDetails.anchorPrice = average_price; // Added this price for re-entry if price goes above this
                                         instrumentDetails.status = POSITION_STATUS.NONE;
                                         
                                     } else {
-                                        if (price > (instrumentDetails.anchorPrice ?? price)) {
+                                        if (price > (instrumentDetails.anchorPrice ?? 0)) {
                                             // Place update order
                                             const stopLossPrice = this.getStopLossTriggerPrice(price);
                                             tradeLogger.info(`Updating stoploss order`);
