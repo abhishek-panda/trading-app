@@ -27,7 +27,13 @@ class KiteWSTicker {
             access_token: params.access_token,
         }) as WSTicker;
 
-        this.ticker.autoReconnect(false, 3, 10); // Enable reconnect will kill the process as the library has process.exit(1) after n retries
+        /**
+         * Max allowed reconnection attempts is 300 and min delay in reconnection is 5
+         * So after 25 minutes the application will die because the library has process.exit(1) after n retries
+         * 
+         * Note: Enabling reconnect will kill the process
+         */
+        this.ticker.autoReconnect(true, 300, 5);
         this.ticker.on('connect', function () {
             logger.info(`KiteWS with apiKey: ${apiKey} connected`);
         });
