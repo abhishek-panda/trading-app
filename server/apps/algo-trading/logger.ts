@@ -58,4 +58,19 @@ export const tradeLogger = winston.createLogger({
     ]
 });
 
+
+export const wstradeLogger = winston.createLogger({
+    levels: winston.config.npm.levels,
+    transports:[
+        new winston.transports.File({
+            dirname: 'logs',
+            filename: 'wstrade.log',
+            level: 'info',
+            format: winston.format.combine(winston.format.label({ label: 'WSTRADE' }), winston.format.timestamp({ format : function() {
+                return GlobalUtils.getLocalDateTime().toISOString();
+                }}), GlobalUtils.logFormat)
+        })
+    ]
+});
+
 export default logger;

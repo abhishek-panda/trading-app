@@ -1,6 +1,7 @@
 import EventEmitter from 'events';
 import WSController from '../../algo-trading/controllers/wsController';
 import RabbitMQEvent, { RBMQEvents } from './rabbit';
+import { wstradeLogger } from '../logger';
 
 
 export enum WSEvents {
@@ -59,7 +60,7 @@ function streamTickData(data: string) {
 
 
 function orderUpdate(data: unknown) {
-    
+    wstradeLogger.info(`Trade : ${JSON.stringify(data)}`)
 }
 
 

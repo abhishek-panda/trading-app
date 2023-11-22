@@ -117,7 +117,7 @@ export default abstract class BaseStrategy {
                     const quantity = 1;
                     const lotSize = 50;
                     let shouldPlaceOrder = false;
-                    
+
                     if (this.strategyType === STRATEGY.OPTION_SELLER) {
                         // If anchor price is undefined then its fresh entry else its a re-entry
                         const { anchorPrice = Number.MAX_SAFE_INTEGER } = instrumentDetails;
@@ -137,6 +137,7 @@ export default abstract class BaseStrategy {
                     }
 
                     if (shouldPlaceOrder === false) {
+                        tradeLogger.info(`Can't place order, doesn't satisfy condition`);
                         return;
                     }
 
@@ -219,6 +220,11 @@ export default abstract class BaseStrategy {
 
                                 // Place a stop loss order
                                 if (instrumentDetails.status === POSITION_STATUS.HOLD && (instrumentDetails.anchorPrice ?? 0) > 0) {
+                                    
+                                    /**
+                                     * Assuming the first order is hedge order for option seller
+                                     * Place stoploss order for everything execept hedge trade.
+                                     */
                                     if (!(this.strategyType === STRATEGY.OPTION_SELLER && index === 0)) {
                                         const stopLossPrice = this.getStopLossTriggerPrice(instrumentDetails.anchorPrice ?? 0);
                                         const stopLossOrder: Typings.BasketOrderItem = {
@@ -232,11 +238,6 @@ export default abstract class BaseStrategy {
                                             price: stopLossPrice - 1,
                                             trigger_price: stopLossPrice,
                                         };
-                                    
-                                        /**
-                                         * Assuming the first order is hedge order for option seller
-                                         * Place stoploss order for everything execept hedge trade.
-                                         */
                                     
                                         await this.clearOpenOrder(kiteConnect, accessToken, trades);
                                         const stopLossOrderId = await kiteConnect.placeOrder(accessToken, "regular", stopLossOrder);
@@ -265,21 +266,20 @@ export default abstract class BaseStrategy {
                             const orderDetailStatus = await kiteConnect.getOrderStatus(accessToken, pendingOrderId);
                             tradeLogger.info(`Latest state of order ${pendingOrderId} : ${JSON.stringify(orderDetailStatus)}`);
                             if (!(orderDetailStatus instanceof Error) && Array.isArray(orderDetailStatus)) {
-                                const completedStates = [ORDER_STATUS.CANCELLED, ORDER_STATUS.COMPLETE, ORDER_STATUS.REJECTED];
                                 if (orderDetailStatus.length > 0) {
                                     const { status, average_price } = orderDetailStatus[0];
-                                    if (completedStates.includes(status)) {
+                                    if (this.COMPLETED_STATES.includes(status)) {
                                         // Update state and mark it as completed
                                         if (status === ORDER_STATUS.COMPLETE) {
                                             tradeLogger.info(`Stoploss has been trigged. So invalidating pendingOrderId ${pendingOrderId}`);
+                                            instrumentDetails.anchorPrice = average_price; // Added this price for re-entry if price goes above
                                         } else {
                                             tradeLogger.info(`PendingOrderId ${pendingOrderId} has been cancelled/rejected so invalidating it`);
+                                            instrumentDetails.anchorPrice = undefined;
                                         }
                                         const tempTradeDetail = { pendingOrder: undefined , completedOrder: trade?.completedOrder};
                                         trades.set(instrumentSymbol, tempTradeDetail);
-                                        instrumentDetails.anchorPrice = average_price; // Added this price for re-entry if price goes above this
                                         instrumentDetails.status = POSITION_STATUS.NONE;
-                                        
                                     } else {
                                         if (price > (instrumentDetails.anchorPrice ?? 0)) {
                                             // Place update order
