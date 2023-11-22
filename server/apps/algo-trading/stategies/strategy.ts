@@ -376,7 +376,15 @@ export default abstract class BaseStrategy {
 
     protected getStopLossTriggerPrice(price: number): number {
         const stopLossPrice = Math.min((price * this.STOPLOSS_PERCENT), this.MAX_STOPLOSS_PRICE);
-        const triggerPrice = Math.floor(price - stopLossPrice);
+        let triggerPrice: number = price; 
+        if (this.strategyType === STRATEGY.OPTION_BUYER) {
+            triggerPrice =  Math.floor(price - stopLossPrice);
+        }
+
+        if (this.strategyType === STRATEGY.OPTION_SELLER) {
+            triggerPrice =  Math.floor(price + stopLossPrice);
+        }
+        
         return triggerPrice;
     };
 
