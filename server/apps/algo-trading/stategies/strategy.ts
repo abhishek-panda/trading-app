@@ -388,6 +388,13 @@ export default abstract class BaseStrategy {
         return triggerPrice;
     };
 
+    protected resetInstrumentStoplossPrice(intrumentId: number) {
+        const instrumentDetails = this.subscribedInstruments.get(intrumentId);
+        if (instrumentDetails) {
+            instrumentDetails.anchorPrice = undefined;
+        }
+    }
+
     abstract watchAndExecute (instrumentData: InstrumentTA): void;
 
 }
