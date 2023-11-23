@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import Strategy from "./Strategy";
+import { BOOLEAN } from "../../libs/typings";
 
 @Entity()
 export default class StrategyLeg {
@@ -22,11 +23,15 @@ export default class StrategyLeg {
     @Column()
     file: string;
 
-    constructor( strategy: Strategy, name: string, instrumentId: string, filePath: string ) {
+    @Column({ type: 'enum', enum: BOOLEAN, default: BOOLEAN.FALSE })
+    isHedge: BOOLEAN;
+
+    constructor( strategy: Strategy, name: string, instrumentId: string, filePath: string, isHedge: BOOLEAN = BOOLEAN.FALSE ) {
         this.strategy = strategy;
         this.name = name;
         this.instrumentId = instrumentId;
         this.file = filePath;
+        this.isHedge = isHedge;
     }
 
 }

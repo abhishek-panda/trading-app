@@ -6,7 +6,7 @@ import fsPromise from 'node:fs/promises';
 import fs from 'fs';
 import {parse} from 'papaparse';
 import * as Typings from '../../../typings';
-import { IResponse, IStrategy, TradingTimeFrame } from '../../../../libs/typings';
+import { BOOLEAN, IResponse, IStrategy, TradingTimeFrame } from '../../../../libs/typings';
 import { validStrategySchema } from '../../../../libs/utils';
 import Strategy from "../../../entities/Strategy";
 import BrokerClient from "../../../entities/BrokerClient";
@@ -37,6 +37,10 @@ export default class ControlPanelModel {
                     const validStrategy = await validStrategySchema.validate(registrationData);
                     const callInstrumentName = registrationData.callInstrumentName as string ?? '';
                     const putInstrumentName = registrationData.putInstrumentName as string ?? '';
+                    const callHedgeInstrumentName = (registrationData.callHedgeInstrumentName as string ?? '').trim();
+                    const putHedgeInstrumentName = (registrationData.putHedgeInstrumentName as string ?? '').trim();
+
+                    console.log(callHedgeInstrumentName, putHedgeInstrumentName);
 
                     const parsedCallData = await this.parseUploadedFile(callfilePath, callInstrumentName);
                     const parsedPutData = await this.parseUploadedFile(putfilePath, putInstrumentName);
@@ -62,10 +66,25 @@ export default class ControlPanelModel {
                         if (brokerClient) {
                             const { apiKey, accessToken } = brokerClient;
                             const kiteConnect = new KiteConnect(apiKey);
-                            const instrumenQuotes = await kiteConnect.getQuote(accessToken, [callInstrumentName, putInstrumentName]);
+                            const instruments = [callInstrumentName, putInstrumentName];
+                            if (callHedgeInstrumentName) {
+                                instruments.push(callHedgeInstrumentName);
+                            }
+
+                            if (putHedgeInstrumentName) {
+                                instruments.push(putHedgeInstrumentName);
+                            }
+                            console.log(instruments);
+                            const instrumenQuotes = await kiteConnect.getQuote(accessToken, instruments);
                             if (instrumenQuotes && instrumenQuotes[callInstrumentName] && instrumenQuotes[putInstrumentName]) {
                                 const callInstrumentId = instrumenQuotes[callInstrumentName].instrument_token;
                                 const putInstrumentId = instrumenQuotes[putInstrumentName].instrument_token;
+
+                                console.log(instrumenQuotes);
+                                const callHedgeInstrumentId = (instrumenQuotes[callHedgeInstrumentName]?.instrument_token ?? '');
+                                const putHedgeInstrumentId = (instrumenQuotes[putHedgeInstrumentName]?.instrument_token ?? '');
+                                console.log(callHedgeInstrumentId, putHedgeInstrumentId);
+
                                 const filesToSink = [
                                     {
                                         id: callInstrumentId,
@@ -80,6 +99,16 @@ export default class ControlPanelModel {
                                 const putStrategyLeg = new StrategyLeg(savedStrategy,putInstrumentName, putInstrumentId, putfilePath);
                                 const callResult = await entitymanager.save(callStrategyLeg);
                                 const putResult = await entitymanager.save(putStrategyLeg);
+                                if (callHedgeInstrumentId) {
+                                    const callHedgeStrategyLeg = new StrategyLeg(savedStrategy, callHedgeInstrumentName, callHedgeInstrumentId, '', BOOLEAN.TRUE);
+                                   await entitymanager.save(callHedgeStrategyLeg);
+                                }
+
+                                if (callHedgeInstrumentId) {
+                                    const putHedgeStrategyLeg = new StrategyLeg(savedStrategy, putHedgeInstrumentName, putHedgeInstrumentId, '', BOOLEAN.TRUE);
+                                    await entitymanager.save(putHedgeStrategyLeg);
+                                }
+
                                 if (callResult && putResult) {
                                     filesToSink.forEach(function(fileObj) {
                                         fs.readFile(fileObj.path, 'utf8', function(readError, contents) {
@@ -139,6 +168,8 @@ export default class ControlPanelModel {
                     const validStrategy = await validStrategySchema.validate(registrationData);
                     const callInstrumentName = registrationData.callInstrumentName as string ?? '';
                     const putInstrumentName = registrationData.putInstrumentName as string ?? '';
+                    const callHedgeInstrumentName = registrationData.callHedgeInstrumentName as string ?? '';
+                    const putHedgeInstrumentName = registrationData.putHedgeInstrumentName as string ?? '';
 
                     const parsedCallData = await this.parseUploadedFile(callfilePath, callInstrumentName);
                     const parsedPutData = await this.parseUploadedFile(putfilePath, putInstrumentName);
@@ -166,10 +197,21 @@ export default class ControlPanelModel {
                         if (brokerClient) {
                             const { apiKey, accessToken } = brokerClient;
                             const kiteConnect = new KiteConnect(apiKey);
-                            const instrumenQuotes = await kiteConnect.getQuote(accessToken, [callInstrumentName, putInstrumentName]);
+                            const instruments = [callInstrumentName, putInstrumentName];
+                            if (callHedgeInstrumentName) {
+                                instruments.push(callHedgeInstrumentName);
+                            }
+
+                            if (putHedgeInstrumentName) {
+                                instruments.push(putHedgeInstrumentName);
+                            }
+                            const instrumenQuotes = await kiteConnect.getQuote(accessToken, instruments);
                             if (instrumenQuotes && instrumenQuotes[callInstrumentName] && instrumenQuotes[putInstrumentName]) {
                                 const callInstrumentId = instrumenQuotes[callInstrumentName].instrument_token;
                                 const putInstrumentId = instrumenQuotes[putInstrumentName].instrument_token;
+                                const callHedgeInstrumentId = (instrumenQuotes[callHedgeInstrumentName]?.instrument_token ?? '');
+                                const putHedgeInstrumentId = (instrumenQuotes[putHedgeInstrumentName]?.instrument_token ?? '');
+
                                 const filesToSink = [
                                     {
                                         id: callInstrumentId,
@@ -185,6 +227,16 @@ export default class ControlPanelModel {
                                 await entitymanager.delete(StrategyLeg, { strategyId: strategy.sid });
                                 const callResult = await entitymanager.save(callStrategyLeg);
                                 const putResult = await entitymanager.save(putStrategyLeg);
+                                if (callHedgeInstrumentId) {
+                                    const callHedgeStrategyLeg = new StrategyLeg(strategy, callHedgeInstrumentName, callHedgeInstrumentId, '', BOOLEAN.TRUE);
+                                   await entitymanager.save(callHedgeStrategyLeg);
+                                }
+
+                                if (callHedgeInstrumentId) {
+                                    const putHedgeStrategyLeg = new StrategyLeg(strategy, putHedgeInstrumentName, putHedgeInstrumentId, '', BOOLEAN.TRUE);
+                                    await entitymanager.save(putHedgeStrategyLeg);
+                                }
+
                                 if (callResult && putResult) {
                                     filesToSink.forEach(function(fileObj) {
                                         fs.readFile(fileObj.path, 'utf8', function(readError, contents) {

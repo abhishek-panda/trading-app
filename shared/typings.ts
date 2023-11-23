@@ -81,6 +81,8 @@ export interface IStrategy {
 	timeframe: string;
 	callInstrumentName: string;
     putInstrumentName: string;
+	callHedgeInstrumentName?:  string;
+	putHedgeInstrumentName?: string;
 }
 
 export interface ISubscription {
@@ -97,6 +99,8 @@ export interface ISubscriptionData extends ISubscription {
 }
 
 export enum TradingTimeFrame {
+	"1MIN" = "1",
+	"2MIN" = "2",
 	"3MIN" = "3",
 	"5MIN" = "5",
 	"15MIN" = "15",

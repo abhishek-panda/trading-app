@@ -20,7 +20,9 @@ const initialValues: IStrategy = {
 	description: "",
 	timeframe: "",
 	callInstrumentName: "",
-	putInstrumentName: ""
+	putInstrumentName: "",
+	callHedgeInstrumentName: "",
+	putHedgeInstrumentName: "",
 };
 
 const Controls = () => {
@@ -153,6 +155,29 @@ const Controls = () => {
 						error={formik.touched.putInstrumentName ? formik.errors.putInstrumentName : ""}
 					/>
 				</InputWrapper>
+
+				<InputWrapper>
+					<Input
+						label="Call Hedge Option"
+						name='callHedgeInstrumentName'
+						type='text'
+						value={formik.values.callHedgeInstrumentName} onChange={formik.handleChange} placeholder='Call Option.Get Instrument Name from Zerodha url. And NFO:<insrtumentname> for fno and NSE:<instrumentname> for postional trade'
+						error={formik.touched.callHedgeInstrumentName ? formik.errors.callHedgeInstrumentName : ""}
+					/>
+				</InputWrapper>
+				
+				<InputWrapper>
+					<Input
+						label="Put Hedge Option"
+						name='putHedgeInstrumentName'
+						type='text'
+						value={formik.values.putHedgeInstrumentName}
+						onChange={formik.handleChange}
+						placeholder='Put Option. Get Instrument Name from Zerodha url. And NFO:<insrtumentname> for fno and NSE:<instrumentname> for postional trade'
+						error={formik.touched.putHedgeInstrumentName ? formik.errors.putHedgeInstrumentName : ""}
+					/>
+				</InputWrapper>
+
 				<InputWrapper>
 					<Input
 						label="Call File"
