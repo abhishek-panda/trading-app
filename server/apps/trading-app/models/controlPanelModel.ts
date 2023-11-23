@@ -6,7 +6,7 @@ import fsPromise from 'node:fs/promises';
 import fs from 'fs';
 import {parse} from 'papaparse';
 import * as Typings from '../../../typings';
-import { BOOLEAN, IResponse, IStrategy, TradingTimeFrame } from '../../../../libs/typings';
+import { BOOLEAN, IResponse, IStrategy, STRATEGY, TradingTimeFrame } from '../../../../libs/typings';
 import { validStrategySchema } from '../../../../libs/utils';
 import Strategy from "../../../entities/Strategy";
 import BrokerClient from "../../../entities/BrokerClient";
@@ -14,6 +14,7 @@ import KiteConnect from "../../algo-trading/core/kite-connect";
 import RabbitMQEvent, { RBMQEvents } from "../../algo-trading/events/rabbit";
 import WebSocketEvent, { WSEvents } from "../../algo-trading/events/ws";
 import StrategyLeg from "../../../entities/StrategyLeg";
+import SubscriptionModel from "./subscriptionModel";
 
 
 
@@ -39,8 +40,6 @@ export default class ControlPanelModel {
                     const putInstrumentName = registrationData.putInstrumentName as string ?? '';
                     const callHedgeInstrumentName = (registrationData.callHedgeInstrumentName as string ?? '').trim();
                     const putHedgeInstrumentName = (registrationData.putHedgeInstrumentName as string ?? '').trim();
-
-                    console.log(callHedgeInstrumentName, putHedgeInstrumentName);
 
                     const parsedCallData = await this.parseUploadedFile(callfilePath, callInstrumentName);
                     const parsedPutData = await this.parseUploadedFile(putfilePath, putInstrumentName);
@@ -74,16 +73,14 @@ export default class ControlPanelModel {
                             if (putHedgeInstrumentName) {
                                 instruments.push(putHedgeInstrumentName);
                             }
-                            console.log(instruments);
+
                             const instrumenQuotes = await kiteConnect.getQuote(accessToken, instruments);
                             if (instrumenQuotes && instrumenQuotes[callInstrumentName] && instrumenQuotes[putInstrumentName]) {
                                 const callInstrumentId = instrumenQuotes[callInstrumentName].instrument_token;
                                 const putInstrumentId = instrumenQuotes[putInstrumentName].instrument_token;
 
-                                console.log(instrumenQuotes);
                                 const callHedgeInstrumentId = (instrumenQuotes[callHedgeInstrumentName]?.instrument_token ?? '');
                                 const putHedgeInstrumentId = (instrumenQuotes[putHedgeInstrumentName]?.instrument_token ?? '');
-                                console.log(callHedgeInstrumentId, putHedgeInstrumentId);
 
                                 const filesToSink = [
                                     {

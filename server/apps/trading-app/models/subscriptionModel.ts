@@ -134,7 +134,16 @@ export default class SubscriptionModel {
             .getRepository(BrokerClient)
             .createQueryBuilder("brokerclient")
             .innerJoin("brokerclient.subscription", "subscription")
-            .where("subscription.strategyId = :strategyId", { strategyId: strategyId })
+            .where("subscription.strategyId = :strategyId")
+            .andWhere("brokerclient.isEnabled = :isClientEnabled")
+            .andWhere("subscription.isActive = :isSubscriptionEnabled")
+            .andWhere("subscription.testMode = :testMode")
+            .setParameters({
+                strategyId: strategyId,
+                isClientEnabled: BOOLEAN.TRUE,
+                isSubscriptionEnabled: BOOLEAN.TRUE,
+                testMode: BOOLEAN.FALSE
+            })
             .getMany();
     }
 }
