@@ -107,14 +107,14 @@ export default abstract class BaseStrategy {
                 if (!(tradeBook.get(subscribedInstrumentSymbol))) {
                     const tradeDetail = { status: POSITION_STATUS.NONE };
                     tradeBook.set(subscribedInstrumentSymbol, tradeDetail);
-                    console.log("Setting default")
+                    tradeLogger.info(`Setting default value for ${subscribedInstrumentSymbol}: ${JSON.stringify(tradeDetail)}`);
                 }
                 
                 let subscribedInstrumentTrade = tradeBook.get(subscribedInstrumentSymbol);
                 
                 if (subscribedInstrumentTrade?.status === POSITION_STATUS.NONE) {
                     // New entry
-                    console.log("New Entry....");
+                    tradeLogger.info("New Entry....");
                     let basketOrder = [];
                     let shouldPlaceOrder = false;
 
@@ -133,7 +133,7 @@ export default abstract class BaseStrategy {
                     }
                     
                     if (shouldPlaceOrder === false) {
-                        console.log(`Can't place order, doesn't satisfy condition`);
+                        tradeLogger.info(`Can't place order, doesn't satisfy condition`);
                         return;
                     }
 
@@ -286,7 +286,7 @@ export default abstract class BaseStrategy {
                             }
                         }
                     } else {
-                        console.log(`${brokerClient.apiKey} has insufficient margin available to execute ${JSON.stringify(basketOrder)}. Required margin is ${JSON.stringify(basketMarginRequired)}`);
+                        tradeLogger.info(`${brokerClient.apiKey} has insufficient margin available to execute ${JSON.stringify(basketOrder)}. Required margin is ${JSON.stringify(basketMarginRequired)}`);
                     }
                 }
                 else if (subscribedInstrumentTrade?.status === POSITION_STATUS.HOLD) {
