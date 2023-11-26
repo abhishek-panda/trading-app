@@ -24,7 +24,7 @@ interface TradeDetail {
 interface ClientDetail {
     brokerClient: BrokerClient;
     kiteConnect: KiteConnect;
-    trades: Map<string, TradeDetail>;// instrumentName(without NFO) ,  order_id | undefined to check order status if opened cancel order 
+    tradeBook: Map<string, TradeDetail>;// instrumentName(without NFO) ,  order_id | undefined to check order status if opened cancel order 
 }
 
 
@@ -80,14 +80,14 @@ export default abstract class BaseStrategy {
             if ((profile instanceof Error)) {
                 tradeLogger.info(`${client.apiKey} is not active`);
             } else {
-                let trades = new Map();
+                let tradeBook = new Map();
                 const clientDetail: ClientDetail = {
                     brokerClient: client,
                     kiteConnect,
-                    trades,
+                    tradeBook,
                 };
                 this.clientDetails.push(clientDetail);
-                await this.clearOpenOrder(kiteConnect, client.accessToken, clientDetail.trades);
+                await this.clearOpenOrder(kiteConnect, client.accessToken, clientDetail.tradeBook);
             }
         }
     }
@@ -100,17 +100,17 @@ export default abstract class BaseStrategy {
             const {strategyLeg: {name: subscribedInstrumentName},  hedges = []} = instrumentDetails;
             const subscribedInstrumentSymbol = subscribedInstrumentName.split(":")[1];  // NIFTY23NOV19800CE
             for(let client of this.clientDetails) {
-                const {kiteConnect, brokerClient, trades} = client;
+                const {kiteConnect, brokerClient, tradeBook} = client;
                 const { accessToken } = brokerClient;
                
                 // Setting default value if not exist for instrument trade
-                if (!(trades.get(subscribedInstrumentSymbol))) {
+                if (!(tradeBook.get(subscribedInstrumentSymbol))) {
                     const tradeDetail = { status: POSITION_STATUS.NONE };
-                    trades.set(subscribedInstrumentSymbol, tradeDetail);
+                    tradeBook.set(subscribedInstrumentSymbol, tradeDetail);
                     console.log("Setting default")
                 }
                 
-                let subscribedInstrumentTrade = trades.get(subscribedInstrumentSymbol);
+                let subscribedInstrumentTrade = tradeBook.get(subscribedInstrumentSymbol);
                 
                 if (subscribedInstrumentTrade?.status === POSITION_STATUS.NONE) {
                     // New entry
@@ -144,7 +144,7 @@ export default abstract class BaseStrategy {
                                 const {strategyLeg: {name: hedgeInstrumentName}} = hedgeInstrumentDetails;
                                 const hedgeInstrumentSymbol = hedgeInstrumentName.split(":")[1];
                                 // NIFTY23NOV20200CE
-                                const hedgeTrade = trades.get(hedgeInstrumentSymbol);
+                                const hedgeTrade = tradeBook.get(hedgeInstrumentSymbol);
                                 if (!(hedgeTrade?.completedOrder)) {
                                     const hedgeOrder: Typings.BasketOrderItem = {
                                         exchange: Typings.Exchange.NFO,
@@ -200,7 +200,7 @@ export default abstract class BaseStrategy {
                         */
                         for (const [index, order] of basketOrder.entries()) {
                             // First check if there are any existing order either pending of fullfiled
-                            await this.clearOpenOrder(kiteConnect, accessToken, trades);
+                            await this.clearOpenOrder(kiteConnect, accessToken, tradeBook);
                             const newOrderId = await kiteConnect.placeOrder(accessToken, "regular", order);
 
                             if (!(newOrderId instanceof Error)) {
@@ -208,9 +208,9 @@ export default abstract class BaseStrategy {
                                     pendingOrder: newOrderId,
                                     status: POSITION_STATUS.NONE
                                 };
-                                let tradeDetail = trades.get(order.tradingsymbol);
+                                let tradeDetail = tradeBook.get(order.tradingsymbol);
                                 tradeDetail = tradeDetail ? { ...tradeDetail, ...tradeObj} : tradeObj;
-                                trades.set(order.tradingsymbol, tradeDetail);
+                                tradeBook.set(order.tradingsymbol, tradeDetail);
                                 tradeLogger.info(`New Order ${JSON.stringify(tradeDetail)}`);
                                 
                                 await (new Promise((resolve) => {
@@ -227,7 +227,7 @@ export default abstract class BaseStrategy {
                                                             completedOrder: undefined,
                                                             status: POSITION_STATUS.NONE
                                                         };
-                                                        trades.set(order.tradingsymbol, tempTradeDetail);
+                                                        tradeBook.set(order.tradingsymbol, tempTradeDetail);
                                                         tradeLogger.info(`${brokerClient.apiKey} failed to executed ${order.tradingsymbol}`);
                                                     }
 
@@ -239,7 +239,7 @@ export default abstract class BaseStrategy {
                                                             status: POSITION_STATUS.HOLD,
                                                             anchorPrice: executedPrice
                                                         };
-                                                        trades.set(order.tradingsymbol, tempTradeDetail);
+                                                        tradeBook.set(order.tradingsymbol, tempTradeDetail);
                                                         tradeLogger.info(`${brokerClient.apiKey} executed ${order.tradingsymbol} at ${executedPrice}`);
                                                     }
                                                     clearInterval(interval);
@@ -257,7 +257,7 @@ export default abstract class BaseStrategy {
                                  * Place stoploss order for everything execept hedge trade.
                                  */
                                 if (!(this.strategyType === STRATEGY.OPTION_SELLER && index === 0)) {
-                                    const lastTradeDetail = trades.get(order.tradingsymbol); //19800CE
+                                    const lastTradeDetail = tradeBook.get(order.tradingsymbol); //19800CE
                                     if (lastTradeDetail?.status === POSITION_STATUS.HOLD && (lastTradeDetail.anchorPrice ?? 0) > 0) {
                                         const stopLossPrice = this.getStopLossTriggerPrice(lastTradeDetail.anchorPrice ?? 0);
                                         const stopLossOrder: Typings.BasketOrderItem = {
@@ -272,13 +272,13 @@ export default abstract class BaseStrategy {
                                             trigger_price: stopLossPrice,
                                         };
 
-                                        await this.clearOpenOrder(kiteConnect, accessToken, trades);
+                                        await this.clearOpenOrder(kiteConnect, accessToken, tradeBook);
                                         const stopLossOrderId = await kiteConnect.placeOrder(accessToken, "regular", stopLossOrder);
                                         if (!(stopLossOrderId instanceof Error)) {
                                             tradeLogger.info(`${brokerClient.apiKey} placed stoploss order for ${order.tradingsymbol} at ${stopLossPrice}`);
-                                            const tradeCache = trades.get(order.tradingsymbol);
+                                            const tradeCache = tradeBook.get(order.tradingsymbol);
                                             const tempTradeDetail = { ...tradeCache, pendingOrder: stopLossOrderId , completedOrder: tradeCache?.completedOrder};
-                                            trades.set(order.tradingsymbol, tempTradeDetail);
+                                            tradeBook.set(order.tradingsymbol, tempTradeDetail);
                                             tradeLogger.info(`Current trade Detail: ${JSON.stringify(tempTradeDetail)}`);
                                         }
                                     }
@@ -316,7 +316,7 @@ export default abstract class BaseStrategy {
                                     completedOrder: undefined,
                                     anchorPrice: undefined,
                                 };
-                                trades.set(subscribedInstrumentSymbol, tempTradeDetail);
+                                tradeBook.set(subscribedInstrumentSymbol, tempTradeDetail);
                                 tradeLogger.info(`Exit Order ${JSON.stringify(tempTradeDetail)}`);
                             }
                         }
@@ -340,13 +340,13 @@ export default abstract class BaseStrategy {
                                                 status: POSITION_STATUS.NONE,
                                                 anchorPrice:  average_price, // Added this price for re-entry if price goes above
                                             };
-                                            trades.set(subscribedInstrumentSymbol, tempTradeDetail);
+                                            tradeBook.set(subscribedInstrumentSymbol, tempTradeDetail);
                                         } else {
                                             const tempTradeDetail = {
                                                 ...subscribedInstrumentTrade,
                                                 pendingOrder: undefined,
                                             };
-                                            trades.set(subscribedInstrumentSymbol, tempTradeDetail);
+                                            tradeBook.set(subscribedInstrumentSymbol, tempTradeDetail);
                                             tradeLogger.info(`PendingOrderId ${pendingOrderId} has been cancelled/rejected so waiting for exit signal`);
                                             // TODO: Or can place a new stoploss order
                                         }
@@ -360,13 +360,13 @@ export default abstract class BaseStrategy {
                                                 trigger_price: stopLossPrice
                                             });
                                             if (!(isOrderUpdated instanceof Error) && isOrderUpdated) {
-                                                const tempTradeDetail = trades.get(subscribedInstrumentSymbol);
+                                                const tempTradeDetail = tradeBook.get(subscribedInstrumentSymbol);
                                                 const tradeObj = {
                                                     ...tempTradeDetail,
                                                     anchorPrice: price,
                                                     status: POSITION_STATUS.HOLD,
                                                 };
-                                                trades.set(subscribedInstrumentSymbol, tradeObj);
+                                                tradeBook.set(subscribedInstrumentSymbol, tradeObj);
                                             }
                                         } else {
                                             // Log cannot update order as price is less than anchor price.
