@@ -1,12 +1,18 @@
-import { InstrumentTA } from '../../../libs/typings';
-import OptionBuyerStrategy from './stategies/optionBuyerStrategy';
+import { InstrumentTA, STRATEGY } from '../../../libs/typings';
+import DirectionalStrategy from './stategies/directionalStrategy';
 
-let optionBuyerStrategy: OptionBuyerStrategy;
+let optionBuyerStrategy: DirectionalStrategy;
+let optionSellerStrategy: DirectionalStrategy;
 
 export default function priceWatcher(subscribedTick: InstrumentTA) {
     if (!optionBuyerStrategy) {
-        optionBuyerStrategy = new OptionBuyerStrategy();
+        optionBuyerStrategy = new DirectionalStrategy(STRATEGY.OPTION_BUYER);
     }
     optionBuyerStrategy.watchAndExecute(subscribedTick);
+
+    if (!optionSellerStrategy) {
+        optionSellerStrategy = new DirectionalStrategy(STRATEGY.OPTION_SELLER);
+    }
+    optionSellerStrategy.watchAndExecute(subscribedTick);
 }
 

@@ -14,7 +14,6 @@ import KiteConnect from "../../algo-trading/core/kite-connect";
 import RabbitMQEvent, { RBMQEvents } from "../../algo-trading/events/rabbit";
 import WebSocketEvent, { WSEvents } from "../../algo-trading/events/ws";
 import StrategyLeg from "../../../entities/StrategyLeg";
-import SubscriptionModel from "./subscriptionModel";
 
 
 

@@ -4,10 +4,10 @@
 // import BaseStrategy, { POSITION_STATUS } from './strategy'; //TODO: Rename the file to basestrategy
 
 // // Currently this is a intraday strategy
-// export default class OptionBuyerStrategy extends BaseStrategy {
+// export default class OptionSellerStrategy extends BaseStrategy {
 
 //     constructor() {
-//         super(STRATEGY.OPTION_BUYER);
+//         super(STRATEGY.OPTION_SELLER);
 //         this.init();
 //     }
 
@@ -16,38 +16,37 @@
 //         const { instrument, candles } = instrumentData;
 //         const instrumentDetails = this.subscribedInstruments.get(instrument);
 //         if (instrumentDetails && candles.length > 0) {
-//             const {status, strategyLeg: {name: instrumentName}} = instrumentDetails;
+//             const {status, strategyLeg: {name: instrumentName} } = instrumentDetails;
 //             const { close, ema5, ema9, ema20, timestamp } = candles[0];
 //             const isBetweenTradingHours = this.isBetweenTradingHours(timestamp);
 //             if (isBetweenTradingHours) {
 
-//                 // Upside Move
-//                 if (ema5 > ema20 && ema9 > ema20) {
+//                 // Downside move
+//                 if (ema5 < ema9 && ema9 < ema20) {
                         
-//                     // Buy CE or PE if nothing is bought yet  
+//                     // Sell CE or PE if nothing is bought yet  
 //                     if(status === POSITION_STATUS.NONE) {
-//                         tradeLogger.info(`Signal: Buy ${instrumentName} at ${close}`);
-//                         await this.placeOrder(instrument, Typings.TransactionType.BUY, close, "enter");
+//                         tradeLogger.info(`Signal: Sell ${instrumentName} at ${close}`);
+//                         await this.placeOrder(instrument, Typings.TransactionType.SELL, close, "enter");
 //                     }
                     
 //                 }
 
 //                 if (status === POSITION_STATUS.HOLD) {
 //                     tradeLogger.info(`Signal: Update order ${instrumentName} at ${close}`);
-//                     await this.placeOrder(instrument, Typings.TransactionType.SELL, close, "update");
+//                     await this.placeOrder(instrument, Typings.TransactionType.BUY, close, "update");
 //                 }
                 
-//                 // // Downside move
-//                 if (ema5 < ema9 && ema9 < ema20) {
-                    
+                
+//                 // Upside Move
+//                 if (ema5 > ema20 && ema9 > ema20) {
 //                     // Exit if holding any CE or PE postion
 //                     if (status === POSITION_STATUS.HOLD) {
-//                         tradeLogger.info(`Signal: Exit buy ${instrumentName} at ${close}`);
-//                         await this.placeOrder(instrument,  Typings.TransactionType.SELL, close, "exit");
+//                         tradeLogger.info(`Signal: Exit sell ${instrumentName} at ${close}`);
+//                         await this.placeOrder(instrument,  Typings.TransactionType.BUY, close, "exit");
 //                     }
 
-
-//                      // Reset or clear anchor price for re-entry
+//                     // Reset or clear anchor price for re-entry
 //                     if(status === POSITION_STATUS.NONE) {
 //                         tradeLogger.info(`Signal: Resetting ${instrumentName} for re-entry`);
 //                         this.resetInstrumentStoplossPrice(instrument);
