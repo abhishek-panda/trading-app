@@ -113,6 +113,16 @@ export default abstract class BaseStrategy {
                 let subscribedInstrumentTrade = tradeBook.get(subscribedInstrumentSymbol);
                 
                 if (subscribedInstrumentTrade?.status === POSITION_STATUS.NONE) {
+                    
+                    if (
+                        // No meaning of buy(exit) as a option seller if not holding any position 
+                        (this.strategyType === STRATEGY.OPTION_SELLER && transaction_type === Typings.TransactionType.BUY) ||
+                        //  No meaning of sell(exit) as a option buyer if not holding any position 
+                        (this.strategyType === STRATEGY.OPTION_BUYER && transaction_type === Typings.TransactionType.SELL)
+                    ) {
+                        continue;
+                    }
+                    
                     // New entry
                     tradeLogger.info("New Entry....");
                     let basketOrder = [];
@@ -134,7 +144,7 @@ export default abstract class BaseStrategy {
                     
                     if (shouldPlaceOrder === false) {
                         tradeLogger.info(`Can't place order, doesn't satisfy condition`);
-                        return;
+                        continue;
                     }
 
                     if (this.strategyType === STRATEGY.OPTION_SELLER) {
