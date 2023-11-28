@@ -268,8 +268,8 @@ export default abstract class BaseStrategy {
                                             product: Typings.ProductType.MIS,
                                             order_type: Typings.OderType.SL,
                                             quantity: lotSize * quantity,
-                                            price: stopLossPrice - 1,
                                             trigger_price: stopLossPrice,
+                                            price: this.strategyType === STRATEGY.OPTION_SELLER ? stopLossPrice + 1 : stopLossPrice - 1,
                                         };
 
                                         await this.clearOpenOrder(kiteConnect, accessToken, tradeBook);
@@ -356,8 +356,8 @@ export default abstract class BaseStrategy {
                                             const stopLossPrice = this.getStopLossTriggerPrice(price);
                                             tradeLogger.info(`Updating stoploss order`);
                                             const isOrderUpdated = await kiteConnect.updateOrder(accessToken, "regular", pendingOrderId, { 
-                                                price: stopLossPrice - 1,
-                                                trigger_price: stopLossPrice
+                                                trigger_price: stopLossPrice,
+                                                price: this.strategyType === STRATEGY.OPTION_SELLER ? stopLossPrice + 1 : stopLossPrice - 1,
                                             });
                                             if (!(isOrderUpdated instanceof Error) && isOrderUpdated) {
                                                 const tempTradeDetail = tradeBook.get(subscribedInstrumentSymbol);
