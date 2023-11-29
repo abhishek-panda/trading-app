@@ -361,7 +361,8 @@ export default abstract class BaseStrategy {
                                             // TODO: Or can place a new stoploss order
                                         }
                                     } else {
-                                        if (price > (subscribedInstrumentTrade.anchorPrice ?? 0)) {
+                                        const hasPriceCrossedThreshold = this.strategyType === STRATEGY.OPTION_BUYER ? (price > (subscribedInstrumentTrade.anchorPrice ?? 0)) : (price < (subscribedInstrumentTrade.anchorPrice ?? 0));
+                                        if (hasPriceCrossedThreshold) {
                                             // Place update order
                                             const stopLossPrice = this.getStopLossTriggerPrice(price);
                                             tradeLogger.info(`Updating stoploss order`);
