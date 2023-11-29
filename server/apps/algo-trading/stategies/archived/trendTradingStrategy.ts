@@ -1,10 +1,10 @@
-import BaseStrategy from "./baseStrategy"
-import * as Typings from '../../../typings';
-import * as Utils from '../../../utils';
-import * as GlobalUtils from "../../../utils";
-import logger from "../logger";
+import BaseStrategy from "./baseStrategy-old"
+import * as Typings from '../../../../typings';
+import * as Utils from '../../../../utils';
+import * as GlobalUtils from "../../../../utils";
+import logger from "../../logger";
 import { v4 as uuidv4 } from 'uuid';
-import { TRADE_STATUS } from "../../../../libs/typings";
+import { TRADE_STATUS } from "../../../../../libs/typings";
 
 export default class TrendTradingStrategy extends BaseStrategy {
 

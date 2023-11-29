@@ -1,7 +1,5 @@
 import KiteWSTicker, {WSTicker} from "../core/ws-ticker";
 import { cache } from '../../../utils';
-import TransactionController from "../controllers/transactionController";
-import { ORDER_STATUS } from "../../../../libs/typings";
 import WebSocketEvent, { WSEvents } from "../events/ws";
 import logger from "../logger";
 

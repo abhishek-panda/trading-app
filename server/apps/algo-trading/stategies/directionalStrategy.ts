@@ -1,7 +1,7 @@
 import { InstrumentTA, STRATEGY } from '../../../../libs/typings';
 import * as Typings from '../../../typings';
 import { tradeLogger } from '../logger';
-import BaseStrategy from './strategy';
+import BaseStrategy from './baseStrategy';
 
 
 interface TrendDetail{
