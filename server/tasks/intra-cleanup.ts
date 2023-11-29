@@ -1,7 +1,7 @@
 import * as Schedule from 'node-schedule';
 import { AppSchedulerTask } from "../scheduler";
 import logger from '../apps/algo-trading/logger';
-import TradeEvent from "../apps/algo-trading/events/trade";
+// import TradeEvent from "../apps/algo-trading/events/trade";
 import { TradingTimeFrame } from '../../libs/typings'
 
 /**
@@ -30,7 +30,7 @@ function intradayTradeCleanUpTaskCallback() {
     }
     const stringifiedSignal = JSON.stringify(signals);
     logger.info(`Force exit signal recieved. ${stringifiedSignal}`);
-    TradeEvent.emit('tradeExecutor', stringifiedSignal);
+    // TradeEvent.emit('tradeExecutor', stringifiedSignal);
 }
 
 
