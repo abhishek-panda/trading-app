@@ -28,6 +28,10 @@ interface ClientDetail {
 }
 
 
+interface BasketOrderItem extends Typings.BasketOrderItem {
+    isHedge?: boolean;
+}
+
 export default abstract class BaseStrategy {
     private tradeStartTime: number;
     private tradeCloseTime: number;
@@ -156,7 +160,7 @@ export default abstract class BaseStrategy {
                                 // NIFTY23NOV20200CE
                                 const hedgeTrade = tradeBook.get(hedgeInstrumentSymbol);
                                 if (!(hedgeTrade?.completedOrder)) {
-                                    const hedgeOrder: Typings.BasketOrderItem = {
+                                    const hedgeOrder: BasketOrderItem = {
                                         exchange: Typings.Exchange.NFO,
                                         tradingsymbol: hedgeInstrumentSymbol,
                                         transaction_type: Typings.TransactionType.BUY,
@@ -166,6 +170,7 @@ export default abstract class BaseStrategy {
                                         quantity: lotSize * quantity,
                                         price: 0,
                                         trigger_price: 0,
+                                        isHedge: true,
                                     };
                                     basketOrder.push(hedgeOrder);
                                 }
@@ -173,7 +178,7 @@ export default abstract class BaseStrategy {
                         });
                     }
 
-                    const tradeOrder: Typings.BasketOrderItem = {
+                    const tradeOrder: BasketOrderItem = {
                         exchange: Typings.Exchange.NFO,
                         tradingsymbol: subscribedInstrumentSymbol,
                         transaction_type: transaction_type,
@@ -262,11 +267,7 @@ export default abstract class BaseStrategy {
                                 }));
 
                                 // Place a stop loss order
-                                /**
-                                 * Assuming the first order is hedge order for option seller
-                                 * Place stoploss order for everything execept hedge trade.
-                                 */
-                                if (!(this.strategyType === STRATEGY.OPTION_SELLER && index === 0)) {
+                                if (!(order.isHedge)) {
                                     const lastTradeDetail = tradeBook.get(order.tradingsymbol); //19800CE
                                     if (lastTradeDetail?.status === POSITION_STATUS.HOLD && (lastTradeDetail.anchorPrice ?? 0) > 0) {
                                         const stopLossPrice = this.getStopLossTriggerPrice(lastTradeDetail.anchorPrice ?? 0);
